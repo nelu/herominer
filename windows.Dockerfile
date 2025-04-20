@@ -8,18 +8,19 @@ COPY . .
 # RUN ["cmd", "/C", "dir", "C:\\git\\usr\\bin\\"]
 
 # Switch to BusyBox sh shell
-SHELL ["C:\\build\\sources\\busybox.exe", "sh", "-c"]
+SHELL ["C:\\busybox.exe", "sh", "-c"]
 
 RUN ls -la ./
 RUN which python.exe
 
-RUN "python.exe -m pip install --upgrade pip; \
-     python.exe -m pip install -r app\\requirements.txt; \
-     python.exe -m pip install C:\\build\\sources\\Nuitka-2.6.5.tar.gz; \
-     python.exe -m pip install C:\\build\\sources\\undetected-chromedriver-3.5.5-fix-looseversion.tar.gz"
+RUN python.exe -m pip install --upgrade pip && \
+    python.exe -m pip install -r app/requirements.txt && \
+    python.exe -m pip install sources/Nuitka-2.6.5.tar.gz && \
+    python.exe -m pip install sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz
 
 RUN chmod +x ./build.nuitka.sh && ./build.nuitka.sh
 
+CMD ["/busybox.exe", "sh"]
 # Optional: return shell to cmd or powershell
 #SHELL ["powershell", "-Command"]
 
