@@ -10,6 +10,12 @@ RUN ["cmd", "/C", "dir", "c:\\build\\"]
 RUN ["cmd", "/C", "dir", "c:\\Python312\\"]
 RUN ["cmd", "/C", "dir", "c:\\git\\"]
 
+
+SHELL ["C:\\git\\usr\\bin\\bash.exe", "-c"]
+
+RUN ls -la ./
+RUN which python
+
 RUN "python.exe -m pip install --upgrade pip; \
      python.exe -m pip install -r app\\requirements.txt; \
      python.exe -m pip install C:\\build\\sources\\Nuitka-2.6.5.tar.gz; \
