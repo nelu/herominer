@@ -1,6 +1,6 @@
 # Dockerfile.windows
 FROM herominer:builder-base
-org.opencontainers.image.source = "https://github.com/nelu/herominer"
+LABEL org.opencontainers.image.source = "https://github.com/nelu/herominer"
 WORKDIR /build
 COPY . .
 
