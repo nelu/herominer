@@ -12,13 +12,10 @@ RUN "Invoke-WebRequest -Uri 'https://github.com/git-for-windows/git/releases/dow
 # -----------------------------
 # Install Chocolatey & Tools
 # -----------------------------
-RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
-     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
+#RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
+#     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 
-RUN "choco install python --version=3.12.2 -y; \
-     choco install visualstudio2022buildtools --params '--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64' -y; \
-     choco install 7zip.install -y; \
-     choco install openssl.light -y"
+RUN "choco install python --version=3.12.2 -y;"
 
 # -----------------------------
 # Set Environment Variables
@@ -44,6 +41,7 @@ ENV CERT_PASS=$CERT_PASS
 # -----------------------------
 WORKDIR /build
 COPY . .
+RUN "C:\\git\\bin\\bash.exe" -c "ls ./ && ls build && ls /c/build/sources"
 
 # -----------------------------
 # Install Python Dependencies
