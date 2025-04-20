@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #!/usr/bin/env bash
 set -e
 set -x  # Echo every command as it's executed
@@ -79,7 +79,7 @@ build_sfx_installer() {
   echo "   - Internal EXE: $(basename "$PAYLOAD_EXE")"
 }
 
-python -m nuitka --standalone \
+python.exe -m nuitka --standalone \
   --include-data-files=./config/cli.env=.env \
   --noinclude-pytest-mode=nofollow \
   --nofollow-import-to=selenium,seleniumwire,app.game,app.driver,app.tasks,app.management,app.tests,app.web,app.daemon \
@@ -98,7 +98,7 @@ python -m nuitka --standalone \
   && \
  build_sfx_installer "./release/input.dist"
 
-python -m nuitka --standalone \
+python.exe -m nuitka --standalone \
   --onefile \
   --include-data-files=./config/app.env=.env \
   --include-data-dir=./app/config=config \

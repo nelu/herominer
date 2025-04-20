@@ -10,12 +10,12 @@ COPY . .
 # Now set Git Bash as the shell
 SHELL ["C:\\git\\usr\\bin\\bash.exe", "-c"]
 
-RUN ( python.exe -m pip install --upgrade pip && \
+RUN cd /c/build && ls -la ./ && python.exe -m pip install --upgrade pip && \
     python.exe -m pip install -r ./app/requirements.txt && \
     python.exe -m pip install ./sources/Nuitka-2.6.5.tar.gz && \
     python.exe -m pip install ./sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz \
-    && cd ./build && chmod 775 ./build.nuitka.sh \
-    && ./build.nuitka.sh ) | tee /dev/stderr
+    && chmod 775 ./build.nuitka.sh \
+    && ./build.nuitka.sh
 
 CMD ["bash.exe"]
 
