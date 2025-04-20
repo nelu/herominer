@@ -8,7 +8,7 @@ SHELL ["powershell", "-Command"]
 RUN ["cmd", "/C", "dir", "c:\\"]
 RUN ["cmd", "/C", "dir", "c:\\build\\"]
 RUN ["cmd", "/C", "dir", "c:\\Python312\\"]
-RUN ["cmd", "/C", "dir", "c:\\git\\"]
+RUN ["cmd", "/C", "dir", "C:\\git\\usr\\bin\\"]
 
 
 SHELL ["C:\\git\\usr\\bin\\bash.exe", "-c"]
