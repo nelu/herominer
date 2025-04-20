@@ -1,6 +1,6 @@
 # Dockerfile.base
 FROM mcr.microsoft.com/windows/servercore:ltsc2022
-LABEL org.opencontainers.image.source = "https://github.com/nelu/herominer"
+LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 
 SHELL ["powershell", "-Command"]
 
