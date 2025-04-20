@@ -4,19 +4,20 @@ FROM herominer:builder-base
 WORKDIR /build
 COPY . .
 
-# Set the shell to Git Bash for all following RUN commands
+SHELL ["powershell", "-Command"]
+
+RUN python -m pip install --upgrade pip; `
+    python -m pip install -r C:\build\app\requirements.txt; `
+    python -m pip install C:\build\sources\Nuitka-2.6.5.tar.gz; `
+    python -m pip install C:\build\sources\undetected-chromedriver-3.5.5-fix-looseversion.tar.gz
+
+
+# Switch to Git Bash to run the build script
 SHELL ["C:\\git\\bin\\bash.exe", "-c"]
-
-# Install Python dependencies using Bash
-RUN ls -la ./ && pwd && python.exe -m pip install --upgrade pip && \
-    python.exe -m pip install -r ./app/requirements.txt && \
-    python.exe -m pip install ./sources/Nuitka-2.6.5.tar.gz && \
-    python.exe -m pip install ./sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz
-
-# Run your Nuitka build script (already marked executable)
-RUN ./build.nuitka.sh
+RUN chmod +x ./build.nuitka.sh && ./build.nuitka.sh
 
 # Optional: return shell to cmd or powershell
-# SHELL ["powershell", "-Command"]
+#SHELL ["powershell", "-Command"]
 
-CMD ["C:\\git\\bin\\bash.exe"]
+
+
