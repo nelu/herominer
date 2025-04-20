@@ -8,10 +8,10 @@ COPY . .
 SHELL ["C:\\git\\bin\\bash.exe", "-c"]
 
 # Install Python dependencies using Bash
-RUN /c/Python312/python.exe -m pip install --upgrade pip && \
-    /c/Python312/python.exe -m pip install -r /build/app/requirements.txt && \
-    /c/Python312/python.exe -m pip install /build/sources/Nuitka-2.6.5.tar.gz && \
-    /c/Python312/python.exe -m pip install /build/sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz
+RUN ls -la ./ && pwd && python.exe -m pip install --upgrade pip && \
+    python.exe -m pip install -r ./app/requirements.txt && \
+    python.exe -m pip install ./sources/Nuitka-2.6.5.tar.gz && \
+    python.exe -m pip install ./sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz
 
 # Run your Nuitka build script (already marked executable)
 RUN ./build.nuitka.sh
