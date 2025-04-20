@@ -5,9 +5,9 @@ WORKDIR /build
 COPY . .
 
 SHELL ["powershell", "-Command"]
-RUN "dir C:\\"
+RUN dir C:\
 
-RUN "dir .\\"
+RUN dir .
 
 RUN "python -m pip install --upgrade pip; \
      python -m pip install -r C:\build\app\requirements.txt; \
