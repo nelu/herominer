@@ -1,11 +1,12 @@
 # Dockerfile.windows
-FROM herominer:builder-base
+FROM ghcr.io/nelu/herominer:builder-base
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 WORKDIR /build
 COPY . .
 
 SHELL ["powershell", "-Command"]
-
+RUN dir c:\
+RUN dir .\
 RUN python -m pip install --upgrade pip; `
     python -m pip install -r C:\build\app\requirements.txt; `
     python -m pip install C:\build\sources\Nuitka-2.6.5.tar.gz; `
