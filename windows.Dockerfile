@@ -7,8 +7,8 @@ COPY . .
 
 # RUN ["cmd", "/C", "dir", "C:\\git\\usr\\bin\\"]
 
-# Switch to BusyBox sh shell
-SHELL ["C:\\busybox.exe", "sh", "-c"]
+# Now set Git Bash as the shell
+SHELL ["C:\\git\\usr\\bin\\bash.exe", "-c"]
 
 RUN ls -la ./
 RUN which python.exe
@@ -20,7 +20,7 @@ RUN python.exe -m pip install --upgrade pip && \
 
 RUN chmod +x ./build.nuitka.sh && ./build.nuitka.sh
 
-CMD ["/busybox.exe", "sh"]
+CMD ["bash.exe"]
 # Optional: return shell to cmd or powershell
 #SHELL ["powershell", "-Command"]
 
