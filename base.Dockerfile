@@ -4,10 +4,9 @@ LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 
 SHELL ["powershell", "-Command"]
 
-# Install Git Bash
-RUN "Invoke-WebRequest -Uri 'https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/MinGit-2.42.0-busybox-64-bit.zip' -OutFile 'git.zip'; \
-     Expand-Archive -Path 'git.zip' -DestinationPath 'C:\\git'; \
-     Remove-Item 'git.zip'"
+# Install some sh
+RUN Invoke-WebRequest -Uri "https://frippery.org/files/busybox/busybox.exe" -OutFile "C:\\busybox.exe"
+
 
 # Install Chocolatey and all packages in a single session
 RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \

@@ -4,25 +4,20 @@ LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 WORKDIR /build
 COPY . .
 
-SHELL ["powershell", "-Command"]
-RUN ["cmd", "/C", "dir", "c:\\"]
-RUN ["cmd", "/C", "dir", "c:\\build\\"]
-RUN ["cmd", "/C", "dir", "c:\\Python312\\"]
-RUN ["cmd", "/C", "dir", "C:\\git\\usr\\bin\\"]
 
+# RUN ["cmd", "/C", "dir", "C:\\git\\usr\\bin\\"]
 
-SHELL ["C:\\git\\usr\\bin\\bash.exe", "-c"]
+# Switch to BusyBox sh shell
+SHELL ["C:\\busybox.exe", "sh", "-c"]
 
 RUN ls -la ./
-RUN which python
+RUN which python.exe
 
 RUN "python.exe -m pip install --upgrade pip; \
      python.exe -m pip install -r app\\requirements.txt; \
      python.exe -m pip install C:\\build\\sources\\Nuitka-2.6.5.tar.gz; \
      python.exe -m pip install C:\\build\\sources\\undetected-chromedriver-3.5.5-fix-looseversion.tar.gz"
 
-# Switch to Git Bash to run the build script
-SHELL ["C:\\git\\bin\\bash.exe", "-c"]
 RUN chmod +x ./build.nuitka.sh && ./build.nuitka.sh
 
 # Optional: return shell to cmd or powershell

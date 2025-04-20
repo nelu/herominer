@@ -44,12 +44,12 @@ jobs:
       - name: Build & Push base image if needed
         if: env.build_base == 'true'
         run: |
-          docker build -f Dockerfile.base -t herominer:builder-base -t $env:BASE_IMAGE .
+          docker build -f base.Dockerfile -t herominer:builder-base -t $env:BASE_IMAGE .
           docker push $env:BASE_IMAGE
 
       - name: Build Nuitka Docker image
         run: |
-          docker build -f Dockerfile.windows -t nuitka-builder `
+          docker build -f windows.Dockerfile -t nuitka-builder `
             --build-arg APP_VERSION=${{ env.clean_version }} `
             --build-arg CERT_PASS=${{ secrets.CERT_PASS }} .
 
