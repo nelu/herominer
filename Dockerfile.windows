@@ -1,5 +1,5 @@
 # Dockerfile.windows
-FROM nuitka-builder-base
+FROM herominer:builder-base
 
 WORKDIR /build
 COPY . .

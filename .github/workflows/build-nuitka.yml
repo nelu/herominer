@@ -5,7 +5,7 @@ on:
     types: [published]
 
 env:
-  BASE_IMAGE: ghcr.io/${{ github.repository_owner }}/nuitka-builder-base:windows
+  BASE_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:builder-base
 
 jobs:
   build-and-package:
@@ -44,7 +44,7 @@ jobs:
       - name: Build & Push base image if needed
         if: env.build_base == 'true'
         run: |
-          docker build -f Dockerfile.base -t nuitka-builder-base -t $env:BASE_IMAGE .
+          docker build -f Dockerfile.base -t herominer:builder-base -t $env:BASE_IMAGE .
           docker push $env:BASE_IMAGE
 
       - name: Build Nuitka Docker image
