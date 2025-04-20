@@ -20,8 +20,8 @@ RELEASE_DIR=./"release"
 SEVEN_ZIP="/c/Program Files/7-Zip/7z.exe"
 # Path to SFX module
 #SFX_MODULE=./"config/7zS.sfx"
-SFX_MODULE=./"sources/sfxbuild/3rdParty/Modules/7zsd_All_x64.sfx"
-CERT_PASS="MyStrongPassword"
+SFX_MODULE=./"sources/7zsd_All_x64.sfx"
+CERT_PASS="${CERT_PASS:-MyStrongPassword}"
 
 # Read path from file
 INPUT_CLI_PATH=$(dirname "$(cat ./app/config/cli.path)")
@@ -74,52 +74,48 @@ build_sfx_installer() {
   echo "   - Internal EXE: $(basename "$PAYLOAD_EXE")"
 }
 
-#python -m nuitka --standalone \
-#  --include-data-files=./config/cli.env=.env \
-#  --noinclude-pytest-mode=nofollow \
-#  --nofollow-import-to=selenium,seleniumwire,app.game,app.driver,app.tasks,app.management,app.tests,app.web,app.daemon \
-#  --onefile-tempdir-spec="$INPUT_CLI_PATH" \
-#  --company-name="AutoWeb LTD" \
-#  --file-version="1.0" \
-#  --product-version="1.0" \
-#  --file-description="HeroMiner Input Cli" \
-#  --copyright="All rights reserved © TheNet" \
-#  --trademarks="AutoWeb TheNet" \
-#  --windows-console-mode=attach \
-#  --windows-icon-from-ico=./docs/herominer-icon.ico \
-#  --output-dir="$RELEASE_DIR" \
-#  --include-package=app \
-#  ./app/input.py \
-#  && \
-# build_sfx_installer "./release/input.dist"
+python -m nuitka --standalone \
+  --include-data-files=./config/cli.env=.env \
+  --noinclude-pytest-mode=nofollow \
+  --nofollow-import-to=selenium,seleniumwire,app.game,app.driver,app.tasks,app.management,app.tests,app.web,app.daemon \
+  --onefile-tempdir-spec="$INPUT_CLI_PATH" \
+  --company-name="AutoWeb LTD" \
+  --file-version="1.0" \
+  --product-version="1.0" \
+  --file-description="HeroMiner Input Cli" \
+  --copyright="All rights reserved © TheNet" \
+  --trademarks="AutoWeb TheNet" \
+  --windows-console-mode=attach \
+  --windows-icon-from-ico=./docs/herominer-icon.ico \
+  --output-dir="$RELEASE_DIR" \
+  --include-package=app \
+  ./app/input.py \
+  && \
+ build_sfx_installer "./release/input.dist"
 
-#
-#
-#python -m nuitka --standalone \
-#  --onefile \
-#  --include-data-files=./config/app.env=.env \
-#  --include-data-dir=./app/config=config \
-#  --noinclude-pytest-mode=nofollow \
-#  --nofollow-import-to=app.tests \
-#  --include-data-files=./config/ca.crt=config/ca.crt \
-#  --include-data-files=./config/ca.key=config/ca.key \
-#  --company-name="AutoWeb LTD" \
-#  --file-version="1.0" \
-#  --product-version="1.0" \
-#  --file-description="HeroMiner bundle launcher" \
-#  --copyright="All rights reserved © TheNet" \
-#  --trademarks="AutoWeb TheNet" \
-#  --windows-console-mode=attach \
-#  --windows-icon-from-ico=./docs/herominer-icon.ico \
-#  --output-dir="$RELEASE_DIR" \
-#  --include-package=app \
-#  --onefile-tempdir-spec="c:\hm\app" \
-#  ./app/cli.py \
-#&& \
-##build_sfx_installer "./release/cli.dist" && \
-#cp -rfp ./scripts/run*.cmd "${RELEASE_DIR}/" #&& \
-
-
+python -m nuitka --standalone \
+  --onefile \
+  --include-data-files=./config/app.env=.env \
+  --include-data-dir=./app/config=config \
+  --noinclude-pytest-mode=nofollow \
+  --nofollow-import-to=app.tests \
+  --include-data-files=./config/ca.crt=config/ca.crt \
+  --include-data-files=./config/ca.key=config/ca.key \
+  --company-name="AutoWeb LTD" \
+  --file-version="1.0" \
+  --product-version="1.0" \
+  --file-description="HeroMiner bundle launcher" \
+  --copyright="All rights reserved © TheNet" \
+  --trademarks="AutoWeb TheNet" \
+  --windows-console-mode=attach \
+  --windows-icon-from-ico=./docs/herominer-icon.ico \
+  --output-dir="$RELEASE_DIR" \
+  --include-package=app \
+  --onefile-tempdir-spec="c:\hm\app" \
+  ./app/cli.py \
+&& \
+#build_sfx_installer "./release/cli.dist" && \
+cp -rfp ./scripts/run*.cmd "${RELEASE_DIR}/" && \
  ./scripts/selfsign.ps1 -exeToSign "./release/cli.exe" \
     -certPfxPath ./config/myapp.pfx \
     -pfxPassword "$CERT_PASS"
