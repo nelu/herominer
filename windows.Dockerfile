@@ -15,9 +15,6 @@ RUN python.exe -m pip install --upgrade pip && \
     && ./build.nuitka.sh
 
 CMD ["bash.exe"]
-# Optional: return shell to cmd or powershell
-#SHELL ["powershell", "-Command"]
-
 
 
 
