@@ -1,5 +1,5 @@
 # Dockerfile.windows
-FROM herominer:builder-base
+FROM ghcr.io/nelu/herominer:builder-base
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 WORKDIR /build
 COPY . .
