@@ -1,4 +1,20 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -e
+
+APP_VERSION="${APP_VERSION:-1.0.0}"
+CERT_PASS="${CERT_PASS:-MyStrongPassword}"
+SEVEN_ZIP="${SEVEN_ZIP:-/c/Program Files/7-Zip/7z.exe}"
+
+PUBLISH_DIR="./dev"
+RELEASE_DIR="./release"
+SFX_MODULE="./sources/7zsd_All_x64.sfx"
+
+# Read input binary path from config
+INPUT_CLI_PATH=$(dirname "$(cat ./app/config/cli.path)")
+
+PUBLISH_DIR=./"dev"
+RELEASE_DIR=./"release"
+
 
 # pyinstaller --noconfirm  --onedir --version-file ./version.txt --hide-console hide-late --distpath ./scripts/ ./app/cli.py \
 
@@ -10,21 +26,6 @@
 # Windows specific controls:
 #
 #  --remove-output \
-
-
-
-PUBLISH_DIR=./"dev"
-RELEASE_DIR=./"release"
-
-# Path to 7-Zip executable (update if different)
-SEVEN_ZIP="/c/Program Files/7-Zip/7z.exe"
-# Path to SFX module
-#SFX_MODULE=./"config/7zS.sfx"
-SFX_MODULE=./"sources/7zsd_All_x64.sfx"
-CERT_PASS="${CERT_PASS:-MyStrongPassword}"
-
-# Read path from file
-INPUT_CLI_PATH=$(dirname "$(cat ./app/config/cli.path)")
 
 #  --include-data-dir=./data=data/ \
 #  --include-module=app.web \

@@ -7,13 +7,11 @@ SHELL ["powershell", "-Command"]
 # Install Chocolatey and all packages in a single session
 RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
      Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')); \
-     & choco install python --version=3.12.6 -y; \
+     choco install python --version=3.12.6 -y; \
      choco install visualstudio2022buildtools --params '--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64' -y; \
      choco install 7zip.install -y; \
-     choco install openssl.light -y"
-
-# Download and extract PortableGit
-RUN "Invoke-WebRequest -Uri 'https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/PortableGit-2.42.0-64-bit.7z.exe' -OutFile 'git.7z.exe'; \
+     choco install openssl.light -y; \
+     Invoke-WebRequest -Uri 'https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/PortableGit-2.42.0-64-bit.7z.exe' -OutFile 'git.7z.exe'; \
      & 'C:\\Program Files\\7-Zip\\7z.exe' x git.7z.exe -oC:\\git -y; \
      Remove-Item 'git.7z.exe'"
 
