@@ -28,7 +28,9 @@ jobs:
 
       - name: Check if base image exists
         id: check_base
+        shell: pwsh
         run: |
+          $ErrorActionPreference = 'Continue'
           $pullResult = docker pull $env:BASE_IMAGE 2>&1
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Base image not found, will build it."
@@ -37,6 +39,7 @@ jobs:
             Write-Host "Base image found, using cache."
             "build_base=false" >> $env:GITHUB_ENV
           }
+          exit 0  # <- Prevent step from failing regardless of pull result
 
       - name: Build & Push base image if needed
         if: env.build_base == 'true'
