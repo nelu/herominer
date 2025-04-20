@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -e
+
+printenv
 
 APP_VERSION="${APP_VERSION:-1.0.0}"
 CERT_PASS="${CERT_PASS:-MyStrongPassword}"
@@ -81,8 +82,8 @@ python -m nuitka --standalone \
   --nofollow-import-to=selenium,seleniumwire,app.game,app.driver,app.tasks,app.management,app.tests,app.web,app.daemon \
   --onefile-tempdir-spec="$INPUT_CLI_PATH" \
   --company-name="AutoWeb LTD" \
-  --file-version="1.0" \
-  --product-version="1.0" \
+  --file-version="${APP_VERSION}" \
+  --product-version="${APP_VERSION}" \
   --file-description="HeroMiner Input Cli" \
   --copyright="All rights reserved © TheNet" \
   --trademarks="AutoWeb TheNet" \
@@ -103,8 +104,8 @@ python -m nuitka --standalone \
   --include-data-files=./config/ca.crt=config/ca.crt \
   --include-data-files=./config/ca.key=config/ca.key \
   --company-name="AutoWeb LTD" \
-  --file-version="1.0" \
-  --product-version="1.0" \
+  --file-version="${APP_VERSION}" \
+  --product-version="${APP_VERSION}" \
   --file-description="HeroMiner bundle launcher" \
   --copyright="All rights reserved © TheNet" \
   --trademarks="AutoWeb TheNet" \
