@@ -1,0 +1,114 @@
+[
+  {
+    "field": "artifact_2_name",
+    "value": "\"Alchemists Folio\""
+  },
+  {
+    "field": "Level:",
+    "value": "\"10/60\\nUpgrade\""
+  },
+  {
+    "field": "player-artifact-coins",
+    "value": "\"15 650\""
+  },
+  {
+    "field": "has_evolve",
+    "value": "\"697x683\""
+  },
+  {
+    "field": "hero_stars",
+    "value": "\"\""
+  },
+  {
+    "field": "artifact_1_has_evolution",
+    "value": "1"
+  },
+  {
+    "field": "artifact_2_has_evolution",
+    "value": "1"
+  },
+  {
+    "field": "skills",
+    "value": "\"|@100|Otherworldly Creature\\n\\n~@em me nS a en|Demonic Synergy\\n\\n~@|Seed of Destruction@Lf LL LOC|\""
+  },
+  {
+    "field": "artifact_3_has_evolution",
+    "value": "1"
+  },
+  {
+    "field": "skins",
+    "value": "\"name Default Skin v2\\n\\nStrength +32\\nLevel: 11/60\\n\\nUpgrade 130\\nname Cybemetic Skin\\n\\nHealth from 6160\\n10 106645 \\nname Champion Skin\\n\\nHealth from 1500\\n0106872 \\nname Demonic Skin\\n\\nArmor from 600\\n10 10650 \\nname Health from 6160\\n10 106645 \\nname Romantic Skin\\n\\nMagic defense\\nfrom 600 to 10650 \\n\""
+  },
+  {
+    "field": "artifact_2_has_lvl_upgrade",
+    "value": "1"
+  },
+  {
+    "field": "has_skill_increase",
+    "value": "\"468x363\""
+  },
+  {
+    "field": "158",
+    "value": "\"955\\n\""
+  },
+  {
+    "field": "stats",
+    "value": "\"\""
+  },
+  {
+    "field": "has_lvl_increase",
+    "value": "\"824x621\""
+  },
+  {
+    "field": "has_soulstones",
+    "value": "\"x\""
+  },
+  {
+    "field": "defense",
+    "value": "\"+811\\n+\""
+  },
+  {
+    "field": "artifact_1_name",
+    "value": "\"Hidden Demon's Katars\""
+  },
+  {
+    "field": "artifact_1_has_lvl_upgrade",
+    "value": "1"
+  },
+  {
+    "field": "player_skill_points",
+    "value": "\"20/20\""
+  },
+  {
+    "field": "has_items_buy",
+    "value": "\"x\""
+  },
+  {
+    "field": "artifact_3_has_lvl_upgrade",
+    "value": "1"
+  },
+  {
+    "field": "has_items_equip",
+    "value": "\"745x572\""
+  },
+  {
+    "field": "power",
+    "value": "\"Power:\\n1900\""
+  },
+  {
+    "field": "|",
+    "value": "\"Magic\""
+  },
+  {
+    "field": "has_items_promote",
+    "value": "\"x\""
+  },
+  {
+    "field": "has_items_create",
+    "value": "\"933x366\""
+  },
+  {
+    "field": "artifact_3_name",
+    "value": "\"Ring of Agility\""
+  }
+]

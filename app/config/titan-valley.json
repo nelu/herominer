@@ -1,0 +1,27 @@
+{
+  "merchant_buy": {
+    "interval": "24 hours",
+    "items": [
+      "1",
+      "2"
+    ]
+  },
+
+  "tournament": {
+    "interval": "24 hours",
+    "stages": {
+      "7": [
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "858x477",
+        "892x487"
+      ]
+
+    }
+  }
+}

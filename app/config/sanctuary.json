@@ -1,0 +1,67 @@
+{
+  "merchant_buy": {
+    "interval": "24 hours",
+    "items": [
+      "1",
+      "2"
+    ]
+  },
+  "pet_summons": {
+    "interval": "24 hours",
+    "count": 1
+  },
+  "adventures": {
+    "interval": "24 hours",
+    "levels": {
+      "1": "Siege of strongford",
+      "2": "Valley of the elements",
+      "3": "Ghirwil City Depths",
+      "4": "Fall of the Celestial City",
+      "5": "Siege of strongford",
+      "6": "Valley of the elements",
+      "7": "Ghirwil City Depths",
+      "8": "Fall of the Celestial City",
+      "9": "Siege of strongford",
+      "10": "Valley of the elements",
+      "11": "Ghirwil City Depths",
+      "12": "Fall of the Celestial City",
+      "13": "Maelstrom of Chaos"
+    },
+    "join-preferred": [
+      "8",
+      "4",
+      "1"
+    ],
+    "level_routes": {
+      "7": [
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "858x477",
+        "892x487"
+      ],
+      "8": [
+        "253x624",
+        "360x655",
+        "470x596",
+        "404x538",
+        "498x492",
+        "654x522",
+        "653x515",
+        "632x436",
+        "468x442",
+        "586x415",
+        "619x447",
+        "659x489",
+        "903x434",
+        "838x395",
+        "753x436",
+        "686x412"
+      ]
+    }
+  }
+}

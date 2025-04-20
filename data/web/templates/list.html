@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Heroes SPA</title>
+    <link rel="stylesheet" href="/static/select2.min.css">
+    <link rel="stylesheet" href="/static/jquery-ui.css">
+    <link rel="icon" href="/static/favicon.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+        #search, #group-mode {
+            width: 300px;
+            font-size: 1rem;
+            padding: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        #hero-select {
+            width: 300px;
+        }
+        #clear-selection {
+            text-align: right;
+            margin-top: 0.3rem;
+        }
+        #clear-btn {
+            border: none;
+            background: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .hero-editor {
+            margin-top: 2rem;
+            padding: 1rem;
+            border: 1px solid #ccc;
+            background: #f1f1f1;
+            max-width: 600px;
+            border-radius: 4px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+        #dialog {
+            display: none;
+        }
+    </style>
+    <script src="/static/jquery.min.js"></script>
+    <script src="/static/select2.min.js"></script>
+    <script src="/static/jquery-ui.min.js"></script>
+</head>
+<body>
+    <h1>🦸 Heroes Directory (SPA)</h1>
+
+    <label for="search">🔍 Search heroes (e.g., phoenix strength:1):</label><br>
+    <input type="text" id="search" placeholder="type to filter..." /><br>
+
+    <label for="group-mode">📂 Group by:</label><br>
+    <select id="group-mode">
+        <option value="power">Power</option>
+        <option value="slots.color_lvl">Color Level</option>
+        <option value="level">Level</option>
+        <option value="stars">Stars</option>
+        <option value="has_evolve">Has Evolution</option>
+    </select><br><br>
+
+    <select id="hero-select"></select>
+    <div id="clear-selection">
+        <button id="clear-btn" title="Clear selection">✖</button>
+    </div>
+
+    <div id="hero-editor" class="hero-editor" style="display: none;"></div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

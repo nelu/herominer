@@ -1,0 +1,24 @@
+{
+  "tasks": {
+    "play_guild/titan-valley/shop": {
+      "interval": "24 hours",
+      "function": "app.game.play_action",
+      "args": ["guild/titan-valley/shop"]
+    },
+    "play_guild/island/shop": {
+      "interval": "24 hours",
+      "function": "app.game.play_action",
+      "args": ["guild/island/shop"]
+    }
+  },
+  "lobby_shop":
+  {
+    "town": {"interval": "11 hours", "items": [1, 2, 5]},
+    "arena": {"interval": "24 hours", "items": ["dark-star", "judge", "chabba", "maya"]},
+    "grand.*arena": {"interval": "24 hours", "items": ["markus", "rufus", "lian", "ishmael"]},
+    "outland": {"interval": "24 hours", "items": ["elmir", "qing-mao", "jorgen", "luther"]},
+    "friendship": {"interval": "24 hours", "items": ["faceless", "cornelius"]},
+    "soul": {"interval": "24 hours", "items": ["jet"]},
+    "tower": {"interval": "24 hours", "items": ["orion", "dante", "kai", "lilith"]}
+  }
+}

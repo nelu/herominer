@@ -1,0 +1,62 @@
+{
+  "interval": "2 hours",
+  "tasks": {
+        "app.game.inventory.check_inventory": {
+          "interval": "10 hours"
+        },
+        "app.game.grow.grow_heroes": {
+          "interval": "18 hours"
+        },
+        "app.game.grow.acquire_hero_items": {
+          "at": "06:00:00"
+        },
+        "play_heroes/summon-heroes": {
+          "interval": "4 days",
+          "function": "app.game.play_action",
+          "args": ["heroes/summon-heroes"]
+        }
+  },
+  "heroes": {
+    "astrid-and-lucas": {
+        "skills": 5,
+        "skins": 1,
+        "artifacts": [1, 2, 3],
+        "levels": 1,
+        "items": 1,
+        "do_evolution": true
+    },
+    "elmir": {
+        "skills": 5,
+        "skins": 1,
+        "artifacts": [1, 2, 3],
+        "levels": 1,
+        "items": 1,
+        "do_evolution": true
+    },
+    "isaac": {
+        "skills": 5,
+        "skins": 1,
+        "artifacts": [1, 2, 3],
+        "levels": 1,
+        "items": 1,
+        "do_evolution": true
+    },
+    "rufus": {
+        "skills": 3,
+        "skins": 1,
+        "artifacts": [],
+        "levels": 1,
+        "items": 1,
+        "do_evolution": true
+    },
+    "fox": {
+        "skills": 5,
+        "skins": 1,
+        "artifacts": [1, 2, 3],
+        "levels": 1,
+        "items": 1,
+        "do_evolution": true
+    }
+  }
+
+}

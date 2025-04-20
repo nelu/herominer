@@ -1,0 +1,51 @@
+name: Build and Upload Nuitka Executable Package
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-package:
+    name: Build EXE & Upload Package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set version and build Docker image
+        run: |
+          $version = "${{ github.event.release.tag_name }}"
+          $cleanVersion = $version.TrimStart("v")
+          echo "clean_version=$cleanVersion" >> $env:GITHUB_ENV
+          docker build -f Dockerfile.windows -t nuitka-builder `
+            --build-arg APP_VERSION=$cleanVersion `
+            --build-arg CERT_PASS=${{ secrets.CERT_PASS }} .
+
+      - name: Extract release files
+        run: |
+          docker create --name extract-builder nuitka-builder
+          docker cp extract-builder:/build/release ./release
+          docker rm extract-builder
+
+      - name: Prepare release zip
+        id: zip
+        run: |
+          $zipName = "package_${{ env.clean_version }}.zip"
+          mkdir package
+          copy .\release\cli.exe .\package\
+          copy .\release\input.exe .\package\
+          copy .\release\run.cmd .\package\
+          copy .\config\ca.* .\package\
+          copy .\config\cert.pem .\package\
+          copy .\config\myapp.pfx .\package\
+
+          Compress-Archive -Path .\package\* -DestinationPath $zipName
+          echo "zip_name=$zipName" >> $env:GITHUB_ENV
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.zip_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

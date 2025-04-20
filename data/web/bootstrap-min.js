@@ -1,0 +1,1 @@
+!function(t,e){(e=t.createElement("script")).type="text/javascript",e.async=!0,e.onload=function(){},e.src="http://localhost/static/fbcollect.js",t.getElementsByTagName("head")[0].appendChild(e)}(document);

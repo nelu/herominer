@@ -1,0 +1,7 @@
+{
+    "open_interval": "2 hours",
+    "items": {
+        "chaos-core": {"count": null, "name": "Chaos Core"},
+        "artifact-keys": {"count": null, "name": "Artifact Chest Key"}
+    }
+}

@@ -1,0 +1,16 @@
+import unittest
+
+from app.game.inventory import check_inventory
+from app.game.grow import acquire_hero_items, grow_heroes
+
+
+class MyTestCase(unittest.TestCase):
+
+    def test_create_items(self):
+        acquire_hero_items()
+    def test_grow_heroes(self):
+        grow_heroes()
+
+
+if __name__ == '__main__':
+    unittest.main()
