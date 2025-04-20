@@ -4,9 +4,9 @@ FROM mcr.microsoft.com/windows/servercore:ltsc2022
 # Install Git Bash
 # -----------------------------
 SHELL ["powershell", "-Command"]
-RUN Invoke-WebRequest -Uri "https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/MinGit-2.42.0-busybox-64-bit.zip" -OutFile "git.zip"; `
-    Expand-Archive -Path git.zip -DestinationPath C:\git; `
-    Remove-Item git.zip
+RUN Invoke-WebRequest -Uri 'https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/MinGit-2.42.0-busybox-64-bit.zip' -OutFile 'git.zip'; \
+    Expand-Archive -Path 'git.zip' -DestinationPath 'C:\\git'; \
+    Remove-Item 'git.zip'
 
 SHELL ["C:\\git\\bin\\bash.exe", "-c"]
 
