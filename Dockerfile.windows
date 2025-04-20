@@ -6,11 +6,14 @@ COPY . .
 
 SHELL ["powershell", "-Command"]
 RUN ["cmd", "/C", "dir", "c:\\"]
+RUN ["cmd", "/C", "dir", "c:\\build\\"]
+RUN ["cmd", "/C", "dir", "c:\\Python312\\"]
+RUN ["cmd", "/C", "dir", "c:\\git\\bin\\"]
 
-RUN "python -m pip install --upgrade pip; \
-     python -m pip install -r C:\build\app\requirements.txt; \
-     python -m pip install C:\build\sources\Nuitka-2.6.5.tar.gz; \
-     python -m pip install C:\build\sources\undetected-chromedriver-3.5.5-fix-looseversion.tar.gz"
+RUN "python.exe -m pip install --upgrade pip; \
+     python.exe -m pip install -r C:\\build\\app\\requirements.txt; \
+     python.exe -m pip install C:\\build\\sources\\Nuitka-2.6.5.tar.gz; \
+     python.exe -m pip install C:\\build\\sources\\undetected-chromedriver-3.5.5-fix-looseversion.tar.gz"
 
 # Switch to Git Bash to run the build script
 SHELL ["C:\\git\\bin\\bash.exe", "-c"]
