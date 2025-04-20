@@ -49,9 +49,10 @@ COPY . .
 # Install Python Dependencies
 # -----------------------------
 RUN "C:\\Python312\\python.exe -m pip install --upgrade pip; \
-     C:\\Python312\\python.exe -m pip install -r /build/app/requirements.txt; \
-     C:\\Python312\\python.exe -m pip install /build/sources/Nuitka-2.6.5.tar.gz; \
-     C:\\Python312\\python.exe -m pip install /build/sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz"
+     C:\\Python312\\python.exe -m pip install -r C:\\build\\app\\requirements.txt; \
+     C:\\Python312\\python.exe -m pip install C:\\build\\sources\\Nuitka-2.6.5.tar.gz; \
+     C:\\Python312\\python.exe -m pip install C:\\build\\sources\\undetected-chromedriver-3.5.5-fix-looseversion.tar.gz"
+
 
 # -----------------------------
 # Run Nuitka Build (via Git Bash)
