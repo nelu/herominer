@@ -5,7 +5,8 @@ LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 SHELL ["powershell", "-Command"]
 
 # Install some sh
-RUN Invoke-WebRequest -Uri "https://frippery.org/files/busybox/busybox.exe" -OutFile "C:\\busybox.exe"
+# RUN Invoke-WebRequest -Uri "https://frippery.org/files/busybox/busybox.exe" -OutFile "C:\\busybox.exe"
+COPY ./sources/busybox.exe /busybox.exe
 
 
 # Install Chocolatey and all packages in a single session

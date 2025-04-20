@@ -8,7 +8,7 @@ COPY . .
 # RUN ["cmd", "/C", "dir", "C:\\git\\usr\\bin\\"]
 
 # Switch to BusyBox sh shell
-SHELL ["C:\\busybox.exe", "sh", "-c"]
+SHELL ["C:\\build\\sources\\busybox.exe", "sh", "-c"]
 
 RUN ls -la ./
 RUN which python.exe
