@@ -18,9 +18,11 @@ def check_idle():
 
     if 0 < settings.ACTION_DRIVER_IDLE_CLOSE < next_job_time.timestamp() - time.time():
         # proc = driver.is_running()
-        log.info(f"check_idle: Entering idle {settings.ACTION_DRIVER_IDLE_CLOSE}s. Closing game till: {next_job_time}")
 
-        if GAME_IS_OPEN:  # proc:
+        if GAME_IS_OPEN:
+            log.info(
+                f"check_idle: Entering idle {settings.ACTION_DRIVER_IDLE_CLOSE}s. Closing game till: {next_job_time}")
+            # proc:
             close_game()
             return True
 

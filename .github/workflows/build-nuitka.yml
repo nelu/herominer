@@ -4,6 +4,9 @@ on:
   release:
     types: [published]
 
+env:
+  BASE_IMAGE: ghcr.io/${{ github.repository_owner }}/nuitka-builder-base:windows
+
 jobs:
   build-and-package:
     name: Build EXE & Upload Package
@@ -13,16 +16,40 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set version and build Docker image
+      - name: Extract version from release tag
+        shell: pwsh
         run: |
           $version = "${{ github.event.release.tag_name }}"
           $cleanVersion = $version.TrimStart("v")
-          echo "clean_version=$cleanVersion" >> $env:GITHUB_ENV
+          "clean_version=$cleanVersion" >> $env:GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Check if base image exists
+        id: check_base
+        run: |
+          $ErrorActionPreference = 'Continue'
+          docker pull $env:BASE_IMAGE
+          if ($LASTEXITCODE -ne 0) {
+            echo "build_base=true" >> $env:GITHUB_ENV
+          } else {
+            echo "build_base=false" >> $env:GITHUB_ENV
+          }
+
+      - name: Build & Push base image if needed
+        if: env.build_base == 'true'
+        run: |
+          docker build -f Dockerfile.base -t nuitka-builder-base -t $env:BASE_IMAGE .
+          docker push $env:BASE_IMAGE
+
+      - name: Build Nuitka Docker image
+        run: |
           docker build -f Dockerfile.windows -t nuitka-builder `
-            --build-arg APP_VERSION=$cleanVersion `
+            --build-arg APP_VERSION=${{ env.clean_version }} `
             --build-arg CERT_PASS=${{ secrets.CERT_PASS }} .
 
-      - name: Extract release files
+      - name: Extract release files from image
         run: |
           docker create --name extract-builder nuitka-builder
           docker cp extract-builder:/build/release ./release
@@ -39,7 +66,6 @@ jobs:
           copy .\config\ca.* .\package\
           copy .\config\cert.pem .\package\
           copy .\config\myapp.pfx .\package\
-
           Compress-Archive -Path .\package\* -DestinationPath $zipName
           echo "zip_name=$zipName" >> $env:GITHUB_ENV
 

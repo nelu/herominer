@@ -1,63 +1,22 @@
-FROM mcr.microsoft.com/windows/servercore:ltsc2022
+# Dockerfile.windows
+FROM nuitka-builder-base
 
-# -----------------------------
-# Install Git Bash (MinGit)
-# -----------------------------
-SHELL ["powershell", "-Command"]
-
-RUN "Invoke-WebRequest -Uri 'https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/MinGit-2.42.0-busybox-64-bit.zip' -OutFile 'git.zip'; \
-     Expand-Archive -Path 'git.zip' -DestinationPath 'C:\\git'; \
-     Remove-Item 'git.zip'"
-
-# -----------------------------
-# Install Chocolatey & Tools
-# -----------------------------
-RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
-     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
-
-RUN "choco install python --version=3.12.2 -y"
-
-# -----------------------------
-# Set Environment Variables
-# -----------------------------
-# Replace the version with your actual MSVC version
-ENV PATH="C:\\Program Files\\OpenSSL-Win64\\bin;\
-C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.39.33519\\bin\\Hostx64\\x64;\
-C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x64;\
-C:\\Python312;\
-C:\\Python312\\Scripts;\
-C:\\git\\bin;\
-%PATH%"
-
-ENV SEVEN_ZIP="/c/Program Files/7-Zip/7z.exe"
-
-ARG APP_VERSION=dev
-ARG CERT_PASS=notset
-ENV APP_VERSION=$APP_VERSION
-ENV CERT_PASS=$CERT_PASS
-
-# -----------------------------
-# Copy Build Context
-# -----------------------------
 WORKDIR /build
 COPY . .
-RUN "C:\\git\\bin\\bash.exe" -c "ls ./ && ls build && ls /c/build/sources"
 
-# -----------------------------
-# Install Python Dependencies
-# -----------------------------
-RUN "C:\\Python312\\python.exe -m pip install --upgrade pip; \
-     C:\\Python312\\python.exe -m pip install -r C:\\build\\app\\requirements.txt; \
-     C:\\Python312\\python.exe -m pip install C:\\build\\sources\\Nuitka-2.6.5.tar.gz; \
-     C:\\Python312\\python.exe -m pip install C:\\build\\sources\\undetected-chromedriver-3.5.5-fix-looseversion.tar.gz"
+# Set the shell to Git Bash for all following RUN commands
+SHELL ["C:\\git\\bin\\bash.exe", "-c"]
 
+# Install Python dependencies using Bash
+RUN /c/Python312/python.exe -m pip install --upgrade pip && \
+    /c/Python312/python.exe -m pip install -r /build/app/requirements.txt && \
+    /c/Python312/python.exe -m pip install /build/sources/Nuitka-2.6.5.tar.gz && \
+    /c/Python312/python.exe -m pip install /build/sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz
 
-# -----------------------------
-# Run Nuitka Build (via Git Bash)
-# -----------------------------
-RUN "C:\\git\\bin\\bash.exe" -c "chmod +x ./build.nuitka.sh && ./build.nuitka.sh"
+# Run your Nuitka build script (already marked executable)
+RUN ./build.nuitka.sh
 
-# -----------------------------
-# Default shell when container runs
-# -----------------------------
-CMD ["cmd.exe"]
+# Optional: return shell to cmd or powershell
+# SHELL ["powershell", "-Command"]
+
+CMD ["C:\\git\\bin\\bash.exe"]
