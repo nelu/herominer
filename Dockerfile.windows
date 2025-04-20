@@ -5,15 +5,15 @@ FROM mcr.microsoft.com/windows/servercore:ltsc2022
 # -----------------------------
 SHELL ["powershell", "-Command"]
 
-RUN Invoke-WebRequest -Uri 'https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/MinGit-2.42.0-busybox-64-bit.zip' -OutFile 'git.zip'; `
-    Expand-Archive -Path 'git.zip' -DestinationPath 'C:\\git'; `
-    Remove-Item 'git.zip'
+RUN "Invoke-WebRequest -Uri 'https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/MinGit-2.42.0-busybox-64-bit.zip' -OutFile 'git.zip'; \
+     Expand-Archive -Path 'git.zip' -DestinationPath 'C:\\git'; \
+     Remove-Item 'git.zip'"
 
 # -----------------------------
 # Install Chocolatey & Tools
 # -----------------------------
-RUN Set-ExecutionPolicy Bypass -Scope Process -Force; `
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
+     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 
 RUN choco install python --version=3.12.2 -y; `
     choco install visualstudio2022buildtools --params "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64" -y; `
@@ -23,8 +23,9 @@ RUN choco install python --version=3.12.2 -y; `
 # -----------------------------
 # Set Environment Variables
 # -----------------------------
+# IMPORTANT: Replace the version path below with the actual installed MSVC version
 ENV PATH="C:\\Program Files\\OpenSSL-Win64\\bin;\
-C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.*/bin/Hostx64/x64;\
+C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.39.33519\\bin\\Hostx64\\x64;\
 C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x64;\
 C:\\Python312;\
 C:\\Python312\\Scripts;\
@@ -39,7 +40,7 @@ ENV APP_VERSION=$APP_VERSION
 ENV CERT_PASS=$CERT_PASS
 
 # -----------------------------
-# Copy Files into Container
+# Copy Build Context
 # -----------------------------
 WORKDIR /build
 COPY . .
@@ -58,6 +59,6 @@ RUN python -m pip install --upgrade pip; `
 RUN "C:\\git\\bin\\bash.exe" -c "chmod +x ./build.nuitka.sh && ./build.nuitka.sh"
 
 # -----------------------------
-# Final container entrypoint
+# Default command
 # -----------------------------
 CMD ["cmd.exe"]
