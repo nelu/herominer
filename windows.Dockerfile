@@ -4,11 +4,11 @@ LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 
 ENV PYTHONUNBUFFERED=1
 
-WORKDIR /build
+WORKDIR "c:\\build"
 COPY . .
 
 # Now set Git Bash as the shell
-SHELL ["C:\\git\\usr\\bin\\bash.exe", "-c"]
+SHELL ["bash.exe", "-c"]
 
 
 RUN ls -la ./
@@ -20,7 +20,8 @@ RUN sh -c "cd /c/build && ls -la ./ && python -v && python.exe -m pip install --
     && chmod 775 ./build.nuitka.sh \
     && ./build.nuitka.sh "
 
-CMD ["bash.exe"]
+ENTRYPOINT ["bash.exe"]
+
 
 
 
