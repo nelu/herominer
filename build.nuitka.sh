@@ -1,4 +1,3 @@
-#!/bin/sh
 #!/usr/bin/env bash
 set -e
 set -x  # Echo every command as it's executed
