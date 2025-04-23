@@ -1,7 +1,7 @@
 """Managing player inventory - gold, items, artifacts"""
 from app.driver import player as driver, JSONConfig
 from .heroes.stats import StatusData
-from app.settings import logger
+from app.utils.log import logger
 from .lobby import back_to_lobby
 from . import open_game
 

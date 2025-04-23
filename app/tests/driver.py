@@ -3,6 +3,7 @@ import unittest
 from app.driver import player
 from app.driver.config import write_coords
 from app.settings import APP_GAME_URL
+from app.utils.service import wait
 
 
 class MyTestCase(unittest.TestCase):
@@ -18,15 +19,25 @@ class MyTestCase(unittest.TestCase):
 
     def test_selenium(self):
         browser = player.browser()
+        #browser.switch_to.new_window('window')
+
+        #browser.reconnect()
+
         browser.get(APP_GAME_URL)
         window_title = browser.title
 
         print(f"Page title: {window_title}")
-        browser.quit()
 
         self.assertRegex(window_title, "Hero Wars")
 
+    def test_persistent_instance(self):
+        for _ in range(100000):
+            self.test_selenium()
+            player.close_selenium()
+            wait(3)
 
+    def tearDown(self):
+        player.stop()
 
 
     def test_clipboard(self):

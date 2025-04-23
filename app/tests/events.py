@@ -9,10 +9,10 @@ from app.utils.service import wait
 class MyTestCase(unittest.TestCase):
     exit_result = None
 
-    def handle_exit_flag(self, result):
+    def handle_exit_flag(self, r):
         print("handle_exit_flag")
-        print(result)
-        self.exit_result = result
+        print(r)
+        self.exit_result = r
 
     def wait_for_response(self):
         print("wait_for_response")

@@ -4,7 +4,6 @@ import os
 import sys
 from logging import Logger
 from typing import Optional
-from app import settings, daemon, result
 from app.utils.service import GracefulExit
 
 log: Optional[Logger] = None
@@ -135,10 +134,11 @@ def bootstrap(args):
 
     # building settings
     from app import settings, daemon, result
+    from app.utils.log import logger
     settings.check_settings()
 
     # set logging
-    log = settings.logger('cli')
+    log = logger('cli')
 
     if args.runtests:
         pass

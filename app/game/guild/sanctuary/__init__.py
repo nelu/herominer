@@ -1,6 +1,6 @@
 from app.game import open_game, play_action
 from app.game.lobby import back_to_lobby
-from app.settings import logger
+from app.utils.log import logger
 from app.driver import player as driver, JSONConfig
 from app.game.heroes.stats import StatusData
 from app.utils.session import daily, status

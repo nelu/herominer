@@ -1,6 +1,6 @@
 from app.driver import player as driver
 from app.game.lobby.menu import back_to_lobby
-from app.settings import logger
+from app.utils.log import logger
 from app.game import social, open_game
 from app.utils import session
 

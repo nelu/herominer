@@ -6,8 +6,8 @@ from pytimeparse import parse
 
 import app.utils.redis_helpers as storage
 from app import settings
-
-log = settings.logger(__name__)
+from app.utils.log import logger
+log = logger(__name__)
 
 
 def has_session(what):

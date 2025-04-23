@@ -2,7 +2,7 @@
 # from app.game import lobby, rewards, quests
 from .helper import set_last_run
 
-from app.settings import logger
+from app.utils.log import logger
 log = logger(__name__)
 
 def run_all_tasks():

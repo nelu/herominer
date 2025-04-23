@@ -2,7 +2,7 @@ from app.driver import player as driver
 from app.driver.config import write_coords
 from app.game.guild.sanctuary import config
 from app.game.heroes.stats import StatusData
-from app.settings import logger
+from app.utils.log import logger
 from . import set_run_config as sanctuary_run_config
 from app.utils.session import status
 

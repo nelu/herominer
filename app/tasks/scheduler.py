@@ -9,11 +9,12 @@ from .helper import schedule_tasks
 from ..game import tasks, close_game, GAME_IS_OPEN
 from ..utils.events import run_handle_events
 from ..utils.service import check_shutdown
-
-log = settings.logger(__name__)
+from app.utils.log import logger
+log = logger(__name__)
 
 
 def check_idle():
+
     next_job_time = schedule.next_run()
 
     if 0 < settings.ACTION_DRIVER_IDLE_CLOSE < next_job_time.timestamp() - time.time():
@@ -59,11 +60,8 @@ def run_scheduled_tasks():
 
     schedule.run_all()
 
-    while True:
+    while keep_running():
         schedule.run_pending()
         run_handle_events()  # ⬅️ now also checks for shutdown
-
-        if not keep_running():
-            break
 
         time.sleep(1)

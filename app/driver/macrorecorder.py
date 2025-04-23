@@ -12,9 +12,9 @@ from app.utils import session
 from app.utils.service import check_shutdown, GracefulExit
 from app.utils.session import persist_path
 from ..utils.events import one_time_handler, run_handle_events
+from app.utils.log import logger
 
-
-log = settings.logger(__name__)
+log = logger(__name__)
 
 
 def write_action_config():

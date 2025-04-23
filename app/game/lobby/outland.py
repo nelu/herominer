@@ -1,6 +1,6 @@
 """Handles Outland """
 
-from app.settings import logger
+from app.utils.log import logger
 from . import menus
 
 log = logger(__name__)

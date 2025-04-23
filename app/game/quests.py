@@ -3,7 +3,7 @@ from app.driver import JSONConfig
 from app.game.guild.sanctuary import summon_pets, summon_count
 from app.game.lobby import airship
 from app.game.player import player_stats
-from app.settings import logger
+from app.utils.log import logger
 from app.utils.session import daily
 from app.game.lobby import back_to_lobby
 from app.game.heroes.manager import instance

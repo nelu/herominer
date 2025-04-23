@@ -1,10 +1,9 @@
 from py_linq import Enumerable
 
 from app.driver import JSONConfig
-from app.game import open_game
 from app.game.heroes.manager import instance as hero_manager
 from app.game.lobby.menu import back_to_lobby
-from app.settings import logger
+from app.utils.log import logger
 from app.utils import session
 
 log = logger(__name__)

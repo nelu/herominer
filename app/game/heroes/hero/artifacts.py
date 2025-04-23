@@ -3,7 +3,7 @@ from datetime import datetime
 from app.driver import player as driver
 from app.game.player import player_stats
 from app.game.heroes.stats import StatusData
-from app.settings import logger
+from app.utils.log import logger
 
 log = logger(__name__)
 

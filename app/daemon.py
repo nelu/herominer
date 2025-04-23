@@ -4,12 +4,12 @@ import signal
 import app
 from app.utils.service import clear_shutdown, GracefulExit
 from app.utils.session import status
-from app import settings
 from app.web import WebServer
+from utils.log import logger
 
 #from app.web.webserver import DjangoServer
 
-log = settings.logger(__name__)
+log = logger(__name__)
 
 #httpserver = DjangoServer(port=80)
 
@@ -35,7 +35,7 @@ def start():
     try:
         scheduler.run_scheduled_tasks()
     except (KeyboardInterrupt, GracefulExit) as err:
-        log.exception(f"play_action: KeyboardInterrupt/GracefulExit {err}")
+        log.exception(f"start: KeyboardInterrupt/GracefulExit {err}")
         stop_workers()
         raise
     except Exception:

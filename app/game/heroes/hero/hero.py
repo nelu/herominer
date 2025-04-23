@@ -14,7 +14,7 @@ from ..hero_data import hero_data
 from .. import config
 from app.driver import player as driver
 from app.utils.session import daily
-from app.settings import logger
+from app.utils.log import logger
 from app.game.lobby import menus
 from ..stats import StatusData
 from app.game import set_view
@@ -216,6 +216,8 @@ class Hero(StatusData):
                 self.level += 1
                 self.skills.reset_skills_cost()
                 self.save()
+
+                o += 1
             else:
                 log.error(f"upgrade_xp: Failed to upgrade hero {self.short_name} xp lvl ")
 

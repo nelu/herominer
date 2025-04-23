@@ -1,5 +1,5 @@
 from app.driver import player as driver
-from app.settings import logger
+from app.utils.log import logger
 from app.utils.session import status, daily as daily_session
 from app.game.lobby import back_to_lobby
 log = logger(__name__)

@@ -4,7 +4,7 @@ from parse import search
 from py_linq import Enumerable
 
 from app.game.player import player_stats as player_stats
-from app.settings import logger
+from app.utils.log import logger
 from app.driver import player as driver
 from app.game.heroes.stats import StatusData
 from app.utils.session import status, daily

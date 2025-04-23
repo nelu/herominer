@@ -1,5 +1,5 @@
 from app.utils import session
-from app.settings import logger
+from app.utils.log import logger
 
 log = logger(__name__)
 

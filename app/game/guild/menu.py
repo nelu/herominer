@@ -2,7 +2,7 @@ from ..lobby import Menus, back_to_lobby
 from .. import open_game
 from app.driver import player as driver
 
-from app.settings import logger
+from app.utils.log import logger
 
 log = logger(__name__)
 

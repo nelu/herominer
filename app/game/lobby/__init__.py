@@ -2,7 +2,7 @@ from datetime import datetime
 
 from .. import GAME_IS_OPEN
 from .menu import Menus
-from app.settings import logger
+from app.utils.log import logger
 from app.driver import player as driver, JSONConfig
 from app.utils import session
 

@@ -5,9 +5,9 @@ import sys
 from logging import Logger
 from typing import Optional
 from result import  action
-from settings import logger
+from utils.log import logger
 # set logging
-log: Optional[Logger] = logger('cli')
+log: Optional[Logger] = logger('input')
 
 def main():
     # """Run administrative tasks."""

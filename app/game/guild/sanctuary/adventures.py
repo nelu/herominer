@@ -4,7 +4,7 @@ from py_linq import Enumerable
 
 from app.driver import player as driver
 from app.game.guild.sanctuary import config
-from app.settings import logger
+from app.utils.log import logger
 from app.utils.session import status, daily
 from app.game.lobby import back_to_lobby, menus
 from app.game import open_game, game_stats

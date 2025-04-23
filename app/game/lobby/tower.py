@@ -2,7 +2,7 @@
 from app.driver import player as driver, JSONConfig
 from .. import game_stats
 from app.utils.session import daily
-from app.settings import logger
+from app.utils.log import logger
 from . import back_to_lobby, menus
 
 log = logger(__name__)

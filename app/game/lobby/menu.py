@@ -1,5 +1,5 @@
 from app.driver import player as driver
-from app.settings import logger
+from app.utils.log import logger
 from app.utils.session import daily as daily_session, status
 from .. import open_game
 

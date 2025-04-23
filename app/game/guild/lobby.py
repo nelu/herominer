@@ -1,7 +1,4 @@
-from app.driver import player as driver
-from app.settings import logger
-from app.game import social
-from app.utils import session
+from app.utils.log import logger
 
 log = logger(__name__)
 DUNGEON_DAILY_LEVELS_PLAY = 23

@@ -1,9 +1,8 @@
 """Automates Tower mode"""
 from app.driver import player as driver
-from app.game.heroes.stats import StatusData
-from app.settings import logger
+from app.utils.log import logger
 from app.utils.session import status, daily as daily_session
-from . import menus, back_to_lobby
+from . import menus
 
 log = logger(__name__)
 

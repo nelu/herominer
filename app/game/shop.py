@@ -2,7 +2,7 @@ from app.driver import player as driver, JSONConfig
 from app.game import open_game
 from app.game.lobby import back_to_lobby
 from app.game.heroes.manager import instance as hero_manager
-from app.settings import logger
+from app.utils.log import logger
 from app.tasks.helper import schedule_tasks
 from app.utils import session
 

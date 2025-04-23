@@ -17,7 +17,7 @@ FOR /D %%p IN ("%APP_DIR%\*.*") DO rmdir "%%p" /s /q
 "%~dp0\input.exe"
 
 :: start app
-set HM_LOG_FILE=z:\share\logs\herominer.log
+:: set HM_LOG_FILE=z:\share\logs\herominer.log
 set HM_CONFIG_DIR=z:\data\config
 set HM_ENTRYPOINT_PATH=%APP_DIR%\cli\input.exe
 

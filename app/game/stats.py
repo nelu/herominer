@@ -1,12 +1,88 @@
 import time
+from multiprocessing import Process, Queue, Event
 
 import app
 from app.driver import player
-from app.settings import logger, APP_GAME_URL
+from app.settings import APP_GAME_URL
+from app.utils.log import logger
 from app.utils.data_model import DataModel
 from app.utils.service import GracefulExit
 
 log = logger(__name__)
+
+
+def fetch_stats(timeout=100,  close_tab=False):
+    browser = None
+    try:
+        browser = player.browser()  # start seleniumwire
+        browser.get(APP_GAME_URL)
+
+    except (KeyboardInterrupt, GracefulExit) as e:
+        raise
+    except Exception as e:
+        log.exception(f'get_game_stats: Failed to start driver {e}')
+        player.stop()
+        return False
+
+    start = time.time()
+    while time.time() - start < timeout:
+        if app.STOP_SIGNALED:
+            raise GracefulExit()
+        try:
+            request = browser.wait_for_request(
+                pat=r".*\/api\/$",
+                timeout=timeout
+            )
+        except (KeyboardInterrupt, GracefulExit) as e:
+            raise
+        except Exception as e:
+            log.exception('get_game_stats: wait_for_request failure')
+            player.stop()
+            continue
+
+        matches = player.ajax_requests(url_pattern=r".*\/api\/$",
+                                       body_pattern=r".*userGetInfo.*",
+                                       content_type_filter=None)
+        if matches.__len__():
+            item = matches.pop()
+            data = item.get('data') and item['data'].get('results')
+            if data:
+                return data
+            else:
+                log.error('get_game_stats: Failed to get game stats - result: ', item)
+                # retry
+
+
+    log.error('get_game_stats: Failed to get game stats')
+    browser.close_selenium()
+    #close_tab and browser and browser.close_selenium()
+
+    return False
+
+
+def fetch_stats_wrap(queue: Queue, stop_event: Event, timeout=100, max_retries=5, close_tab=False):
+    response = None
+    for attempt in range(max_retries):
+        if stop_event.is_set():
+            log.info("fetch_stats_wrap: Stop event detected, shutting down gracefully...")
+            break
+
+        log.info(f"fetch_stats_wrap: Attempting to get stats (attempt {attempt + 1}/{max_retries})")
+        response = fetch_stats(timeout=timeout, close_tab=close_tab)
+
+        if response:
+            break
+
+    return response
+    # if response:
+    #     queue.put({"data": response})  # ✅ Send result to parent process
+    #     # Wait for shutdown signal
+    #     log.info("[fetch_stats_wrap] Waiting for stop_event...")
+    #     stop_event.wait()  # ⏳ blocks here until parent sets it
+    # else:
+    #     queue.put({"error": "no-attempts", "success": False})
+
+    #player.stop()
 
 
 class GameStats:
@@ -23,61 +99,14 @@ class GameStats:
             return self.data.all()
         return self.data.get_item(field)
 
-    def get_stats(self, timeout=100, max_retries=5, close_browser=False):
-        for attempt in range(max_retries):
-            if app.STOP_SIGNALED:
-                player.stop()
-                raise GracefulExit()
+    def get_stats(self, timeout=100, max_retries=5, close_tab=False):
+        response = player.do_request(fetch_stats_wrap, timeout, max_retries, close_tab)
 
-            log.info(f"Attempting to get stats (attempt {attempt + 1}/{max_retries})")
-            title = None
-            try:
-                browser = player.browser()  # start seleniumwire
-                browser.get(APP_GAME_URL)
-                title = browser.title
-            except (KeyboardInterrupt, GracefulExit) as e:
-                raise
-            except Exception as e:
-                title = None
-                log.exception('get_game_stats: get game url failure')
-                player.stop()
+        if response:
+            self.api_response = response['data']
 
-            if not title:
-                continue
-
-            start = time.time()
-            while time.time() - start < timeout:
-                if app.STOP_SIGNALED:
-                    player.stop()
-                    raise GracefulExit()
-                try:
-                    request = browser.wait_for_request(
-                        pat=r".*\/api\/$",
-                        timeout=timeout
-                    )
-                except (KeyboardInterrupt, GracefulExit) as e:
-                    raise
-                except Exception as e:
-                    log.exception('get_game_stats: wait_for_request failure')
-                    player.stop()
-                    break
-
-                matches = player.ajax_requests(url_pattern=r".*\/api\/$",
-                                               body_pattern=r".*userGetInfo.*",
-                                               content_type_filter=None)
-                if matches.__len__():
-                    item = matches.pop()
-                    data = item.get('data') and item['data'].get('results')
-                    if data:
-                        self.api_response = data
-                        return True
-                    else:
-                        log.error('get_game_stats: Failed to get game stats - result: ', item)
-
-        log.error('get_game_stats: Failed to get game stats')
-        close_browser and browser.quit()
-
-        return False
+        return self.api_response
+        # return fetch_stats( timeout=100, max_retries=5, close_tab=False)
 
     def save_stats(self):
         """
@@ -102,6 +131,6 @@ class GameStats:
         if self.api_response:
             return True
 
-        return not self.api_response and (self.get_stats(close_browser=False)
+        return not self.api_response and (self.get_stats(close_tab=False)
                                           and self.save_stats()
                                           or log.error("update_stats: Failed to get game stats"))

@@ -1,6 +1,7 @@
 # driver/external.py
 import subprocess
-from app.settings import logger
+from app.utils.log import logger
+
 log = logger(__name__)
 
 class ExternalDriver:

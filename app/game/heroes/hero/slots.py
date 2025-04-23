@@ -2,7 +2,7 @@ from app.driver import player as driver
 from app.game import play_action
 
 from app.game.heroes.stats import StatusData
-from app.settings import logger
+from app.utils.log import logger
 
 log = logger(__name__)
 

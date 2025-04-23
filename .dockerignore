@@ -1,0 +1,12 @@
+.venv*
+data/
+share/
+dev/
+docs/
+legacy
+release/*
+sources/*
+
+# Include specific files in sources
+!sources/Nuitka*
+!sources/undetected*.git*

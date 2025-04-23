@@ -1,7 +1,7 @@
 """Player profile, levels, energy, and hero management"""
 from app.game import game_stats
 from app.game.heroes.stats import StatusData
-from app.settings import logger
+from app.utils.log import logger
 from app.utils.session import status
 from parse import search
 

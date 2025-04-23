@@ -2,10 +2,9 @@ import importlib
 from datetime import datetime
 from pytimeparse import parse
 import schedule
-from app import settings
 from app.utils.session import status
-
-log = settings.logger(__name__)
+from app.utils.log import logger
+log = logger(__name__)
 
 CONFIG = {}
 

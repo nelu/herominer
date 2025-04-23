@@ -7,7 +7,7 @@ from .hero.hero import Hero
 from ..heroes.hero_data import HeroData
 from app.game.lobby import back_to_lobby, menus
 from app.game import close_game
-from app.settings import logger
+from app.utils.log import logger
 from app.utils.session import daily
 
 log = logger(__name__)

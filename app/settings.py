@@ -2,8 +2,6 @@ import os
 from dotenv import load_dotenv
 import sys
 from pathlib import Path
-#from .utils import log
-from app.utils.log import logger, setLogging
 
 
 def get_app_dir():
@@ -68,7 +66,6 @@ SELENIUM_DRIVER = {
 
 REDIS_URL = os.environ.get('HM_REDIS', "redis://localhost:6379/0")
 
-setLogging(APP_LOG_FILE)
 
 
 def check_settings():

@@ -1,6 +1,10 @@
 import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
+from rlh import RedisStreamLogHandler
+
+from app.settings import APP_LOG_FILE
+from app.utils.redis_helpers import redis_client
 
 # Create a log formatter
 log_formatter = logging.Formatter("%(asctime)s - [%(process)d] - %(levelname)s - [%(name)s] - %(message)s")
@@ -13,7 +17,7 @@ logfile_handler = None
 APP_LOG_VERBOSITY = 1
 
 
-def setLogging(log_file = None):
+def setLogging(log_file=None):
     """Set up logging with a timed rotating file handler.
 
     Args:
@@ -44,7 +48,7 @@ def setLogging(log_file = None):
             logfile_handler.suffix = "%Y-%m-%d"  # Log file name format: app.log.YYYY-MM-DD
 
 
-def logger(name=__name__):
+def logger(name=None):
     global logfile_handler
 
     l = logging.getLogger(name)
@@ -52,9 +56,20 @@ def logger(name=__name__):
     l.setLevel(level=APP_LOG_VERBOSITY * 10)
     # ** Add handlers (console + file)**
     l.addHandler(console_handler)
+
+    l.addHandler(RedisStreamLogHandler(
+        fields=['process', "levelname", 'name', "msg", "asctime"],
+        redis_client=redis_client,
+        channel_name="logs",
+        maxlen=30000))
+
     logfile_handler and l.addHandler(logfile_handler)
 
     # ** Prevent log duplication**
     l.propagate = False
 
     return l
+
+
+setLogging(APP_LOG_FILE)
+# root_logger = logger()

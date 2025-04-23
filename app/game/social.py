@@ -5,8 +5,8 @@ from app import settings
 from app.driver import player as driver
 from app.utils import session
 from . import close_game
-
-log = settings.logger(__name__)
+from app.utils.log import logger
+log = logger(__name__)
 
 def is_valid_url(url):
     try:
