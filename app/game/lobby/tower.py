@@ -1,6 +1,6 @@
 """Automates Tower mode"""
 from app.driver import player as driver, JSONConfig
-from .. import game_stats
+from .. import game_stats, open_game
 from app.utils.session import daily
 from app.utils.log import logger
 from . import back_to_lobby, menus
@@ -68,7 +68,7 @@ def run_tower():
         log.info("run_tower: Collecting points and checking battles.")
         set_level()
         log.debug("Tower: Collecting points")
-        driver.play_action(f"tower/collect-points")
+        open_game() and driver.play_action(f"tower/collect-points")
         if not (is_disabled() or is_complete()):
             log.debug("Tower: Collecting chests")
             collect_chests(config()['battles_per_run'])

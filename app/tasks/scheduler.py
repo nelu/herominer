@@ -6,7 +6,7 @@ import schedule
 
 from app import settings
 from .helper import schedule_tasks
-from ..game import tasks, close_game, GAME_IS_OPEN
+from ..game import tasks, close_game, game_is_open
 from ..utils.events import run_handle_events
 from ..utils.service import check_shutdown
 from app.utils.log import logger
@@ -19,10 +19,11 @@ def check_idle():
 
     if 0 < settings.ACTION_DRIVER_IDLE_CLOSE < next_job_time.timestamp() - time.time():
         # proc = driver.is_running()
+        is_open = game_is_open()
+        log.info(
+            f"check_idle: Entering idle {settings.ACTION_DRIVER_IDLE_CLOSE}s. isopen: {is_open} Next job: {next_job_time}")
 
-        if GAME_IS_OPEN:
-            log.info(
-                f"check_idle: Entering idle {settings.ACTION_DRIVER_IDLE_CLOSE}s. Closing game till: {next_job_time}")
+        if is_open:
             # proc:
             close_game()
             return True

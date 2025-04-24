@@ -8,6 +8,7 @@
           "interval": "18 hours"
         },
         "app.game.grow.acquire_hero_items": {
+          "interval": "1 day",
           "at": "06:00:00"
         },
         "play_heroes/summon-heroes": {

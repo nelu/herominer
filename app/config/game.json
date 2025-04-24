@@ -12,6 +12,7 @@
       "interval": "1 hour"
     },
     "app.game.chat.send_chat_image": {
+      "interval": "1 day",
       "at": "20:00:00"
     }
   }

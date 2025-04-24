@@ -61,10 +61,8 @@ def execute_task(task_name, job):
     now = datetime.now()
     last_run_time = get_last_run(task_name)
 
-    interval = (CONFIG[task_name].get("interval")
-                and parse(CONFIG[task_name]["interval"])
-                or int((job.next_run - datetime.now()).total_seconds()))
-    remaining = interval - (now - last_run_time).total_seconds()
+    interval = parse(CONFIG[task_name]["interval"])
+    remaining = interval - abs(job.next_run - datetime.now()).total_seconds()
 
     if has_ran(task_name, interval):
         log.info(f"Task executing {task_name}")
@@ -73,6 +71,9 @@ def execute_task(task_name, job):
             "task_start": now.strftime('%Y-%m-%d %H:%M:%S'),
             "task_nextrun": job.next_run.strftime('%Y-%m-%d %H:%M:%S'),
         })
+
+        set_last_run(task_name, run_status=None, timestamp=now)  # Update last run time in Redis
+
 
         call_function = CONFIG[task_name]["function"]
         args = CONFIG[task_name].get("args", [])
@@ -88,10 +89,11 @@ def execute_task(task_name, job):
             r = call_function(*args)
         else:
             raise TypeError(f"Invalid function type for task '{task_name}': {type(call_function)}")
-        log.debug(f"Task {task_name} result {r}. Next run in {remaining // 60} minutes.")
-        set_last_run(task_name, run_status=r, timestamp=now)  # Update last run time in Redis
+        remaining = interval - abs((job.next_run - datetime.now()).total_seconds())
+        log.debug(f"Task {task_name} result {r}. Next run in {remaining / 60} minutes.")
+
     else:
-        log.debug(f"Task skipping {task_name}. Next run in {remaining // 60} minutes.")
+        log.debug(f"Task skipping {task_name}. Next run in {remaining / 60} minutes.")
 
 
 def set_task_config(task_name, config):
@@ -121,5 +123,5 @@ def set_last_run(task_name, run_status = None, timestamp=datetime.now()):
 
     """Store last run time in Redis"""
     status('last_run_status').set(task_name, run_status)
-    status().set('task_lastrun_result', run_status)
+    run_status and status().set('task_lastrun_result', run_status)
     return status('last_run').set(task_name, timestamp.strftime("%Y-%m-%d %H:%M:%S")) and timestamp

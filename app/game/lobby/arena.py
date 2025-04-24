@@ -1,4 +1,5 @@
 from app.driver import player as driver
+from app.game import open_game
 from app.utils.session import daily
 from app.utils.log import logger
 from app.game.lobby import back_to_lobby
@@ -11,7 +12,7 @@ DATA = daily()
 def play_arena(arena_name):
     log.info(f"play_arena {arena_name} - checking for battles")
     # 120 secs x 3 battles
-    o = driver.play_action(f"arena/{arena_name}-play", timeout=400)
+    o = open_game() and driver.play_action(f"arena/{arena_name}-play", timeout=400)
 
     back_to_lobby()
     return o

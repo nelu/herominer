@@ -20,7 +20,7 @@ def set_view(name):
 def back_views(count=1):
     return driver.to_clipboard(count).start(action="go-back")
 
-def game_is_opened():
+def game_is_open():
     global GAME_IS_OPEN
     #game_running = GAME_IS_OPEN and driver.browser().title and "Hero" in driver.browser().title
     return GAME_IS_OPEN
@@ -30,9 +30,9 @@ def open_game():
     from .lobby import is_on_main_screen, back_to_lobby
     """Open the game in the browser."""
 
-    if game_is_opened() and is_on_main_screen():
+    if game_is_open() and is_on_main_screen():
         return True
-    elif not game_is_opened():
+    elif not game_is_open():
         # anomaly checks
         if GAME_IS_OPEN:
             log.error(f"not game_is_opened: Game found in invalid state {GAME_IS_OPEN} - GAME_IS_OPEN")

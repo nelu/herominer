@@ -3,6 +3,7 @@ from app.driver import player as driver
 from app.utils.log import logger
 from app.utils.session import status, daily as daily_session
 from . import menus
+from .. import open_game
 
 log = logger(__name__)
 
@@ -43,10 +44,11 @@ def check_expeditions():
 
 def run_tasks():
     if menus.open_menu_notification("airship"):
+
         log.debug("airship_run: Check collectables and expeditions")
         #check_chest_opens()
 
-        r = driver.start("lobby/airship/collect")
+        r = open_game() and driver.start("lobby/airship/collect")
         r or log.error(
             f"airship_run: failed to process airship"
         )

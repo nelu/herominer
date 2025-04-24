@@ -40,16 +40,19 @@ class SocketIOWebServer(WebServer):
                         last_id = msg_id
 
                         # No decoding needed — data is already str:str
-                        log_data = dict(data)  # or just use `data` directly
+                        log_data = data or {}  # or just use `data` directly
 
-                        formatted = (
-                            f"{log_data['asctime']} "
-                            f"[{log_data['process']}] "
-                            f"{log_data['levelname']} "
-                            f"[{log_data['name']}] "
-                            f"- {log_data['msg']}"
-                        )
-                        self.socketio.emit("log", {"message": formatted})
+                        if log_data:
+                            formatted = (
+                                f"{log_data['asctime']} "
+                                f"[{log_data['process']}] "
+                                f"{log_data['levelname']} "
+                                f"[{log_data['name']}] "
+                                f"- {log_data['msg']}"
+                            )
+                            self.socketio.emit("log", {"message": formatted})
+                        else:
+                            print(f"_stream_logs: ERROR - invalid log msg data {data}")
 
             except Exception as e:
                 print(f"[LogStreamer] Error: {e}")
