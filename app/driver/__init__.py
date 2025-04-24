@@ -161,6 +161,13 @@ class DriverInterface(MacroRecorderDriver):
                 log.exception(f"close_browser: during close(): {e}")
 
     def stop(self):
+        # from main thread
+        if player.selenium_worker:
+            self.stop_event.set()
+            player.selenium_worker.join(timeout=10)
+            self.selenium_worker = None
+
+        # from selenium worker thread/process
         if self.selenium:
             try:
                 # Close the browser and terminate the WebDriver session
@@ -170,11 +177,9 @@ class DriverInterface(MacroRecorderDriver):
                 log.exception(f"Error closing driver: {e}")
             self.selenium = None
 
-        if player.selenium_worker:
-            self.stop_event.set()
-            player.selenium_worker.join(timeout=10)
+        else:
+            # from main thread
             super().stop()
-            self.selenium_worker = None
 
 
 player = DriverInterface()

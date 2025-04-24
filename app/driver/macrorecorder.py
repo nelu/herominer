@@ -42,15 +42,27 @@ class MacroRecorderDriver:
     def stop(self):
         log.debug("stop: Closing macro recorder.")
         self.close_browser()
-        """Stop the macro recorder."""
+
         r = self.close()
         if r:
-            self.process and self.process.terminate()
+            if self.process:
+                self.process.terminate()
+
+                try:
+                    if self.process.stdout:
+                        self.process.stdout.close()
+                    if self.process.stderr:
+                        self.process.stderr.close()
+                    if self.process.stdin:
+                        self.process.stdin.close()
+                except Exception as e:
+                    log.warning(f"stop: Failed to close process I/O streams: {e}")
 
             still_running = self.is_running()
             if still_running:
                 log.warning("stop: Macro recorder is still running, terminating.")
                 still_running.terminate()
+
             log.debug("stop: Macro recorder closed.")
             self.process = None
 

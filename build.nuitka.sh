@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
-set -x  # Echo every command as it's executed
+#set -x  # Echo every command as it's executed
 
-printenv
+#printenv
 
 APP_VERSION="${APP_VERSION:-1.0.0}"
 CERT_PASS="${CERT_PASS:-MyStrongPassword}"
@@ -119,14 +119,13 @@ python.exe -m nuitka --standalone \
   ./app/cli.py \
 && \
 #build_sfx_installer "./release/cli.dist" && \
+
 cp -rfp ./scripts/run*.cmd "${RELEASE_DIR}/" && \
  ./scripts/selfsign.ps1 -exeToSign "./release/cli.exe" \
     -certPfxPath ./config/myapp.pfx \
     -pfxPassword "$CERT_PASS"
 
-
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Done build ./release/cli.exe"
 
 #rm -rf "${PUBLISH_DIR}"/{*,.*} && mkdir -p "${PUBLISH_DIR}" && \
 #cp -arfp "${RELEASE_DIR}"/cli.dist/.  "${PUBLISH_DIR}/"
-
-exit $?

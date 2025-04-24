@@ -22,8 +22,8 @@ def back_views(count=1):
 
 def game_is_opened():
     global GAME_IS_OPEN
-    game_running = GAME_IS_OPEN and driver.browser().title and "Hero" in driver.browser().title
-    return game_running
+    #game_running = GAME_IS_OPEN and driver.browser().title and "Hero" in driver.browser().title
+    return GAME_IS_OPEN
 
 def open_game():
     global GAME_IS_OPEN
@@ -54,12 +54,9 @@ def close_game():
     from . import lobby
     lobby.ON_LOBBY_SCREEN = 0
     GAME_IS_OPEN = False
-    close_result = driver.close_selenium()
+    close_result = driver.stop()
     game_stats.reset_stats()
-    return close_result
 
-
-game_stats = GameStats()
 
 
 # nice for task scheduling
@@ -74,3 +71,7 @@ def check_complete(item, complete_macro, daily=True):
         return play_action(complete_macro)
     else:
         log.debug(f"check_complete: {item} already completed")
+
+game_stats = GameStats()
+
+

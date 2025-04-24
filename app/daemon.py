@@ -5,6 +5,7 @@ import app
 from app.utils.service import clear_shutdown, GracefulExit
 from app.utils.session import status
 from app.web import WebServer
+from app.web.websocket_server import SocketIOWebServer
 from utils.log import logger
 
 #from app.web.webserver import DjangoServer
@@ -12,8 +13,8 @@ from utils.log import logger
 log = logger(__name__)
 
 #httpserver = DjangoServer(port=80)
-
-httpserver = WebServer()
+# httpserver = WebServer()
+httpserver = SocketIOWebServer()
 
 
 
