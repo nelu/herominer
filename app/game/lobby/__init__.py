@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from .. import GAME_IS_OPEN
 from .menu import Menus
 from app.utils.log import logger
 from app.driver import player as driver, JSONConfig
@@ -26,6 +25,7 @@ def check_menus():
 
 def is_on_main_screen():
     global ON_LOBBY_SCREEN
+    from .. import GAME_IS_OPEN
 
     if not GAME_IS_OPEN:
         return GAME_IS_OPEN

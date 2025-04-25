@@ -15,7 +15,9 @@ class WebServer:
         self.app = Flask(__name__, static_folder=self.static_folder,
                          template_folder=os.path.join(self.static_folder, "templates"))
         from .heroes import hero_api
+        from .tasks import task_api
         self.app.register_blueprint(hero_api, url_prefix="/heroes")
+        self.app.register_blueprint(task_api, url_prefix="/tasks")
         # self.app.logger.setLevel(logging.DEBUG)
         self._thread = None
         self.register_routes()

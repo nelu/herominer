@@ -38,7 +38,7 @@ def open_game():
             log.error(f"not game_is_opened: Game found in invalid state {GAME_IS_OPEN} - GAME_IS_OPEN")
             close_game()
 
-        GAME_IS_OPEN = (game_stats.update_stats()
+        GAME_IS_OPEN = bool(game_stats.update_stats()
                         and driver.start(action="0_open-browser-game-lobby")
                         and back_to_lobby())
 
@@ -60,8 +60,12 @@ def close_game():
 
 
 # nice for task scheduling
-def play_action(file):
-    return open_game() and driver.start(file)
+def play_action(file, go_back=False):
+    from .lobby import back_to_lobby
+
+    r = open_game() and driver.start(file)
+    go_back and back_to_lobby()
+    return r
 
 
 def check_complete(item, complete_macro, daily=True):

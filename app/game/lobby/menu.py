@@ -6,11 +6,6 @@ from .. import open_game
 log = logger(__name__)
 
 
-def back_to_lobby():
-    from app.game import lobby
-    return lobby.back_to_lobby()
-
-
 def daily():
     return daily_session("menu")
 
@@ -22,6 +17,11 @@ class Menus:
     def has_menu_notification(self, name):
         value = self.screen_data.get(name)
         return bool(value)
+
+    @staticmethod
+    def back_to_lobby():
+        from app.game.lobby import back_to_lobby
+        return back_to_lobby()
 
     @staticmethod
     def config():
@@ -45,7 +45,7 @@ class Menus:
         r = False
 
         o = self.open_menu(menu_name) and driver.start(f"lobby/menu-{menu_name}")
-        back_to_lobby()
+        self.back_to_lobby()
         return o
 
         # if session.persist('menu-check.txt', f"{menu_name}"):
@@ -75,7 +75,7 @@ class Menus:
             r = driver.click(coords)
 
             r and set_view(f"open_menu-{name}")
-            r or back_to_lobby()  # something is wrong
+            r or self.back_to_lobby()  # something is wrong
             return r
 
         return False

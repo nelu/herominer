@@ -12,7 +12,8 @@ CONFIG = {}
 def has_ran(task_name, outside_timeframe):
     interval = int(outside_timeframe) if isinstance(outside_timeframe, int) else parse(outside_timeframe)
     lr = get_last_run(task_name)
-    return lr is None or (datetime.now() - lr).total_seconds() >= interval
+    return False
+    #return lr is None or (datetime.now() - lr).total_seconds() >= interval
 
 
 def schedule_task(task_name, config):
@@ -64,7 +65,7 @@ def execute_task(task_name, job):
     interval = parse(CONFIG[task_name]["interval"])
     remaining = interval - abs(job.next_run - datetime.now()).total_seconds()
 
-    if has_ran(task_name, interval):
+    if not has_ran(task_name, interval):
         log.info(f"Task executing {task_name}")
         status().set("task_current", mapping={
             "task_current": task_name,

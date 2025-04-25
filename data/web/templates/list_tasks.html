@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tasks SPA</title>
+    <link rel="stylesheet" href="/static/select2.min.css">
+    <link rel="stylesheet" href="/static/jquery-ui.css">
+    <link rel="icon" href="/static/favicon.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+        #search, #group-mode {
+            width: 300px;
+            font-size: 1rem;
+            padding: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        #task-select {
+            width: 300px;
+        }
+        #clear-selection {
+            text-align: right;
+            margin-top: 0.3rem;
+        }
+        #clear-btn {
+            border: none;
+            background: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .task-editor {
+            margin-top: 2rem;
+            padding: 1rem;
+            border: 1px solid #ccc;
+            background: #f1f1f1;
+            max-width: 600px;
+            border-radius: 4px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+        #dialog {
+            display: none;
+        }
+    </style>
+    <script src="/static/jquery.min.js"></script>
+    <script src="/static/select2.min.js"></script>
+    <script src="/static/jquery-ui.min.js"></script>
+</head>
+<body>
+    <h1>⏱️ Tasks Manager (SPA)</h1>
+
+    <label for="search">🔍 Search tasks:</label><br>
+    <input type="text" id="search" placeholder="type to filter..." /><br>
+
+    <label for="group-mode">📂 Group by:</label><br>
+    <select id="group-mode">
+        <option value="interval">Interval</option>
+        <option value="next_run">Next Run</option>
+        <option value="last_run">Last Run</option>
+        <option value="tags">Tags</option>
+    </select><br><br>
+
+    <select id="task-select"></select>
+    <div id="clear-selection">
+        <button id="clear-btn" title="Clear selection">✖</button>
+    </div>
+
+    <div id="task-editor" class="task-editor" style="display: none;"></div>
+
+    <script>
+    $(document).ready(function() {
+        let tasks = {};
+        
+        function loadTasks() {
+            $.get('/tasks/', function(data) {
+                tasks = data;
+                updateTaskSelect();
+            });
+        }
+        
+        function updateTaskSelect() {
+            const search = $('#search').val().toLowerCase();
+            const groupMode = $('#group-mode').val();
+            
+            $('#task-select').empty();
+            
+            // Group tasks based on selected mode
+            const groupedTasks = {};
+            
+            Object.keys(tasks).forEach(taskId => {
+                const task = tasks[taskId];
+                let groupKey;
+                
+                switch(groupMode) {
+                    case 'interval':
+                        groupKey = task.interval || 'Unknown';
+                        break;
+                    case 'next_run':
+                        groupKey = task.next_run ? new Date(task.next_run).toLocaleDateString() : 'Unknown';
+                        break;
+                    case 'last_run':
+                        groupKey = task.last_run ? new Date(task.last_run).toLocaleDateString() : 'Never Run';
+                        break;
+                    case 'tags':
+                        groupKey = task.tags && task.tags.length > 0 ? task.tags.join(', ') : 'No Tags';
+                        break;
+                }
+                
+                if (!groupedTasks[groupKey]) {
+                    groupedTasks[groupKey] = [];
+                }
+                
+                // Filter based on search
+                if (search) {
+                    const taskStr = JSON.stringify(task).toLowerCase();
+                    if (taskStr.includes(search)) {
+                        groupedTasks[groupKey].push({ id: taskId, task });
+                    }
+                } else {
+                    groupedTasks[groupKey].push({ id: taskId, task });
+                }
+            });
+            
+            // Populate select with optgroups
+            Object.keys(groupedTasks).sort().forEach(group => {
+                if (groupedTasks[group].length === 0) return;
+                
+                const $optgroup = $('<optgroup>').attr('label', group);
+                
+                groupedTasks[group].forEach(item => {
+                    const task = item.task;
+                    const displayName = task.name + ' (' + task.id.substring(0, 8) + ')';
+                    $optgroup.append($('<option>').val(item.id).text(displayName));
+                });
+                
+                $('#task-select').append($optgroup);
+            });
+            
+            // Initialize select2
+            $('#task-select').select2({
+                placeholder: 'Select a task',
+                allowClear: true
+            });
+        }
+        
+        // Load tasks on page load
+        loadTasks();
+        
+        // Filter tasks on search
+        $('#search').on('input', updateTaskSelect);
+        
+        // Change grouping
+        $('#group-mode').on('change', updateTaskSelect);
+        
+        // Clear selection
+        $('#clear-btn').click(function() {
+            $('#task-select').val(null).trigger('change');
+            $('#task-editor').hide();
+        });
+        
+        // Handle task selection
+        $('#task-select').on('change', function() {
+            const taskId = $(this).val();
+            if (!taskId) {
+                $('#task-editor').hide();
+                return;
+            }
+            
+            $.get(`/tasks/${taskId}`, function(data) {
+                $('#task-editor').html(`
+                    <h3>${data.name}</h3>
+                    <p><strong>ID:</strong> ${data.id}</p>
+                    <p><strong>Interval:</strong> ${data.interval}</p>
+                    <p><strong>Next Run:</strong> ${data.next_run ? new Date(data.next_run).toLocaleString() : 'N/A'}</p>
+                    <p><strong>Last Run:</strong> ${data.last_run ? new Date(data.last_run).toLocaleString() : 'Never'}</p>
+                    <p><strong>Tags:</strong> ${data.tags && data.tags.length > 0 ? data.tags.join(', ') : 'None'}</p>
+                    <textarea id="task-data">${JSON.stringify(data, null, 2)}</textarea>
+                    <div>
+                        <button id="update-task">Update Task</button>
+                        <button id="delete-task" style="background-color: #ff4444; color: white;">Delete Task</button>
+                        <button id="edit-task">Edit Full Task</button>
+                    </div>
+                `);
+                
+                $('#task-editor').show();
+                
+                // Handle task update
+                $('#update-task').click(function() {
+                    try {
+                        const updatedData = JSON.parse($('#task-data').val());
+                        $.ajax({
+                            url: `/tasks/${taskId}`,
+                            method: 'PUT',
+                            contentType: 'application/json',
+                            data: JSON.stringify(updatedData),
+                            success: function() {
+                                alert('Task updated successfully!');
+                                loadTasks();
+                            },
+                            error: function() {
+                                alert('Failed to update task.');
+                            }
+                        });
+                    } catch (e) {
+                        alert('Invalid JSON: ' + e.message);
+                    }
+                });
+                
+                // Handle task deletion
+                $('#delete-task').click(function() {
+                    if (confirm(`Are you sure you want to delete task "${data.name}"?`)) {
+                        $.ajax({
+                            url: `/tasks/${taskId}`,
+                            method: 'DELETE',
+                            success: function() {
+                                alert('Task deleted successfully!');
+                                $('#task-select').val(null).trigger('change');
+                                $('#task-editor').hide();
+                                loadTasks();
+                            },
+                            error: function() {
+                                alert('Failed to delete task.');
+                            }
+                        });
+                    }
+                });
+                
+                // Handle edit full task
+                $('#edit-task').click(function() {
+                    window.location.href = `/tasks/edit/${taskId}`;
+                });
+            });
+        });
+    });
+    </script>
+</body>
+</html>
