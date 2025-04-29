@@ -18,7 +18,7 @@ def config(element=None):
 
 def grow_hero(hero):
     if not hero.open_hero():
-            return False
+        return False
 
     grow_conf = config('heroes').get(hero._slug, {
         "skills": 1,
@@ -33,9 +33,8 @@ def grow_hero(hero):
     skins = grow_conf.get("skins") and hero.skins.upgrade_any(grow_conf["skins"])
     level = hero.level < 130 and grow_conf.get("levels") and hero.upgrade_xp(grow_conf["levels"])
 
-    artifacts = (Enumerable(grow_conf.get("artifacts", []))
-                 .where(lambda a, h=hero: h.artifacts.upgrade_artifact(artifact_id=str(a), evolution=True))
-                 .count())
+    artifact_upgrades = grow_conf.get("artifacts", [])
+    artifacts = artifact_upgrades and upgrade_artifacts(hero, artifact_upgrades) or 0
 
     slots = grow_conf.get("items") and hero.slots.upgrade_all(grow_conf["items"])
 
@@ -52,12 +51,15 @@ def upgrade_rune(hero_name, rune_type, level_increase=1):
     log.info(f"Upgraded {hero_name}'s {rune_type} rune to level {new_rune_level}.")
 
 
-def upgrade_artifact(hero_name, artifact_name, level_increase=1):
-    """Upgrades a hero's artifact"""
-    current_artifact_level = session.read_session(f"hero:{hero_name}:artifact:{artifact_name}") or 1
-    new_artifact_level = current_artifact_level + level_increase
-    session.write(f"hero:{hero_name}:artifact:{artifact_name}", new_artifact_level)
-    log.info(f"Upgraded {hero_name}'s {artifact_name} artifact to level {new_artifact_level}.")
+def upgrade_artifacts(hero, artifact_upgrades):
+    """Upgrades a hero's artifacts"""
+    if not hero.artifacts.open():
+        return False
+
+    artifacts = (Enumerable(artifact_upgrades)
+                 .where(lambda a, h=hero: h.artifacts.upgrade_artifact(artifact_id=str(a), evolution=True))
+                 .count())
+    return artifacts
 
 
 def upgrade_pet(pet_name, level_increase=1):
@@ -90,7 +92,6 @@ def grow_heroes(hero_slugs=None):
     for hero in sorted_heroes:
         log.debug(f"grow_heroes: Trying - {hero._slug}")
         grow_hero(hero) or log.error(f"grow_heroes: Grow hero failed - {hero._slug}")
-
 
 
 def acquire_hero_items():

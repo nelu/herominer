@@ -11,6 +11,10 @@ class MyTestCase(unittest.TestCase):
     def test_click(self):
         r = player.click("333x444")
 
+    def test_process_detections(self):
+        r  = player.check_process_and_window()
+        self.assertIsNotNone(r)
+
     def test_write_coordinates(self):
         r = write_coords("333x444")
         self.assertIsNotNone(r)

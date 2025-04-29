@@ -2,25 +2,22 @@ from flask import request, jsonify, render_template
 from . import task_api
 import uuid
 
-from app.tasks.helper import schedule_tasks
+from app.tasks.helper import schedule_tasks, get_configured_tasks, get_last_run
 import schedule
 
 @task_api.route("/", methods=["GET"])
 def list_tasks():
     if request.headers.get('Accept') == 'application/json':
         # API request - return JSON
-        jobs = schedule.get_jobs()
+        #jobs = schedule.get_jobs()
         tasks = {}
-        for job in jobs:
-            task_id = str(job.job_id or uuid.uuid4())
-            tasks[task_id] = {
-                "id": task_id,
-                "name": getattr(job.job_func, "__name__", "unknown"),
-                "interval": getattr(job, "interval", "unknown"),
-                "at_time": getattr(job, "at_time", None),
-                "next_run": job.next_run,
-                "last_run": job.last_run,
-                "tags": list(job.tags),
+        for task_name, task in get_configured_tasks().items():
+            tasks[task_name] = {
+                "id": task_name,
+                "name": task_name,
+                "interval": task['interval'],
+                "next_run": str(task['job'].next_run),
+                "last_run": str(get_last_run(task_name))
             }
         return jsonify(tasks)
     else:

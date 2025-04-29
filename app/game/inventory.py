@@ -37,9 +37,9 @@ class ItemsInventory(StatusData):
 
 def check_inventory():
     log.info("check_inventory: for usable items")
-    return (open_game()
-            and driver.start("lobby/inventory-open-usable-items")
-            and back_to_lobby())
+    r = open_game() and driver.start("lobby/inventory-open-usable-items")
+    back_to_lobby()
+    return r
 
 
 items = ItemsInventory()

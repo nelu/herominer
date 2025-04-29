@@ -4,16 +4,21 @@ from pytimeparse import parse
 import schedule
 from app.utils.session import status
 from app.utils.log import logger
+
 log = logger(__name__)
 
 CONFIG = {}
+
+
+def get_configured_tasks():
+    return CONFIG
 
 
 def has_ran(task_name, outside_timeframe):
     interval = int(outside_timeframe) if isinstance(outside_timeframe, int) else parse(outside_timeframe)
     lr = get_last_run(task_name)
     return False
-    #return lr is None or (datetime.now() - lr).total_seconds() >= interval
+    # return lr is None or (datetime.now() - lr).total_seconds() >= interval
 
 
 def schedule_task(task_name, config):
@@ -23,8 +28,6 @@ def schedule_task(task_name, config):
     :param config:
     :param task_name: Name of the task.
     """
-    if task_name not in CONFIG:
-        set_task_config(task_name, config)
 
     job = None
     if config.get("after"):
@@ -41,6 +44,10 @@ def schedule_task(task_name, config):
         job = schedule.every().day.at(config["at"])
         job = job.do(execute_task, task_name, job)
 
+    if task_name not in CONFIG:
+        config['job'] = job
+        set_task_config(task_name, config)
+
     return job
 
 
@@ -51,6 +58,7 @@ def schedule_from_config(tasks_config):
         tasks[f"{task_name}"] = conf
 
     return schedule_tasks(tasks)
+
 
 def schedule_tasks(configuration):
     """Schedules all tasks dynamically based on defined intervals."""
@@ -74,7 +82,6 @@ def execute_task(task_name, job):
         })
 
         set_last_run(task_name, run_status=None, timestamp=now)  # Update last run time in Redis
-
 
         call_function = CONFIG[task_name]["function"]
         args = CONFIG[task_name].get("args", [])
@@ -108,7 +115,8 @@ def set_task_config(task_name, config):
 
     """
     CONFIG[task_name] = config
-    log.debug(f"Task created: {task_name} → interval: {config.get('interval')} - at: {config.get('at')} - after: {config.get('after')}")
+    log.debug(
+        f"Task created: {task_name} → interval: {config.get('interval')} - at: {config.get('at')} - after: {config.get('after')}")
 
 
 def get_last_run(task_name):
@@ -116,12 +124,13 @@ def get_last_run(task_name):
     last_run = status('last_run').get(task_name)
     return last_run and datetime.strptime(last_run, "%Y-%m-%d %H:%M:%S")
 
+
 def get_last_run_status(task_name):
     """Retrieve last run time from Redis"""
     return status('last_run_status').get(task_name)
 
-def set_last_run(task_name, run_status = None, timestamp=datetime.now()):
 
+def set_last_run(task_name, run_status=None, timestamp=datetime.now()):
     """Store last run time in Redis"""
     status('last_run_status').set(task_name, run_status)
     run_status and status().set('task_lastrun_result', run_status)

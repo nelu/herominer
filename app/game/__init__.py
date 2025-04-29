@@ -23,7 +23,7 @@ def back_views(count=1):
 def game_is_open():
     global GAME_IS_OPEN
     #game_running = GAME_IS_OPEN and driver.browser().title and "Hero" in driver.browser().title
-    return GAME_IS_OPEN
+    return GAME_IS_OPEN and driver.check_process_and_window()
 
 def open_game():
     global GAME_IS_OPEN

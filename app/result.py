@@ -45,16 +45,21 @@ def daily(name, data, set_name="status"):
     publish_event('daily', [name, data, set_name])
     return DailySessionManager.entry(set_name).set(name, data)
 
-def append(set_name="status", *pairs):
-    args_pairs =_get_arg_pairs(pairs)
+def append(set_name="status", entry_name = None, *data):
+    #args_pairs =_get_arg_pairs(pairs)
     session = BaseSessionManager.entry(set_name)
-    r = False
 
-    for key, value in args_pairs.items():
-        current = session.get(key) or ""
-        r = session.set(key, current + value)
+    if entry_name is None:
+        return False
 
-    publish_event('append', args_pairs)
+    # for key, value in args_pairs.items():
+    #     current = session.get(key) or ""
+    #     r = session.set(key, current + value)
+
+    current = session.get(entry_name) or ""
+    r = session.set(entry_name, current + " ".join(data))
+
+    publish_event('append', [set_name, entry_name, data])
 
     return r
 

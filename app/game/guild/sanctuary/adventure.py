@@ -29,7 +29,7 @@ class Adventure:
         return driver.to_clipboard(start_position).start(f"guild/adventures/mission-player")
 
     def started_adventure(self, position=1):
-        d.set("adventure_started_id", int(self.adventure_id))
+        #d.set("adventure_started_id", int(self.adventure_id))
         d.set("adventure_started_time")
         d.set("adventure_lvl_position", position)
         # return self

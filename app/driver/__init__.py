@@ -3,6 +3,10 @@ import re
 import json
 from multiprocessing import Process, Queue, Event
 
+import psutil
+import win32gui
+import win32process
+
 from app import settings
 from .macrorecorder import MacroRecorderDriver
 from .config import JSONConfig
@@ -79,16 +83,40 @@ class DriverInterface(MacroRecorderDriver):
 
         player.stop()
 
-    def do_request(self, runable_wrapper, *args):
+    def do_request(self, runable_wrapper, timeout, *args):
         queue = Queue()
 
         self.stop_event = Event()
         self.selenium_worker = Process(target=self.wait_for_shutdown,
-                                       args=(runable_wrapper, queue, self.stop_event, *args))
+                                       args=(runable_wrapper, queue, self.stop_event, timeout, *args))
         self.selenium_worker.start()
-        response = queue.get()
+        try:
+            # Wait for result with 5*second timeout
+            response = queue.get(timeout=5*timeout)
+        except Exception as e:
+            print(f"[do_request] Timeout waiting for worker response: {e}")
+            # No response in time, try to shut down
+            self.stop_event.set()
+            self.selenium_worker.join(timeout=5)
+
+            if self.selenium_worker.is_alive():
+                print("[do_request] Worker still alive after join, terminating...")
+                self.selenium_worker.terminate()
+                self.selenium_worker.join()
+
+            return False
+
+        # Got response
         if response.get('error'):
-            self.selenium_worker.join(10)
+            # Response has error, still need to clean up
+            self.stop_event.set()
+            self.selenium_worker.join(timeout=5)
+
+            if self.selenium_worker.is_alive():
+                print("[do_request] Worker alive after error, forcing terminate...")
+                self.selenium_worker.terminate()
+                self.selenium_worker.join()
+
             return False
 
         return response
@@ -180,6 +208,41 @@ class DriverInterface(MacroRecorderDriver):
         else:
             # from main thread
             super().stop()
+
+
+    @staticmethod
+    def get_window_title(pid):
+        """Find window title for a given PID."""
+        titles = []
+
+        def enum_windows_callback(hwnd, pid_to_title):
+            try:
+                _, found_pid = win32process.GetWindowThreadProcessId(hwnd)
+                if found_pid == pid and win32gui.IsWindowVisible(hwnd):
+                    title = win32gui.GetWindowText(hwnd)
+                    if title:
+                        pid_to_title.append(title)
+            except Exception:
+                pass  # Some windows may not allow access
+
+        win32gui.EnumWindows(enum_windows_callback, titles)
+        return titles
+
+    @staticmethod
+    def check_process_and_window(executable_name = 'brave.exe', word = "Hero"):
+        """Check if the process is running and window title contains the word."""
+        for proc in psutil.process_iter(['pid', 'name']):
+            try:
+                if proc.info['name'] and proc.info['name'].lower() == executable_name.lower():
+                    #print(f"Process {executable_name} found with PID {proc.pid}")
+                    titles = DriverInterface.get_window_title(proc.pid)
+                    for title in titles:
+                        if word.lower() in title.lower():
+                            #print(f"Window title containing '{word}': {title}")
+                            return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+        return False
 
 
 player = DriverInterface()

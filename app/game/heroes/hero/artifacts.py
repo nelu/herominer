@@ -98,12 +98,9 @@ class Artifacts(StatusData):
                 f"upgrade_any: {self._hero.short_name} no artifacts available for upgrade: -> {self.available}")
             return item
 
-        return self.upgrade_artifact(item, evolution=evolution)
+        return self.open() and self.upgrade_artifact(item, evolution=evolution)
 
     def upgrade_artifact(self, artifact_id, levels=1, evolution=False):
-
-        if not self.open():
-            return False
 
         self.set_open_settings(update_stats=True, artifact_id=artifact_id, evolution=evolution, upgrade_lvl=1)
 

@@ -43,7 +43,7 @@ def check_expeditions():
 
 
 def run_tasks():
-    if menus.open_menu_notification("airship"):
+    if menus.has_menu_notification("airship"):
 
         log.debug("airship_run: Check collectables and expeditions")
         #check_chest_opens()
