@@ -59,9 +59,9 @@ def create_task():
     data = request.json or {}
     task_id = str(uuid.uuid4())
 
-    task_name = data.get("name", f"task_{task_id}")
-    function_name = data.get("function", "")
-    once = data.get("once", False)
+    task_name = data.get("name") or f"task_{task_id}"
+    function_name = data.get("function")
+    once = data.get("once", True)
     interval = data.get("interval", once and "1 second" or None)
 
     # Simple validation
@@ -79,7 +79,7 @@ def create_task():
             "once": once
         }])
 
-        return jsonify({"id": task_id, "data": data, "ack": r}), 201
+        return jsonify({"id": task_name, "data": data, "ack": r}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

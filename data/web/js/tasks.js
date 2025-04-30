@@ -5,6 +5,8 @@ function formatDateTime(dateStr) {
     return dateStr;
 }
 
+let tasks = {}
+
 // Helper function to get Unix timestamp from date string for sorting
 function getTimestamp(dateStr) {
     if (!dateStr) return 0;
@@ -51,11 +53,13 @@ function createTaskRow(taskName, task) {
 
     // Set status indicator
     let statusClass = 'status-info';
-    if (task.type === "once") {
-        statusClass = 'status-warning';  // Running
+    if (!task.task_start) {
+        statusClass = 'status-danger';  // Running
+    } else if (!task.task_finish) {
+        statusClass = 'status-success';
     } else if (task.task_result === false) {
         statusClass = 'status-danger';
-    } else if (!task.task_start) {
+    } else if (task.type === "once") {
         statusClass = 'status-warning';  // Running
     }
     row.querySelector('.status-indicator').classList.add(statusClass);
@@ -248,7 +252,8 @@ function loadTasks(isAutoRefresh = false) {
         headers: {
             'Accept': 'application/json'
         },
-        success: function (tasks) {
+        success: function (t) {
+            tasks = t;
             $tableBody.empty();
 
             if (Object.keys(tasks).length === 0) {
@@ -267,7 +272,7 @@ function loadTasks(isAutoRefresh = false) {
 
             $(document).on('click', '.view-btn', function () {
                 const taskId = $(this).data('task-id');
-                showTaskDetails(taskId, tasks[taskId]);
+                showTaskDetails(taskId);
             });
 
             $(document).on('click', '.edit-btn', function () {
@@ -328,11 +333,11 @@ function loadTasks(isAutoRefresh = false) {
     });
 }
 
-function showTaskDetails(taskId, taskData) {
+function showTaskDetails(taskId) {
     const $modal = $('#taskDetailModal');
     const $modalTitle = $('#taskDetailTitle');
     const $modalBody = $('#taskDetailBody');
-
+    let taskData = tasks[taskId]
     $modalTitle.text(`Task Details: ${taskData.name}`);
 
     // Clear previous content

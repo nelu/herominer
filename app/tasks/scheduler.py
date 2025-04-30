@@ -39,7 +39,7 @@ def handle_schedule_task(data):
         args = data.get("args", [])
         once = data.get("once", False)
 
-        log.info(f"[schedule_task] Scheduled task '{task_name}' (once={once})")
+        log.info(f"[schedule_task] Scheduled task '{task_name}' -> {function} (once={once})")
 
         if not all([task_name, function, interval]):
             log.warning(f"[schedule_task] Missing required fields: {data}")
@@ -75,7 +75,7 @@ def run_scheduled_tasks():
 
     register_event("schedule_task", handle_schedule_task)
 
-    #tasks.schedule_game_tasks()
+    tasks.schedule_game_tasks()
 
     # some generic internal tasks
     schedule_tasks({
