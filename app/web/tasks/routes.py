@@ -1,8 +1,11 @@
 from flask import request, jsonify, render_template
+from pytimeparse import parse
+
 from . import task_api
 import uuid
 
 from app.tasks.helper import schedule_tasks, get_configured_tasks, get_last_run
+from app.utils.session import status
 import schedule
 
 @task_api.route("/", methods=["GET"])
@@ -12,12 +15,20 @@ def list_tasks():
         #jobs = schedule.get_jobs()
         tasks = {}
         for task_name, task in get_configured_tasks().items():
+            # Get task status from Redis
+            task_status = status('tasks').get(task_name) or {}
+            
             tasks[task_name] = {
                 "id": task_name,
                 "name": task_name,
                 "interval": task['interval'],
-                "next_run": str(task['job'].next_run),
-                "last_run": str(get_last_run(task_name))
+                "next_run": task['job'].next_run.strftime('%Y-%m-%d %H:%M:%S') if task['job'].next_run else "0000-00-00 00:00:00",
+                # Add detailed status information
+                "interval_seconds": parse(task['interval']),
+                "task_start": task_status.get('task_start'),
+                "task_finish": task_status.get('task_finish'),
+                "task_nextrun": task_status.get('task_nextrun'),
+                "task_result": task_status.get('task_result')
             }
         return jsonify(tasks)
     else:
@@ -78,8 +89,8 @@ def task_ops(task_id):
             "name": getattr(existing_task.job_func, "__name__", "unknown"),
             "interval": getattr(existing_task, "interval", "unknown"),
             "at_time": getattr(existing_task, "at_time", None),
-            "next_run": existing_task.next_run,
-            "last_run": existing_task.last_run,
+            "next_run": existing_task.next_run.strftime('%Y-%m-%d %H:%M:%S') if existing_task.next_run else None,
+            "last_run": existing_task.last_run.strftime('%Y-%m-%d %H:%M:%S') if existing_task.last_run else None,
             "tags": list(existing_task.tags),
         }
         return jsonify(task_data)

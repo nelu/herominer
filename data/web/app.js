@@ -115,9 +115,16 @@ function renderHeroEditor(id) {
 }
 
 function loadHeroes(callback) {
-    $.get("/heroes/", function(data) {
-        heroData = data;
-        callback(heroData);
+    $.ajax({
+        url: "/heroes/",
+        type: "GET",
+        headers: {
+            "Accept": "application/json"
+        },
+        success: function(data) {
+            heroData = data;
+            callback(heroData);
+        }
     });
 }
 

@@ -9,9 +9,14 @@ from app.game.heroes.manager import instance
 hdata = HeroData()
 @hero_api.route("/", methods=["GET"])
 def list_heroes():
-    data = instance.all_heroes(available=False).to_dictionary(lambda h: h._slug)
-    serialized = {str(k): v.to_dict() for k, v in data.items()}
-    return jsonify(serialized)
+    if request.headers.get('Accept') == 'application/json':
+        # API request - return JSON
+        data = instance.all_heroes(available=False).to_dictionary(lambda h: h._slug)
+        serialized = {str(k): v.to_dict() for k, v in data.items()}
+        return jsonify(serialized)
+    else:
+        # Browser request - return HTML
+        return render_template("list_heroes.html")
 
 @hero_api.route("/", methods=["POST"])
 def create_hero():

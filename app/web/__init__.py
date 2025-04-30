@@ -25,8 +25,8 @@ class WebServer:
     def register_routes(self):
         @self.app.route("/")
         def index():
-            return render_template("list.html")
-
+            return render_template("main.html")
+            
         @self.app.route("/static/<path:filename>")
         def serve_static(filename):
             return send_from_directory(self.static_folder, filename)

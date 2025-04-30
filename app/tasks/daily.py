@@ -1,6 +1,5 @@
 # from app.heroes import hero_upgrade_priority as heroes
 # from app.game import lobby, rewards, quests
-from .helper import set_last_run
 
 from app.utils.log import logger
 log = logger(__name__)

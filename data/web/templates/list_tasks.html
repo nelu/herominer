@@ -1,264 +1,200 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Tasks SPA</title>
-    <link rel="stylesheet" href="/static/select2.min.css">
-    <link rel="stylesheet" href="/static/jquery-ui.css">
-    <link rel="icon" href="/static/favicon.png">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 2rem;
-        }
+{% extends "base.html" %}
 
-        #search, #group-mode {
-            width: 300px;
-            font-size: 1rem;
-            padding: 0.4rem;
-            margin-bottom: 1rem;
-        }
+{% block title %}Scheduled Tasks{% endblock %}
 
-        #task-select {
-            width: 300px;
-        }
+{% block custom_styles %}
+<style>
+    .task-card {
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+    }
+    .task-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .table-responsive {
+        overflow-x: auto;
+    }
+    .status-success { background-color: #28a745; }
+    .status-warning { background-color: #ffc107; }
+    .status-danger { background-color: #dc3545; }
+    .status-info { background-color: #17a2b8; }
+    .sortable {
+        cursor: pointer;
+        position: relative;
+        user-select: none;
+    }
+    .sortable:hover {
+        background-color: rgba(0,0,0,0.05);
+    }
+    .sortable::after {
+        content: '↕';
+        position: absolute;
+        right: 8px;
+        opacity: 0.3;
+    }
+    .sort-asc::after { content: '↓'; opacity: 1; }
+    .sort-desc::after { content: '↑'; opacity: 1; }
+</style>
+{% endblock %}
 
-        #clear-selection {
-            text-align: right;
-            margin-top: 0.3rem;
-        }
+{% block tab_content %}
 
-        #clear-btn {
-            border: none;
-            background: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
+<!-- Tasks Tab -->
+<div class="tab-pane fade show active" id="tasks-content" role="tabpanel" aria-labelledby="tasks-tab">
+    <div id="tasks-container" class="container mt-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h1>Scheduled Tasks</h1>
+                <p class="lead">Manage and monitor your scheduled automation tasks</p>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-success" id="createTaskBtn">
+                    <i class="bi bi-plus-circle"></i> New Task
+                </button>
+            </div>
+        </div>
 
-        .task-editor {
-            margin-top: 2rem;
-            padding: 1rem;
-            border: 1px solid #ccc;
-            background: #f1f1f1;
-            max-width: 600px;
-            border-radius: 4px;
-        }
+        <div class="card mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Task Overview</h5>
+                <div class="input-group w-50">
+                    <input type="text" class="form-control" id="taskSearchInput" placeholder="Search tasks...">
+                    <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="tasksTable">
+                        <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th class="sortable">Name</th>
+                            <th class="sortable">Interval</th>
+                            <th class="sortable">Last Run</th>
+                            <th class="sortable">Next Run</th>
+                            <th class="sortable">Last Result</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="taskTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center">Loading tasks...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-        textarea {
-            width: 100%;
-            height: 300px;
-            font-family: monospace;
-            font-size: 0.9rem;
-            margin-top: 10px;
-        }
+        <!-- Task Detail Modal -->
+        <div class="modal fade" id="taskDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="taskDetailTitle">Task Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="taskDetailBody">
+                        <!-- Task detail content will be populated by task-details-panel custom element -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        button {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            margin-top: 1rem;
-        }
+        <!-- Template for task-details-panel custom element -->
+        <template id="task-details-template">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h6>Basic Information</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>ID</th>
+                            <td id="task-id"></td>
+                        </tr>
+                        <tr>
+                            <th>Name</th>
+                            <td id="task-name"></td>
+                        </tr>
+                        <tr>
+                            <th>Interval</th>
+                            <td id="task-interval"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Execution Timeline</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Last Started</th>
+                            <td id="task-start"></td>
+                        </tr>
+                        <tr>
+                            <th>Last Finished</th>
+                            <td id="task-finish"></td>
+                        </tr>
+                        <tr>
+                            <th>Next Run</th>
+                            <td id="task-next-run"></td>
+                        </tr>
+                        <tr>
+                            <th>Next Scheduled</th>
+                            <td id="task-next-scheduled"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <h6>Last Result</h6>
+                    <pre id="task-result" class="bg-light p-3 rounded"></pre>
+                </div>
+            </div>
+        </template>
 
-        #dialog {
-            display: none;
-        }
-    </style>
-    <script src="/static/jquery.min.js"></script>
-    <script src="/static/select2.min.js"></script>
-    <script src="/static/jquery-ui.min.js"></script>
-</head>
-<body>
-<h1>⏱️ Tasks Manager (SPA)</h1>
+        <!-- Template for task row in table -->
+        <template id="task-row-template">
+            <tr>
+                <td><span class="status-indicator"></span></td>
+                <td class="task-name"></td>
+                <td class="task-interval"></td>
+                <td class="task-last-run"></td>
+                <td class="task-next-run"></td>
+                <td class="task-result"></td>
+                <td class="text-nowrap">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Task Actions">
+                        <button class="btn btn-info view-btn" data-task-id="" data-bs-toggle="tooltip"
+                                title="View Details">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-warning edit-btn" data-task-id="" data-bs-toggle="tooltip"
+                                title="Edit Task">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-danger delete-btn" data-task-id="" data-bs-toggle="tooltip"
+                                title="Delete Task">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </template>
+    </div>
 
-<label for="search">🔍 Search tasks:</label><br>
-<input type="text" id="search" placeholder="type to filter..."/><br>
 
-<label for="group-mode">📂 Group by:</label><br>
-<select id="group-mode">
-    <option value="interval">Interval</option>
-    <option value="next_run">Next Run</option>
-    <option value="last_run">Last Run</option>
-    <option value="tags">Tags</option>
-</select><br><br>
-
-<select id="task-select"></select>
-<div id="clear-selection">
-    <button id="clear-btn" title="Clear selection">✖</button>
 </div>
 
-<div id="task-editor" class="task-editor" style="display: none;"></div>
+{% endblock %}
 
+{% block body_scripts %}
+<script src="/static/js/tasks.js"></script>
 <script>
-    $(document).ready(function () {
-        let tasks = {};
-
-        function loadTasks() {
-            $.ajax({
-                url: '/tasks/',
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                },
-                success: function (data) {
-                    tasks = data;
-                    updateTaskSelect();
-                }
-            });
-
-        }
-
-        function updateTaskSelect() {
-            const search = $('#search').val().toLowerCase();
-            const groupMode = $('#group-mode').val();
-
-            $('#task-select').empty();
-
-            // Group tasks based on selected mode
-            const groupedTasks = {};
-
-            Object.keys(tasks).forEach(taskId => {
-                const task = tasks[taskId];
-                let groupKey;
-
-                switch (groupMode) {
-                    case 'interval':
-                        groupKey = task.interval || 'Unknown';
-                        break;
-                    case 'next_run':
-                        groupKey = task.next_run ? new Date(task.next_run).toLocaleDateString() : 'Unknown';
-                        break;
-                    case 'last_run':
-                        groupKey = task.last_run ? new Date(task.last_run).toLocaleDateString() : 'Never Run';
-                        break;
-                    case 'tags':
-                        groupKey = task.tags && task.tags.length > 0 ? task.tags.join(', ') : 'No Tags';
-                        break;
-                }
-
-                if (!groupedTasks[groupKey]) {
-                    groupedTasks[groupKey] = [];
-                }
-
-                // Filter based on search
-                if (search) {
-                    const taskStr = JSON.stringify(task).toLowerCase();
-                    if (taskStr.includes(search)) {
-                        groupedTasks[groupKey].push({id: taskId, task});
-                    }
-                } else {
-                    groupedTasks[groupKey].push({id: taskId, task});
-                }
-            });
-
-            // Populate select with optgroups
-            Object.keys(groupedTasks).sort().forEach(group => {
-                if (groupedTasks[group].length === 0) return;
-
-                const $optgroup = $('<optgroup>').attr('label', group);
-
-                groupedTasks[group].forEach(item => {
-                    const task = item.task;
-                    const displayName = task.name + ' (' + task.id.substring(0, 8) + ')';
-                    $optgroup.append($('<option>').val(item.id).text(displayName));
-                });
-
-                $('#task-select').append($optgroup);
-            });
-
-            // Initialize select2
-            $('#task-select').select2({
-                placeholder: 'Select a task',
-                allowClear: true
-            });
-        }
-
-        // Load tasks on page load
-        loadTasks();
-
-        // Filter tasks on search
-        $('#search').on('input', updateTaskSelect);
-
-        // Change grouping
-        $('#group-mode').on('change', updateTaskSelect);
-
-        // Clear selection
-        $('#clear-btn').click(function () {
-            $('#task-select').val(null).trigger('change');
-            $('#task-editor').hide();
-        });
-
-        // Handle task selection
-        $('#task-select').on('change', function () {
-            const taskId = $(this).val();
-            if (!taskId) {
-                $('#task-editor').hide();
-                return;
-            }
-
-            $.get(`/tasks/${taskId}`, function (data) {
-                $('#task-editor').html(`
-                    <h3>${data.name}</h3>
-                    <p><strong>ID:</strong> ${data.id}</p>
-                    <p><strong>Interval:</strong> ${data.interval}</p>
-                    <p><strong>Next Run:</strong> ${data.next_run ? new Date(data.next_run).toLocaleString() : 'N/A'}</p>
-                    <p><strong>Last Run:</strong> ${data.last_run ? new Date(data.last_run).toLocaleString() : 'Never'}</p>
-                    <p><strong>Tags:</strong> ${data.tags && data.tags.length > 0 ? data.tags.join(', ') : 'None'}</p>
-                    <textarea id="task-data">${JSON.stringify(data, null, 2)}</textarea>
-                    <div>
-                        <button id="update-task">Update Task</button>
-                        <button id="delete-task" style="background-color: #ff4444; color: white;">Delete Task</button>
-                        <button id="edit-task">Edit Full Task</button>
-                    </div>
-                `);
-
-                $('#task-editor').show();
-
-                // Handle task update
-                $('#update-task').click(function () {
-                    try {
-                        const updatedData = JSON.parse($('#task-data').val());
-                        $.ajax({
-                            url: `/tasks/${taskId}`,
-                            method: 'PUT',
-                            contentType: 'application/json',
-                            data: JSON.stringify(updatedData),
-                            success: function () {
-                                alert('Task updated successfully!');
-                                loadTasks();
-                            },
-                            error: function () {
-                                alert('Failed to update task.');
-                            }
-                        });
-                    } catch (e) {
-                        alert('Invalid JSON: ' + e.message);
-                    }
-                });
-
-                // Handle task deletion
-                $('#delete-task').click(function () {
-                    if (confirm(`Are you sure you want to delete task "${data.name}"?`)) {
-                        $.ajax({
-                            url: `/tasks/${taskId}`,
-                            method: 'DELETE',
-                            success: function () {
-                                alert('Task deleted successfully!');
-                                $('#task-select').val(null).trigger('change');
-                                $('#task-editor').hide();
-                                loadTasks();
-                            },
-                            error: function () {
-                                alert('Failed to delete task.');
-                            }
-                        });
-                    }
-                });
-
-                // Handle edit full task
-                $('#edit-task').click(function () {
-                    window.location.href = `/tasks/edit/${taskId}`;
-                });
-            });
-        });
-    });
+    refreshFunction = loadTasks;
+    $(document).ready(() => loadTasks());
 </script>
-</body>
-</html>
+{% endblock %}

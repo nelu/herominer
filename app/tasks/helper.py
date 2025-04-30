@@ -1,5 +1,5 @@
 import importlib
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytimeparse import parse
 import schedule
 from app.utils.session import status
@@ -17,8 +17,7 @@ def get_configured_tasks():
 def has_ran(task_name, outside_timeframe):
     interval = int(outside_timeframe) if isinstance(outside_timeframe, int) else parse(outside_timeframe)
     lr = get_last_run(task_name)
-    return False
-    # return lr is None or (datetime.now() - lr).total_seconds() >= interval
+    return lr and (datetime.now() - lr).total_seconds() <= interval
 
 
 def schedule_task(task_name, config):
@@ -67,22 +66,14 @@ def schedule_tasks(configuration):
 
 
 def execute_task(task_name, job):
-    now = datetime.now()
-    last_run_time = get_last_run(task_name)
-
+    now = datetime.now() - timedelta(seconds=10)  # 10 seconds offset
     interval = parse(CONFIG[task_name]["interval"])
-    remaining = interval - abs(job.next_run - datetime.now()).total_seconds()
+    remaining = (job.next_run
+                 and interval - abs(job.next_run - datetime.now()).total_seconds()
+                 or interval)
 
     if not has_ran(task_name, interval):
         log.info(f"Task executing {task_name}")
-        status().set("task_current", mapping={
-            "task_current": task_name,
-            "task_start": now.strftime('%Y-%m-%d %H:%M:%S'),
-            "task_nextrun": job.next_run.strftime('%Y-%m-%d %H:%M:%S'),
-        })
-
-        set_last_run(task_name, run_status=None, timestamp=now)  # Update last run time in Redis
-
         call_function = CONFIG[task_name]["function"]
         args = CONFIG[task_name].get("args", [])
 
@@ -100,6 +91,13 @@ def execute_task(task_name, job):
         remaining = interval - abs((job.next_run - datetime.now()).total_seconds())
         log.debug(f"Task {task_name} result {r}. Next run in {remaining / 60} minutes.")
 
+        status('tasks').set(task_name, value={
+            "interval_seconds": interval,
+            "task_start": now.strftime('%Y-%m-%d %H:%M:%S'),
+            "task_nextrun": job.next_run.strftime('%Y-%m-%d %H:%M:%S'),
+            "task_finish": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            "task_result": r,
+        })
     else:
         log.debug(f"Task skipping {task_name}. Next run in {remaining / 60} minutes.")
 
@@ -121,17 +119,12 @@ def set_task_config(task_name, config):
 
 def get_last_run(task_name):
     """Retrieve last run time from Redis"""
-    last_run = status('last_run').get(task_name)
-    return last_run and datetime.strptime(last_run, "%Y-%m-%d %H:%M:%S")
+    last_run = status('tasks').get(task_name)
+    return last_run and datetime.strptime(last_run['task_start'], "%Y-%m-%d %H:%M:%S")
 
 
 def get_last_run_status(task_name):
     """Retrieve last run time from Redis"""
-    return status('last_run_status').get(task_name)
+    last_run = status('tasks').get(task_name)
+    return last_run and last_run['task_result']
 
-
-def set_last_run(task_name, run_status=None, timestamp=datetime.now()):
-    """Store last run time in Redis"""
-    status('last_run_status').set(task_name, run_status)
-    run_status and status().set('task_lastrun_result', run_status)
-    return status('last_run').set(task_name, timestamp.strftime("%Y-%m-%d %H:%M:%S")) and timestamp

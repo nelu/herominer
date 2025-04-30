@@ -1,4 +1,3 @@
-from .helper import set_last_run
 from app.utils.log import logger
 
 log = logger(__name__)

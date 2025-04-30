@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Heroes List{% endblock %}
+
+{% block custom_styles %}
+<style>
+    .hero-card {
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+    }
+
+    .hero-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .status-available {
+        background-color: var(--bs-success);
+    }
+
+    .status-inactive {
+        background-color: var(--bs-danger);
+    }
+
+    .sortable {
+        cursor: pointer;
+        position: relative;
+        user-select: none;
+    }
+
+    .sortable:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .sortable::after {
+        content: '↕';
+        position: absolute;
+        right: 8px;
+        opacity: 0.3;
+    }
+
+    .sort-asc::after {
+        content: '↓';
+        opacity: 1;
+    }
+
+    .sort-desc::after {
+        content: '↑';
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block tab_content %}
+
+<!-- Heroes Tab -->
+<div class="tab-pane fade  show active" id="heroes-content" role="tabpanel" aria-labelledby="heroes-tab">
+    <div id="heroes-container" class="container mt-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h1>Heroes List</h1>
+                <p class="lead">Manage and monitor your heroes</p>
+            </div>
+            <div class="col-auto">
+
+                <button class="btn btn-success" id="createHeroBtn">
+                    <i class="bi bi-plus-circle"></i> New Hero
+                </button>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Heroes Overview</h5>
+                <div class="input-group w-50">
+                    <input type="text" class="form-control" id="heroSearchInput" placeholder="Search heroes...">
+                    <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="heroesTable">
+                        <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th class="sortable">Name</th>
+                            <th class="sortable">Level</th>
+                            <th class="sortable">Stars</th>
+                            <th class="sortable">Power</th>
+                            <th class="sortable">XP</th>
+                            <th class="sortable">Slots Color Level</th>
+                            <th class="sortable">Last Update</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="heroTableBody">
+                        <tr>
+                            <td colspan="9" class="text-center">Loading heroes...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Detail Modal -->
+        <div class="modal fade" id="heroDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="heroDetailTitle">Hero Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="heroDetailBody">
+                        <!-- Hero detail content will be populated by hero-details-panel custom element -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Template for hero-details-panel custom element -->
+        <template id="hero-details-template">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h6>Basic Information</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>ID</th>
+                            <td id="hero-id"></td>
+                        </tr>
+                        <tr>
+                            <th>Name</th>
+                            <td id="hero-name"></td>
+                        </tr>
+                        <tr>
+                            <th>Level</th>
+                            <td id="hero-level"></td>
+                        </tr>
+                        <tr>
+                            <th>Class</th>
+                            <td id="hero-class"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Combat Stats</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Power</th>
+                            <td id="hero-power"></td>
+                        </tr>
+                        <tr>
+                            <th>Health</th>
+                            <td id="hero-health"></td>
+                        </tr>
+                        <tr>
+                            <th>Attack</th>
+                            <td id="hero-attack"></td>
+                        </tr>
+                        <tr>
+                            <th>Defense</th>
+                            <td id="hero-defense"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Artifacts</h6>
+                    <ul id="hero-equipment" class="list-group">
+                        <!-- Artifacts will be added here -->
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6>Skills</h6>
+                    <ul id="hero-skills" class="list-group">
+                        <!-- Skills will be added here -->
+                    </ul>
+                </div>
+            </div>
+            <!-- Additional sections will be added dynamically -->
+        </template>
+
+        <!-- Template for hero row in table -->
+        <template id="hero-row-template">
+            <tr>
+                <td><span class="status-indicator"></span></td>
+                <td class="hero-name"></td>
+                <td class="hero-level"></td>
+                <td class="hero-stars"></td>
+                <td class="hero-power"></td>
+                <td class="hero-xp"></td>
+                <td class="hero-slots-color-lvl"></td>
+                <td class="hero-last-update"></td>
+                <td class="text-nowrap">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Hero Actions">
+                        <button class="btn btn-info view-btn" data-hero-id="" data-bs-toggle="tooltip"
+                                title="View Details">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-warning edit-btn" data-hero-id="" data-bs-toggle="tooltip"
+                                title="Edit Hero">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-danger delete-btn" data-hero-id="" data-bs-toggle="tooltip"
+                                title="Delete Hero">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </template>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block body_scripts %}
+<!-- Load heroes.js with all JavaScript functionality -->
+<script src="/static/js/heroes.js"></script>
+<script>
+    refreshFunction = loadHeroes;
+
+    $(document).ready(function () {
+        // Initialize the page
+        initHeroesPage();
+    });
+</script>
+{% endblock %}
