@@ -6,7 +6,7 @@ import uuid
 
 from app.tasks.helper import get_configured_tasks
 from app.utils.session import status
-import schedule
+
 
 @task_api.route("/", methods=["GET"])
 def list_tasks():
@@ -23,8 +23,10 @@ def list_tasks():
                 "id": task_name,
                 "name": task_name,
                 "interval": task.get("interval"),
+                "function": str(task.get("function")),
                 "interval_seconds": parse(task.get("interval", "0")),
-                "next_run": task["job"].next_run.strftime('%Y-%m-%d %H:%M:%S') if task.get("job") and task["job"].next_run else "0000-00-00 00:00:00",
+                "next_run": task["job"].next_run.strftime('%Y-%m-%d %H:%M:%S') if task.get("job") and task[
+                    "job"].next_run else "0000-00-00 00:00:00",
                 "task_start": task_status.get("task_start"),
                 "task_finish": task_status.get("task_finish"),
                 "task_nextrun": task_status.get("task_nextrun"),
@@ -39,6 +41,7 @@ def list_tasks():
                     "id": task_name,
                     "name": task_name,
                     "interval": None,
+                    "function": task_status.get("function"),
                     "interval_seconds": None,
                     "next_run": None,
                     "task_start": task_status.get("task_start"),
@@ -54,6 +57,7 @@ def list_tasks():
         # Browser request - return HTML
         return render_template("list_tasks.html")
 
+
 @task_api.route("/", methods=["POST"])
 def create_task():
     data = request.json or {}
@@ -67,7 +71,7 @@ def create_task():
     # Simple validation
     if not function_name or not interval:
         return jsonify({"error": "Function name, interval is required"}), 400
-    
+
     # Schedule the task (simplified example)
     try:
         from app.utils.events import publish_event
@@ -83,26 +87,21 @@ def create_task():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @task_api.route("/edit/<task_id>")
 def edit_task(task_id):
     return render_template("edit_task.html", task_id=task_id)
 
+
 @task_api.route("/<task_id>", methods=["GET", "PUT", "PATCH", "DELETE"])
 def task_ops(task_id):
     # Get all scheduled jobs
-    jobs = schedule.get_jobs()
-    existing_task = None
-    
-    # Find the task with the matching ID
-    for job in jobs:
-        if str(job.job_id) == task_id:
-            existing_task = job
-            break
-    
+    existing_task = status('tasks').get(task_id)
+
+    if not existing_task:
+        return jsonify({"error": "Task not found"}), 404
+
     if request.method == "GET":
-        if not existing_task:
-            return jsonify({"error": "Task not found"}), 404
-            
         task_data = {
             "id": task_id,
             "name": getattr(existing_task.job_func, "__name__", "unknown"),
@@ -113,19 +112,17 @@ def task_ops(task_id):
             "tags": list(existing_task.tags),
         }
         return jsonify(task_data)
-    
+
     elif request.method in ("PUT", "PATCH"):
         if not existing_task:
             return jsonify({"error": "Task not found"}), 404
-            
+
         # Update task - this would need custom implementation
         # based on your scheduling system
         return jsonify({"message": "Task updated", "id": task_id})
-        
+
     elif request.method == "DELETE":
-        if not existing_task:
-            return jsonify({"error": "Task not found"}), 404
-            
-        # Cancel the scheduled task
-        schedule.cancel_job(existing_task)
-        return jsonify({"message": "Task deleted"})
+
+        return jsonify({"message": "Task deleted", "count": status('tasks').remove(task_id)})
+
+    return jsonify({"error": f"Invalid method {request.method}"}), 404

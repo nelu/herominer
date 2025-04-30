@@ -79,15 +79,7 @@ def execute_task(task_name, job):
         call_function = CONFIG[task_name]["function"]
         args = CONFIG[task_name].get("args", [])
 
-        status('tasks').set(task_name, value={
-            "once": CONFIG[task_name].get("once"),
-            "interval_seconds": interval,
-            "task_start": now.strftime('%Y-%m-%d %H:%M:%S'),
-            "task_nextrun": None,
-            "task_finish": '0000-00-00 00:00:00',
-            "task_result": None,
-        })
-
+        update_run_stats(task_name, now, job)
 
         if isinstance(call_function, str):
             # Import the function dynamically from a string
@@ -101,16 +93,7 @@ def execute_task(task_name, job):
         else:
             raise TypeError(f"Invalid function type for task '{task_name}': {type(call_function)}")
 
-        task_result = {
-            "once": CONFIG[task_name].get("once"),
-            "interval_seconds": interval,
-            "task_start": now.strftime('%Y-%m-%d %H:%M:%S'),
-            "task_nextrun": job.next_run.strftime('%Y-%m-%d %H:%M:%S'),
-            "task_finish": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            "task_result": r,
-        }
-        publish_event('task_result', task_result)
-        status('tasks').set(task_name, value=task_result)
+        update_run_stats(task_name, now, job, task_result=r)
 
         remaining = interval - abs((job.next_run - datetime.now()).total_seconds())
         log.debug(f"Task {task_name} result {r}. Next run in {remaining / 60} minutes.")
@@ -142,6 +125,23 @@ def get_last_run(task_name):
     """Retrieve last run time from Redis"""
     last_run = status('tasks').get(task_name)
     return last_run and datetime.strptime(last_run['task_start'], "%Y-%m-%d %H:%M:%S")
+
+
+def update_run_stats(task_name, task_start, job, task_result=None):
+    value = {
+        "once": CONFIG[task_name].get("once"),
+        "function": CONFIG[task_name].get("function", task_name),
+        "interval_seconds": parse(CONFIG[task_name]["interval"]),
+        "task_start": task_start.strftime('%Y-%m-%d %H:%M:%S'),
+        "task_nextrun": job.next_run.strftime('%Y-%m-%d %H:%M:%S'),
+        "task_finish": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        "task_result": task_result,
+    }
+
+    if task_result:
+        publish_event('task_result', value)
+
+    return status('tasks').set(task_name, value=value)
 
 
 def get_last_run_status(task_name):
