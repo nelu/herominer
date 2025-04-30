@@ -2,6 +2,8 @@ import importlib
 from datetime import datetime, timedelta
 from pytimeparse import parse
 import schedule
+
+from app.utils.events import publish_event
 from app.utils.session import status
 from app.utils.log import logger
 
@@ -88,18 +90,26 @@ def execute_task(task_name, job):
             r = call_function(*args)
         else:
             raise TypeError(f"Invalid function type for task '{task_name}': {type(call_function)}")
-        remaining = interval - abs((job.next_run - datetime.now()).total_seconds())
-        log.debug(f"Task {task_name} result {r}. Next run in {remaining / 60} minutes.")
 
-        status('tasks').set(task_name, value={
+        task_result = {
             "interval_seconds": interval,
             "task_start": now.strftime('%Y-%m-%d %H:%M:%S'),
             "task_nextrun": job.next_run.strftime('%Y-%m-%d %H:%M:%S'),
             "task_finish": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             "task_result": r,
-        })
+        }
+        publish_event('task_result', task_result)
+        status('tasks').set(task_name, value=task_result)
+
+        remaining = interval - abs((job.next_run - datetime.now()).total_seconds())
+        log.debug(f"Task {task_name} result {r}. Next run in {remaining / 60} minutes.")
+
     else:
         log.debug(f"Task skipping {task_name}. Next run in {remaining / 60} minutes.")
+
+    if CONFIG[task_name].get("once"):
+        log.info(f"One-time task '{task_name}' completed. Unscheduling.")
+        schedule.cancel_job(job)
 
 
 def set_task_config(task_name, config):
@@ -127,4 +137,3 @@ def get_last_run_status(task_name):
     """Retrieve last run time from Redis"""
     last_run = status('tasks').get(task_name)
     return last_run and last_run['task_result']
-

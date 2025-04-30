@@ -53,10 +53,13 @@
         $('#lastUpdated').html(`${formatLastUpdated()} <span class="badge bg-info">Dashboard updated</span>`);
     }
 
-    let refreshFunction = loadDashboard;
+    refreshFunction = loadDashboard;
 
     $(document).ready(function () {
+        $('#dashboard-container').append(renderLogWidget({ containerId: 'logs-container' }));
+
         loadDashboard();
+
     });
 </script>
 {% endblock %}

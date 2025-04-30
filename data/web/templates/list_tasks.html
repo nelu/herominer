@@ -8,33 +8,58 @@
         margin-bottom: 20px;
         transition: transform 0.2s;
     }
+
     .task-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
+
     .table-responsive {
         overflow-x: auto;
     }
-    .status-success { background-color: #28a745; }
-    .status-warning { background-color: #ffc107; }
-    .status-danger { background-color: #dc3545; }
-    .status-info { background-color: #17a2b8; }
+
+    .status-success {
+        background-color: #28a745;
+    }
+
+    .status-warning {
+        background-color: #ffc107;
+    }
+
+    .status-danger {
+        background-color: #dc3545;
+    }
+
+    .status-info {
+        background-color: #17a2b8;
+    }
+
     .sortable {
         cursor: pointer;
         position: relative;
         user-select: none;
     }
+
     .sortable:hover {
-        background-color: rgba(0,0,0,0.05);
+        background-color: rgba(0, 0, 0, 0.05);
     }
+
     .sortable::after {
         content: '↕';
         position: absolute;
         right: 8px;
         opacity: 0.3;
     }
-    .sort-asc::after { content: '↓'; opacity: 1; }
-    .sort-desc::after { content: '↑'; opacity: 1; }
+
+    .sort-asc::after {
+        content: '↓';
+        opacity: 1;
+    }
+
+    .sort-desc::after {
+        content: '↑';
+        opacity: 1;
+    }
 </style>
 {% endblock %}
 
@@ -86,6 +111,46 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- Create Task Modal -->
+        <div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <form id="createTaskForm" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createTaskModalLabel">Create New Task</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="taskName" class="form-label">Task Name</label>
+                            <input type="text" class="form-control" id="taskName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="taskFunction" class="form-label">Function Path</label>
+                            <input type="text" class="form-control" id="taskFunction"
+                                   placeholder="e.g. myapp.jobs.my_func" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="taskInterval" class="form-label">Interval (e.g. 10s, 5m)</label>
+                            <input type="text" class="form-control" id="taskInterval" required>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="taskOnce">
+                            <label class="form-check-label" for="taskOnce">Run once only</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="taskArgs" class="form-label">Arguments (JSON array)</label>
+                            <input type="text" class="form-control" id="taskArgs" placeholder='["arg1", "arg2"]'>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Create Task</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -195,6 +260,9 @@
 <script src="/static/js/tasks.js"></script>
 <script>
     refreshFunction = loadTasks;
-    $(document).ready(() => loadTasks());
+    $(document).ready(() => {
+        $('#mainTabsContent').prepend(renderLogWidget({ containerId: 'logs-container' }));
+        loadTasks();
+    });
 </script>
 {% endblock %}

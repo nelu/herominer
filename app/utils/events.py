@@ -91,7 +91,7 @@ def run_handle_events():
         try:
             payload = json.loads(message["data"])
             event_type = payload.get("event")
-            data = payload.get("data", {})
+            data = payload.get("data", [])
 
             for handler in EVENT_HANDLERS.get(event_type, []):
                 handler(*data)

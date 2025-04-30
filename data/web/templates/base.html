@@ -17,45 +17,65 @@
             border-radius: 50%;
             margin-right: 5px;
         }
+
         .card-hover {
             margin-bottom: 20px;
             transition: transform 0.2s;
         }
+
         .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
+
         textarea, select, input {
             width: 100%;
             padding: 0.5rem;
             border: 1px solid #ced4da;
             border-radius: 0.25rem;
         }
+
         .select2-container {
             width: 100% !important;
         }
+
         #lastUpdated {
             font-size: 0.8rem;
         }
+
         .nav-tabs .nav-link {
             font-weight: 500;
             color: #495057;
             border-radius: 0;
             padding: 0.8rem 1.5rem;
         }
+
         .nav-tabs .nav-link.active {
             color: #0d6efd;
             border-bottom: 3px solid #0d6efd;
             font-weight: 600;
         }
+
         .nav-tabs .nav-link:hover:not(.active) {
             color: #0d6efd;
             border-bottom: 3px solid #e9ecef;
         }
+
         .tab-pane {
             padding: 20px 0;
         }
-        {% block additional_styles %}{% endblock %}
+
+        {
+        %
+        block
+        additional_styles
+        %
+        }
+        {
+        %
+        endblock
+        %
+        }
     </style>
 
     {% block custom_styles %}{% endblock %}
@@ -64,8 +84,36 @@
     <script src="/static/jquery-ui.min.js"></script>
     <script src="/static/select2.min.js"></script>
     <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/socket.io.min.js"></script>
 
     <script>
+
+        function renderLogWidget({containerId = "logs-container", title = "Realtime Logs"} = {}) {
+            const html = `
+        <div class="mt-4" id="${containerId}-wrapper">
+            <h5><i class="bi bi-terminal"></i> ${title}</h5>
+            <div id="${containerId}" class="bg-dark text-light p-3 rounded"
+                style="height: 250px; overflow-y: auto; font-family: monospace; font-size: 0.85rem;">
+                <em>Waiting for logs...</em>
+            </div>
+        </div>
+    `;
+
+            let ele = $(html);
+            // Connect to Socket.IO
+            const socket = io();
+
+            const logsContainer = ele.find('#logs-container');
+            socket.on('log', function (data) {
+                if (data.message) {
+                    logsContainer.append($('<div>').text(data.message));
+                    logsContainer.scrollTop(logsContainer[0].scrollHeight); // Auto-scroll
+                }
+            });
+
+            return ele;
+        }
+
         function formatLastUpdated() {
             const now = new Date();
             const hours = now.getHours().toString().padStart(2, '0');
@@ -104,6 +152,8 @@
         let refreshFunction = null;
 
         $(document).ready(function () {
+
+
             $('#lastUpdated').html(`${formatLastUpdated()} <span class="badge bg-secondary">Auto-refresh off</span>`);
 
             $(window).on('beforeunload', function () {

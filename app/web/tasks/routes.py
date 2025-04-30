@@ -4,7 +4,7 @@ from pytimeparse import parse
 from . import task_api
 import uuid
 
-from app.tasks.helper import schedule_tasks, get_configured_tasks, get_last_run
+from app.tasks.helper import get_configured_tasks
 from app.utils.session import status
 import schedule
 
@@ -39,28 +39,28 @@ def list_tasks():
 def create_task():
     data = request.json or {}
     task_id = str(uuid.uuid4())
-    
-    # Example of how you might schedule a task
-    # This would need to be implemented based on your scheduling system
-    task_name = data.get("name", "unknown_task")
-    interval = data.get("interval", "1 hour")
+
+    task_name = data.get("name", f"task_{task_id}")
     function_name = data.get("function", "")
-    
+    once = data.get("once", False)
+    interval = data.get("interval", once and "1 second" or None)
+
     # Simple validation
-    if not function_name:
-        return jsonify({"error": "Function name is required"}), 400
+    if not function_name or not interval:
+        return jsonify({"error": "Function name, interval is required"}), 400
     
     # Schedule the task (simplified example)
     try:
-        task_data = {
-            task_name: {
-                "function": function_name,
-                "interval": interval,
-                "args": data.get("args", [])
-            }
-        }
-        schedule_tasks(task_data)
-        return jsonify({"id": task_id, "data": data}), 201
+        from app.utils.events import publish_event
+        r = publish_event("schedule_task", [{
+            "name": task_name,
+            "function": function_name,
+            "interval": interval,
+            "args": data.get("args", []),
+            "once": once
+        }])
+
+        return jsonify({"id": task_id, "data": data, "ack": r}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

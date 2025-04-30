@@ -5,9 +5,9 @@ import time
 import schedule
 
 from app import settings
-from .helper import schedule_tasks
+from .helper import schedule_tasks, schedule_task
 from ..game import tasks, close_game, game_is_open
-from ..utils.events import run_handle_events
+from ..utils.events import run_handle_events, register_event
 from ..utils.service import check_shutdown
 from app.utils.log import logger
 log = logger(__name__)
@@ -30,6 +30,35 @@ def check_idle():
 
     return False
 
+
+def handle_schedule_task(data):
+    try:
+        task_name = data.get("name")
+        function = data.get("function")
+        interval = data.get("interval")
+        args = data.get("args", [])
+        once = data.get("once", False)
+
+        log.info(f"[schedule_task] Scheduled task '{task_name}' (once={once})")
+
+        if not all([task_name, function, interval]):
+            log.warning(f"[schedule_task] Missing required fields: {data}")
+            return
+
+        # Compose the config dict
+        config = {
+            "function": function,
+            "interval": interval,
+            "args": args,
+            "once": once
+        }
+
+        # Use existing schedule_task function
+        schedule_task(task_name, config)
+
+    except Exception as e:
+        log.exception(f"[schedule_task] Failed to schedule task: {e}")
+
 def keep_running():
     if check_shutdown():
         log.warning("Shutdown received")
@@ -44,7 +73,9 @@ def run_scheduled_tasks():
     from .daily import run_all_tasks as DailyTasks
     from .hourly import run_all_tasks as HourlyTasks
 
-    tasks.schedule_game_tasks()
+    register_event("schedule_task", handle_schedule_task)
+
+    #tasks.schedule_game_tasks()
 
     # some generic internal tasks
     schedule_tasks({
