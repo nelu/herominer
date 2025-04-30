@@ -79,6 +79,16 @@ def execute_task(task_name, job):
         call_function = CONFIG[task_name]["function"]
         args = CONFIG[task_name].get("args", [])
 
+        status('tasks').set(task_name, value={
+            "once": CONFIG[task_name].get("once"),
+            "interval_seconds": interval,
+            "task_start": now.strftime('%Y-%m-%d %H:%M:%S'),
+            "task_nextrun": None,
+            "task_finish": '0000-00-00 00:00:00',
+            "task_result": None,
+        })
+
+
         if isinstance(call_function, str):
             # Import the function dynamically from a string
             module_name, func_name = call_function.rsplit(".", 1)
@@ -92,6 +102,7 @@ def execute_task(task_name, job):
             raise TypeError(f"Invalid function type for task '{task_name}': {type(call_function)}")
 
         task_result = {
+            "once": CONFIG[task_name].get("once"),
             "interval_seconds": interval,
             "task_start": now.strftime('%Y-%m-%d %H:%M:%S'),
             "task_nextrun": job.next_run.strftime('%Y-%m-%d %H:%M:%S'),

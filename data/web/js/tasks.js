@@ -51,11 +51,11 @@ function createTaskRow(taskName, task) {
 
     // Set status indicator
     let statusClass = 'status-info';
-    if (task.task_result === true) {
-        statusClass = 'status-success';
+    if (task.type === "once") {
+        statusClass = 'status-warning';  // Running
     } else if (task.task_result === false) {
         statusClass = 'status-danger';
-    } else if (task.task_start && !task.task_finish) {
+    } else if (!task.task_start) {
         statusClass = 'status-warning';  // Running
     }
     row.querySelector('.status-indicator').classList.add(statusClass);

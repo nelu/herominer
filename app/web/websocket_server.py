@@ -34,7 +34,7 @@ class SocketIOWebServer(WebServer):
         last_id = '$'
         while not self._stop_event.is_set():
             try:
-                messages = redis_client.xread({self.redis_stream_key: last_id}, block=5000)
+                messages = redis_client.xread({self.redis_stream_key: last_id}, block=1)
                 for _, entries in messages:
                     for msg_id, data in entries:
                         last_id = msg_id

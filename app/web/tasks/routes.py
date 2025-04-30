@@ -11,26 +11,45 @@ import schedule
 @task_api.route("/", methods=["GET"])
 def list_tasks():
     if request.headers.get('Accept') == 'application/json':
-        # API request - return JSON
-        #jobs = schedule.get_jobs()
-        tasks = {}
-        for task_name, task in get_configured_tasks().items():
-            # Get task status from Redis
-            task_status = status('tasks').get(task_name) or {}
-            
-            tasks[task_name] = {
+        config_tasks = get_configured_tasks()
+        redis_tasks = status('tasks').get_all()
+
+        combined = {}
+
+        # First pass: all configured tasks (persistent)
+        for task_name, task in config_tasks.items():
+            task_status = redis_tasks.get(task_name, {})
+            combined[task_name] = {
                 "id": task_name,
                 "name": task_name,
-                "interval": task['interval'],
-                "next_run": task['job'].next_run.strftime('%Y-%m-%d %H:%M:%S') if task['job'].next_run else "0000-00-00 00:00:00",
-                # Add detailed status information
-                "interval_seconds": parse(task['interval']),
-                "task_start": task_status.get('task_start'),
-                "task_finish": task_status.get('task_finish'),
-                "task_nextrun": task_status.get('task_nextrun'),
-                "task_result": task_status.get('task_result')
+                "interval": task.get("interval"),
+                "interval_seconds": parse(task.get("interval", "0")),
+                "next_run": task["job"].next_run.strftime('%Y-%m-%d %H:%M:%S') if task.get("job") and task["job"].next_run else "0000-00-00 00:00:00",
+                "task_start": task_status.get("task_start"),
+                "task_finish": task_status.get("task_finish"),
+                "task_nextrun": task_status.get("task_nextrun"),
+                "task_result": task_status.get("task_result"),
+                "type": task_status.get("once") and "once" or "persistent"
             }
-        return jsonify(tasks)
+
+        # Second pass: Redis-only tasks (once-off completed or temporary)
+        for task_name, task_status in redis_tasks.items():
+            if task_name not in combined:
+                combined[task_name] = {
+                    "id": task_name,
+                    "name": task_name,
+                    "interval": None,
+                    "interval_seconds": None,
+                    "next_run": None,
+                    "task_start": task_status.get("task_start"),
+                    "task_finish": task_status.get("task_finish"),
+                    "task_nextrun": task_status.get("task_nextrun"),
+                    "task_result": task_status.get("task_result"),
+                    "type": "once"
+                }
+
+        return jsonify(combined)
+
     else:
         # Browser request - return HTML
         return render_template("list_tasks.html")
