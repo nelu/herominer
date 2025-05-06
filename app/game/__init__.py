@@ -1,7 +1,7 @@
 from .stats import GameStats
-from ..driver import player as driver, JSONConfig
+from app.driver import player as driver, JSONConfig
 from app.utils.log import logger
-from ..utils import session
+from app.utils import session
 
 log = logger(__name__)
 GAME_IS_OPEN = False

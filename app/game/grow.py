@@ -94,21 +94,21 @@ def grow_heroes(hero_slugs=None):
         grow_hero(hero) or log.error(f"grow_heroes: Grow hero failed - {hero._slug}")
 
 
-def acquire_hero_items():
+def acquire_hero_items(hero_slugs=None):
     # create or get hero items
     # just to have them on inventory for later upgrades
-    heroes = hero_manager.all_heroes()
-    sorted_heroes = (heroes.where(lambda h: h.slots.has_items_create and h.level and h.level > 40)
+    heroes = hero_slugs and hero_manager.get_by_slugs(hero_slugs) or hero_manager.all_heroes()
+    sorted_heroes = (heroes
+                     .where(lambda h: h.level and h.level > 40)
                      .order_by(lambda h: h.level)
                      )
+    if not hero_slugs:
+        sorted_heroes = sorted_heroes.where(lambda h: h.slots.has_items_create)
 
     log.info(f"acquire_hero_items: Heroes available - {sorted_heroes.count()}")
 
     for hero in sorted_heroes:
         log.debug(f"acquire_hero_items: Trying - {hero._slug}")
-        result = hero.open_hero() and hero.slots.acquire_items()
+        result = hero.open_hero() and hero.slots.has_items_create and hero.slots.acquire_items()
         back_to_lobby()
-        if result:
-            return result
-        else:
-            log.warning(f"acquire_hero_items: Failed - {hero._slug}")
+        result or log.warning(f"acquire_hero_items: Failed - {hero._slug}")

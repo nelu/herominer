@@ -1,19 +1,18 @@
 {
   "interval": "2 hours",
   "tasks": {
-        "app.game.inventory.check_inventory": {
+        "game.inventory.check_inventory": {
           "interval": "10 hours"
         },
-        "app.game.grow.grow_heroes": {
+        "game.grow.grow_heroes": {
           "interval": "18 hours"
         },
-        "app.game.grow.acquire_hero_items": {
-          "interval": "1 day",
-          "at": "06:00:00"
+        "game.grow.acquire_hero_items": {
+          "interval": "2 hours"
         },
         "play_heroes/summon-heroes": {
           "interval": "4 days",
-          "function": "app.game.play_action",
+          "function": "game.play_action",
           "args": ["heroes/summon-heroes"]
         }
   },

@@ -13,14 +13,18 @@ ON_LOBBY_SCREEN = 0
 def config():
     return JSONConfig('main-lobby.json')
 
+def process_menu(menu_name):
+    log.debug(f"process_menu: {menu_name}")
+    o =  (menus.has_menu_notification(menu_name)
+         and menus.process_menu(menu_name)
+         and menus.screen_data.remove(menu_name))
+    return o
 
 def check_menus():
     """Runs the lobby menus at
      the appropriate time intervals."""
     for menu_name in config()['active_menus']:
-        (menus.has_menu_notification(menu_name)
-         and menus.process_menu(menu_name)
-         and menus.screen_data.remove(menu_name))
+        process_menu(menu_name)
 
 
 def is_on_main_screen():

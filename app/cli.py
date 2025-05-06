@@ -1,12 +1,12 @@
 import argparse
-import importlib
 import os
 import sys
 from logging import Logger
 from typing import Optional
-from app.utils.service import GracefulExit
+from app.utils.service import GracefulExit, run_package, import_parseargs
 
 log: Optional[Logger] = None
+
 
 def main():
     # """Run administrative tasks."""
@@ -126,10 +126,11 @@ def main():
     # args.classname = False
     bootstrap(args)
 
+
 def bootstrap(args):
     global log
 
-    # import args into session
+    # import args into ENV
     import_parseargs(args)
 
     # building settings
@@ -145,72 +146,16 @@ def bootstrap(args):
         # from app.tests import session_tests
         # session_tests.run_tests()
     else:
-        run_package(args)
-
-
-def import_parseargs(args):
-    for key, value in vars(args).items():
-        if value is not None:
-            os.environ["HM_" + key.upper()] = str(value)
-
-def run_package(args):
-    global log
-    #log = settings.logger('cli')
-
-    # Dynamically import the specified package
-    try:
-        package = importlib.import_module(f"app.{args.package}")
-    except ImportError:
-        log.error(f"Error: Could not find or import the package '{args.package}'.")
-        sys.exit(1)
-
-    # If a class is specified, instantiate it and call the method
-    if args.classname:
+        # Dynamically import and run the specified package
         try:
-            cls = getattr(package, args.classname)
-            obj = cls()  # Assumes the class has a no-argument constructor
-            method = getattr(obj, args.method)
-            log.info(
-                f"Calling method '{args.method}' on an instance of class '{args.classname}' from package '{args.package}'...")
-
-            r = method(*args.args)
-
-            log.info(f"Result:{r}")
-            print(f"{r}")
-
-        except AttributeError as e:
-            log.error(f"Error: {e}")
+            args.package = f"app.{args.package}"
+            run_package(vars(args), log)
+        except (ImportError, AttributeError) as e:
             sys.exit(1)
-    else:
-        # Otherwise, call the standalone function
-        try:
-            func = getattr(package, args.method)
-            log.debug(f"Call: {args.package}.{args.method}({args.args})")
-
-            r = func(*args.args)
-
-            log.debug(f"Result: {r}")
-            print(f"{r}")
-
-            sys.exit(r and 0 or 2)
-        except AttributeError as e:
-            log.exception(f"Error: {e}")
-            raise
-            #sys.exit(1)
-        except TypeError as e:
-            log.exception(f"Error: Function call failed due to argument mismatch. {e}")
-            raise
-            #sys.exit(1)
-        except KeyboardInterrupt as e:
-            log.exception(f"Exit on user input: Ctrl + C. {e}")
+        except (KeyboardInterrupt, GracefulExit) as e:
             sys.exit()
-        except GracefulExit as e:
-            log.exception(f"Exit on signal. {e}")
-            sys.exit()
-        except Exception as e:
-            log.exception(f"{e}")
-            raise
 
+    sys.exit()
 
 if __name__ == "__main__":
     main()

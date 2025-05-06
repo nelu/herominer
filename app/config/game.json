@@ -1,17 +1,17 @@
 {
   "game_url": "https://apps.facebook.com/mobaheroes/",
   "tasks": {
-    "app.game.quests.complete_daily_quests": {
+    "game.quests.complete_daily_quests": {
       "interval": "1 hour",
       "after": "13:00"
     },
-    "app.game.social.check_bonus_links": {
+    "game.social.check_bonus_links": {
       "interval": "3 hours"
     },
-    "app.game.chat.announce_bonus_links": {
+    "game.chat.announce_bonus_links": {
       "interval": "1 hour"
     },
-    "app.game.chat.send_chat_image": {
+    "game.chat.send_chat_image": {
       "interval": "1 day",
       "at": "20:00:00"
     }

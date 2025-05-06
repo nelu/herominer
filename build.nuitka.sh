@@ -72,7 +72,7 @@ build_sfx_installer() {
     -certPfxPath ./config/myapp.pfx \
     -pfxPassword "$CERT_PASS" || return 1
 
-  echo "✅ Done! Created in ${OUTPUT_DIR}:"
+  echo "$(date '+%Y-%m-%d %H:%M:%S') ✅ Done! Created in ${OUTPUT_DIR}:"
   echo "   - Archive: $(basename "$ARCHIVE_PATH")"
   echo "   - SFX EXE: $(basename "$SFX_OUTPUT")"
   echo "   - Internal EXE: $(basename "$PAYLOAD_EXE")"
@@ -116,8 +116,9 @@ python.exe -m nuitka --standalone \
   --output-dir="$RELEASE_DIR" \
   --include-package=app \
   --onefile-tempdir-spec="c:\hm\app" \
-  ./app/cli.py \
-&& \
+  ./app/cli.py #
+  # \
+#&& \
 #build_sfx_installer "./release/cli.dist" && \
 
 cp -rfp ./scripts/run*.cmd "${RELEASE_DIR}/" && \

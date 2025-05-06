@@ -2,12 +2,12 @@
   "tasks": {
     "play_guild/titan-valley/shop": {
       "interval": "24 hours",
-      "function": "app.game.play_action",
+      "function": "game.play_action",
       "args": ["guild/titan-valley/shop"]
     },
     "play_guild/island/shop": {
       "interval": "24 hours",
-      "function": "app.game.play_action",
+      "function": "game.play_action",
       "args": ["guild/island/shop"]
     }
   },

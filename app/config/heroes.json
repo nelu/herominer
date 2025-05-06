@@ -1,7 +1,7 @@
 {
   "stats_timeout": "2 hours",
   "tasks": {
-    "app.game.heroes.manager.run_tasks": {
+    "game.heroes.manager.run_tasks": {
       "interval": "1 hour"
     }
   },

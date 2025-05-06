@@ -4,6 +4,7 @@ from pytimeparse import parse
 import schedule
 
 from app.utils.events import publish_event
+from app.utils.service import run_package, parse_call_function
 from app.utils.session import status
 from app.utils.log import logger
 
@@ -82,11 +83,13 @@ def execute_task(task_name, job):
         update_run_stats(task_name, now, job)
 
         if isinstance(call_function, str):
+            args_dict = {
+                'args': args,
+            }
             # Import the function dynamically from a string
-            module_name, func_name = call_function.rsplit(".", 1)
-            module = importlib.import_module(module_name)
-            func = getattr(module, func_name)
-            r = func(*args)
+            args_dict.update(parse_call_function(f"app.{call_function}"))
+            r = run_package(args_dict, log)
+
         elif callable(call_function):
             # Directly call it if it's already a function or method
             r = call_function(*args)
@@ -130,7 +133,7 @@ def get_last_run(task_name):
 def update_run_stats(task_name, task_start, job, task_result=None):
     value = {
         "once": CONFIG[task_name].get("once"),
-        "function": CONFIG[task_name].get("function", task_name),
+        "function": str(CONFIG[task_name].get("function", task_name)),
         "interval_seconds": parse(CONFIG[task_name]["interval"]),
         "task_start": task_start.strftime('%Y-%m-%d %H:%M:%S'),
         "task_nextrun": job.next_run.strftime('%Y-%m-%d %H:%M:%S'),
