@@ -13,6 +13,14 @@ ON_LOBBY_SCREEN = 0
 def config():
     return JSONConfig('main-lobby.json')
 
+def run_if_notification(name, back=True):
+    from .. import play_action
+    o = menus.has_menu_notification(name) and play_action(f"lobby/menu-{name}", back)
+    o or log.warning(
+        f"run_if_notification: failed {name}"
+    )
+    return o
+
 def process_menu(menu_name):
     log.debug(f"process_menu: {menu_name}")
     o =  (menus.has_menu_notification(menu_name)

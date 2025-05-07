@@ -1,11 +1,9 @@
 {
   "interval": "1 hour",
   "active_menus": [
-    "mail",
     "daily-quests",
     "soul-atrium",
     "quests",
-    "special-events",
     "gifts"
   ],
   "bottom_menus": [
@@ -15,7 +13,7 @@
     "ranking",
     "gifts"
   ],
-    "tasks": {
+  "tasks": {
     "game.lobby.airship.run_tasks": {
       "interval": "1 hour"
     },
@@ -24,19 +22,42 @@
     },
     "game.lobby.arena.check_complete": {
       "function": "game.lobby.arena.check_complete",
-      "args": [["grand-arena","arena"]],
+      "args": [
+        [
+          "grand-arena",
+          "arena"
+        ]
+      ],
       "interval": "1 hour",
       "after": "01:00:00"
     },
-    "game.lobby.outland.check_free": {
+    "play_lobby/menu-outland": {
       "interval": "2 hours",
-      "after": "10:00"
+      "after": "01:00:00",
+      "function": "game.lobby.run_if_notification",
+      "args": [
+        "outland"
+      ]
     },
-     "game.lobby.events.check_season_events": {
+    "game.lobby.events.check_season_events": {
       "interval": "1 hour"
     },
-     "game.lobby.events.check_special_events": {
+    "game.lobby.events.check_special_events": {
       "interval": "1 hour"
+    },
+    "play_lobby/menu-special-events": {
+      "interval": "1 hour",
+      "function": "game.lobby.run_if_notification",
+      "args": [
+        "special-events"
+      ]
+    },
+    "play_lobby/menu-mail": {
+      "interval": "1 hour",
+      "function": "game.lobby.run_if_notification",
+      "args": [
+        "mail"
+      ]
     },
     "game.lobby.check_menus": {
       "interval": "1 hour"

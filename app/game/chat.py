@@ -9,7 +9,7 @@ log = logger(__name__)
 
 # TODO: Implement chat
 def send_chat_msg(message):
-    session.persist("chat-sendmsg.txt", message)
+    #session.persist("chat-sendmsg.txt", message)
     # Execute chatbot message action
     r = open_game() and driver.to_clipboard(message).start("chat/chatbot-send-message")
     back_to_lobby()

@@ -7,6 +7,7 @@ from . import set_run_config as sanctuary_run_config
 from app.utils.session import status
 
 from app.game import open_game
+from ...chat import send_chat_msg
 from ...lobby import back_to_lobby
 
 log = logger(__name__)
@@ -64,17 +65,21 @@ class Adventure:
 
         log.info(f"join_adventure: {adv.adventure_id}")
         # driver.to_clipboard(update_stats and "update" or "")
-        r = (open_game() and adv.set_run_config(adv.adventure_id).play_action("guild/adventures/join-adventure"))
+        r = open_game()
         if r:
-            log.info(f"join_adventure: {adv.adventure_id} joined")
-            adv.increase_played("adventures_joined")
-            adv.started_adventure()
-
-        else:
-
-            log.error(f"join_adventure: {adv.adventure_id} failed ")
+            send_chat_msg(f"Trying to join adventure {adv.adventure_id}")
+            r = adv.set_run_config(adv.adventure_id).play_action("guild/adventures/join-adventure")
+            if r:
+                log.info(f"join_adventure: {adv.adventure_id} joined")
+                adv.increase_played("adventures_joined")
+                adv.started_adventure()
 
         back_to_lobby()
+
+        if not r:
+            log.error(f"join_adventure: {adv.adventure_id} failed ")
+            send_chat_msg(f"Failed to join adventure {adv.adventure_id}")
+
         return r
 
     @staticmethod

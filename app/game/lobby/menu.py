@@ -1,7 +1,7 @@
 from app.driver import player as driver
 from app.utils.log import logger
 from app.utils.session import daily as daily_session, status
-from .. import open_game
+from .. import open_game, play_action
 
 log = logger(__name__)
 
@@ -44,8 +44,7 @@ class Menus:
         log.debug(f"process_menu: {menu_name}")
         r = False
 
-        o = self.open_menu(menu_name) and driver.start(f"lobby/menu-{menu_name}")
-        self.back_to_lobby()
+        o = self.open_menu(menu_name) and play_action(f"lobby/menu-{menu_name}", True)
         return o
 
         # if session.persist('menu-check.txt', f"{menu_name}"):
