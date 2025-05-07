@@ -1,12 +1,20 @@
 """Handles Titan battle automation with Redis tracking"""
+from app.game.heroes.hero import Hero
+from app.utils.data_model import DataModel
 
-import redis_helpers
+titan_data = DataModel('titans', 'titans.json')
 
-def start_titan_battle():
-    """Initiates a battle with Titans and logs it in Redis"""
-    write_session("battle:titans:status", "started")
-    print("Titan battle started.")
+class Titan(Hero):
 
-def get_titan_battle_status():
-    """Retrieves the status of the Titan battle from Redis"""
-    return read_session("battle:titans:status")
+    def __init__(self, slug, data):
+        super().__init__(slug, data)
+
+    @classmethod
+    def load(cls, slug_name):
+        data = titan_data.get_item(slug_name)
+        if not data:
+            return None
+
+        return cls(slug_name, data)
+
+

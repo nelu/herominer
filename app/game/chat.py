@@ -13,7 +13,7 @@ def send_chat_msg(message):
     # Execute chatbot message action
     r = open_game() and driver.to_clipboard(message).start("chat/chatbot-send-message")
     back_to_lobby()
-    driver.to_clipboard()
+    driver.to_clipboard("")
     return r
 
 

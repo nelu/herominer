@@ -8,12 +8,17 @@
           "interval": "18 hours"
         },
         "game.grow.acquire_hero_items": {
-          "interval": "2 hours"
+          "interval": "6 hours"
         },
         "play_heroes/summon-heroes": {
           "interval": "4 days",
           "function": "game.play_action",
           "args": ["heroes/summon-heroes"]
+        },
+        "play_guild/island/titans": {
+          "interval": "10 hours",
+          "function": "game.play_action",
+          "args": ["guild/island/titans", true]
         }
   },
   "heroes": {

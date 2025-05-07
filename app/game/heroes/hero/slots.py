@@ -49,8 +49,9 @@ class Items(StatusData):
             game_id = int(slot_id) - 1
             value['equipped'] = not f"{game_id}" in slot_stats
 
-    def upgrade_all(self, count = 1):
-        slot_items = self.acquire_items()
+    def upgrade_all(self, count=1):
+        from app.game.player import player_stats
+        slot_items = player_stats.has_energy() and self.acquire_items()
         promote = self.promote_items()
 
         return slot_items and promote

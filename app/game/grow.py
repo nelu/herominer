@@ -3,6 +3,7 @@ from py_linq import Enumerable
 from app.driver import JSONConfig
 from app.game.heroes.manager import instance as hero_manager
 from app.game.lobby import back_to_lobby
+from app.game.player import player_stats
 from app.utils.log import logger
 from app.utils import session
 
@@ -94,7 +95,7 @@ def grow_heroes(hero_slugs=None):
         grow_hero(hero) or log.error(f"grow_heroes: Grow hero failed - {hero._slug}")
 
 
-def acquire_hero_items(hero_slugs=None):
+def acquire_hero_items(hero_slugs=None, energy_threshold=400):
     # create or get hero items
     # just to have them on inventory for later upgrades
     heroes = hero_slugs and hero_manager.get_by_slugs(hero_slugs) or hero_manager.all_heroes()
@@ -108,7 +109,12 @@ def acquire_hero_items(hero_slugs=None):
     log.info(f"acquire_hero_items: Heroes available - {sorted_heroes.count()}")
 
     for hero in sorted_heroes:
-        log.debug(f"acquire_hero_items: Trying - {hero._slug}")
-        result = hero.open_hero() and hero.slots.has_items_create and hero.slots.acquire_items()
-        back_to_lobby()
-        result or log.warning(f"acquire_hero_items: Failed - {hero._slug}")
+        energy = player_stats.has_energy()
+        if energy:
+            log.debug(f"acquire_hero_items: Trying - {hero._slug}")
+            result = hero.open_hero() and hero.slots.has_items_create and hero.slots.acquire_items()
+            back_to_lobby()
+            result or log.warning(f"acquire_hero_items: Failed - {hero._slug}")
+        else:
+            log.warning(f"acquire_hero_items: Not enough energy - {energy} - {hero._slug}")
+            break
