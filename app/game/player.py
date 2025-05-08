@@ -80,7 +80,7 @@ class PlayerStats(StatusData):
         """Retrieves the player's energy from Redis"""
         return DATA.get_count('player_energy')
 
-    def has_energy(self, energy_threshold=400):
+    def has_energy(self, energy_threshold=200):
         energy = self.get_player_energy()
         return energy > energy_threshold and energy
 

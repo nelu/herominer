@@ -103,15 +103,19 @@ class AdventureManager:
     def has_chests_to_claim():
         return game_status()['active']['hasRewards']
 
-    def join_or_start_adventure(self, default_adv_id="1"):
+    def join_or_start_adventure(self, default_adv_id="1", join_only=False):
         conf = config()['adventures']
         pref = conf.get('join-preferred', [default_adv_id])
 
         levels_with_routes = get_available_levels(True)
 
         started = (self.preferred_first(pref, available_levels=levels_with_routes, call=Adventure.join_adventure)
-                   or self.preferred_first(conf.get('start-preferred', pref), available_levels=levels_with_routes,
-                                           call=Adventure.start_adventure))
+                   or
+                   (not join_only and self.preferred_first(conf.get('start-preferred', pref),
+                                                           available_levels=levels_with_routes,
+                                                           call=Adventure.start_adventure)
+                    )
+                   )
 
         return started
 
@@ -164,7 +168,7 @@ class AdventureManager:
 manager = AdventureManager()
 
 
-def run_adventures():
+def run_adventures(join_start=False):
     # game_stats.update_stats()
     # make sure game is open
     open_game()
@@ -182,7 +186,8 @@ def run_adventures():
         (manager.open_chests() or log.warning(
             f"run_adventures: Failed collecting chests or finishing adventure ...  {adv_id}"))
         back_to_lobby()
-    elif not has_started_adventure() and not daily().get_count("adventures_played"):
+
+    if join_start and not has_started_adventure() and not daily().get_count("adventures_played"):
         log.info(f"run_adventures: Join/starting daily adventure")
         manager.join_or_start_adventure()
         back_to_lobby()

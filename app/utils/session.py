@@ -135,8 +135,11 @@ class BaseSessionManager:
 
         r = self.get(name)
         if r:
-            if isinstance(r, str) and r.isdigit():
-                r = int(r)
+            if isinstance(r, str):
+                if r.isdigit():
+                    r = int(r)
+                else:
+                    r = 0
         else:
             r = 0
 

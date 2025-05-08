@@ -54,8 +54,8 @@ def fetch_stats(timeout=100,  close_tab=False):
 
 
     log.error('get_game_stats: Failed to get game stats')
-    browser.close_selenium()
-    #close_tab and browser and browser.close_selenium()
+    player.close_selenium()
+    #close_tab and player.close_selenium()
 
     return False
 

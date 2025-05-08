@@ -14,6 +14,17 @@
       "interval": "1 hours",
       "args": []
     },
+    "play_join_adventure": {
+      "interval": "45 minutes",
+      "function": "game.guild.sanctuary.adventures.manager.join_or_start_adventure",
+      "args": ["8", true]
+    },
+    "play_join_or_create_adventure": {
+      "interval": "1 hours",
+      "after": "19:00:00",
+      "function": "game.guild.sanctuary.adventures.run_adventures",
+      "args": [true]
+    },
     "play_guild/titan-valley/open-artifact-spheres": {
       "after": "01:00:00",
       "interval": "24 hours",
