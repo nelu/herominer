@@ -52,6 +52,6 @@ class Items(StatusData):
     def upgrade_all(self, count=1):
         from app.game.player import player_stats
         slot_items = player_stats.has_energy() and self.acquire_items()
-        promote = self.promote_items()
+        promote = player_stats.has_gold() and self.promote_items()
 
         return slot_items and promote

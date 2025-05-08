@@ -9,6 +9,12 @@ class MyTestCase(unittest.TestCase):
         lvl = player_stats.get_player_level()
         self.assertIsNotNone(lvl)
 
+    def test_get_skin_coins(self):
+
+        all = player_stats.get_skin_coins()
+        has_available = player_stats.has_skin_coins()
+        self.assertIsNotNone(all)
+        self.assertIsNotNone(has_available)
 
     def test_set_artifact_coins(self):
         lvl = player_stats.set_artifact_coins("upgrade")

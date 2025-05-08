@@ -11,6 +11,7 @@ log = logger(__name__)
 
 
 class PlayerStats(StatusData):
+    skin_colors = ["red", "pink", "blue"]
 
     @staticmethod
     def set_artifact_coins(coins):
@@ -82,5 +83,25 @@ class PlayerStats(StatusData):
     def has_energy(self, energy_threshold=400):
         energy = self.get_player_energy()
         return energy > energy_threshold and energy
+
+    @staticmethod
+    def has_gold(threshold=5000000):
+        gold = DATA.get_count('gold')
+        return gold > threshold and gold
+
+    @staticmethod
+    def get_skin_coins(skin_type=None):
+        types = PlayerStats.skin_colors
+        count = 0
+        for t in types:
+            count += DATA.get_count(f"skin_coins_{t}")
+            if skin_type == t:
+                break
+
+        return count
+
+    def has_skin_coins(self, skin_type=None, threshold=5000):
+        return self.get_skin_coins(skin_type) > threshold
+
 
 player_stats = PlayerStats()

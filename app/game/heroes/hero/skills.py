@@ -96,7 +96,7 @@ class Skills(StatusData):
                 f"upgrade_any: {self._hero.short_name} no skills available for upgrade: -> {self.available}")
             return item
 
-        return self.upgrade_skill(item)
+        return player_stats.has_gold() and self.upgrade_skill(item)
 
     def upgrade_skill(self, skill_no, levels=1):
         # o = self.open()

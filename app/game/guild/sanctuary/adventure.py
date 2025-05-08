@@ -67,7 +67,7 @@ class Adventure:
         # driver.to_clipboard(update_stats and "update" or "")
         r = open_game()
         if r:
-            send_chat_msg(f"Trying to join adventure {adv.adventure_id}")
+            # send_chat_msg(f"Trying to join adventure {adv.adventure_id}")
             r = adv.set_run_config(adv.adventure_id).play_action("guild/adventures/join-adventure")
             if r:
                 log.info(f"join_adventure: {adv.adventure_id} joined")
@@ -78,7 +78,7 @@ class Adventure:
 
         if not r:
             log.error(f"join_adventure: {adv.adventure_id} failed ")
-            send_chat_msg(f"Failed to join adventure {adv.adventure_id}")
+            # send_chat_msg(f"Failed to join adventure {adv.adventure_id}")
 
         return r
 

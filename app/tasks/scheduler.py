@@ -90,7 +90,7 @@ def run_scheduled_tasks():
     })
     log.info("Multi-task scheduler started...")
 
-    schedule.run_all()
+    #schedule.run_all()
 
     while keep_running():
         schedule.run_pending()

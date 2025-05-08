@@ -4,6 +4,7 @@ from parse import search
 
 from app.driver import player as driver
 from app.game.heroes.stats import StatusData
+from app.game.player import player_stats, PlayerStats
 from app.utils.log import logger
 
 log = logger(__name__)
@@ -13,6 +14,7 @@ class Skins(StatusData):
     def __init__(self, hero):
         super().__init__(default_data={'1': {'cost': None, 'lvl': 1, 'name': 'Default Skin'}})
         self._hero = hero
+        self.skin_color = None
         self.update(hero._data.get('skins', {}))
 
     def unlock_skin(self, skin_name):
@@ -44,7 +46,7 @@ class Skins(StatusData):
         return self.upgrade_skin(item, levels)
 
     def upgrade_skin(self, skin_id, levels=1):
-        o = self.open()
+        o = self.open() and player_stats.has_skin_coins()
 
         if not o:
             return o
@@ -72,6 +74,12 @@ class Skins(StatusData):
         return o
 
     def update_from_screen(self, value=None):
+
+        if not self.skin_color:
+            for color in player_stats.skin_colors:
+                if self.parse_data(f'skins_coins_{color}', "{xpos:d}"):
+                    self.skin_color = color
+                    break
 
         value = value or self._screen_data.get('skins')
 
