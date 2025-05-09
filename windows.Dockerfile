@@ -12,7 +12,7 @@ RUN ls -la /c/
 
 RUN echo $SHELL && pwd && ls -la && printenv
 
-RUN icacls ./build.nuitka.sh /grant Everyone:F \
+RUN icacls ./build.nuitka.sh "/grant Everyone:F" \
     && python.exe -m pip install --upgrade pip \
     && python.exe -m pip install -r ./app/requirements.txt \
     && python.exe -m pip install ./sources/Nuitka-2.6.5.tar.gz \
