@@ -7,11 +7,9 @@ WORKDIR /build
 COPY ./ /build
 
 # Use PowerShell as the default shell
-SHELL ["C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe", "-Command"]
+SHELL ["powershell", "-Command"]
 
-RUN Get-ChildItem -Path C:
-
-RUN Get-ChildItem -Path 'C:\Program Files\Git'
+RUN Get-ChildItem -Path 'C:\'
 
 RUN Get-ChildItem -Path C:\build
 
