@@ -1,6 +1,7 @@
 # Dockerfile.base
 FROM python:3.12.6-windowsservercore-ltsc2022
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
+COPY ./scripts/wsh.sh /wsh.sh
 
 SHELL ["powershell", "-Command"]
 
@@ -14,9 +15,8 @@ RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
      & 'C:\\Program Files\\7-Zip\\7z.exe' x git.7z.exe -oC:\\git -y; \
      Remove-Item 'git.7z.exe'"
 
-COPY ./scripts/wsh.sh /wsh.sh
 
-SHELL ["C:\\git\\bin\\bash.exe", "/wsh.sh"]
+SHELL ["C:\\git\\bin\\bash.exe", "c:\\wsh.sh"]
 ## Set path (replace MSVC version as needed)
 #ENV PATH="C:\\Program Files\\OpenSSL-Win64\\bin;\
 #C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.39.33519\\bin\\Hostx64\\x64;\
