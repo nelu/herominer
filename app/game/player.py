@@ -101,7 +101,8 @@ class PlayerStats(StatusData):
         return count
 
     def has_skin_coins(self, skin_type=None, threshold=5000):
-        return self.get_skin_coins(skin_type) > threshold
+        c = self.get_skin_coins(skin_type)
+        return c > threshold and c
 
 
 player_stats = PlayerStats()

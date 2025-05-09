@@ -20,7 +20,7 @@ def get_configured_tasks():
 def has_ran(task_name, outside_timeframe):
     interval = int(outside_timeframe) if isinstance(outside_timeframe, int) else parse(outside_timeframe)
     lr = get_last_run(task_name)
-    return lr and (datetime.now() - lr).total_seconds() <= interval
+    return lr and (datetime.now() - lr).total_seconds() <= interval - 10 # 10 seconds offset
 
 
 def schedule_task(task_name, config):
@@ -69,7 +69,7 @@ def schedule_tasks(configuration):
 
 
 def execute_task(task_name, job):
-    now = datetime.now() - timedelta(seconds=10)  # 10 seconds offset
+    now = datetime.now()  # 10 seconds offset
     interval = parse(CONFIG[task_name]["interval"])
     remaining = (job.next_run
                  and interval - abs(job.next_run - datetime.now()).total_seconds()

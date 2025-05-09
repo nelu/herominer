@@ -1,8 +1,10 @@
 {
   "interval": "1 hour",
   "active_menus": [
+    "mail",
     "daily-quests",
     "soul-atrium",
+    "special-events",
     "quests",
     "gifts"
   ],
@@ -44,20 +46,6 @@
     },
     "game.lobby.events.check_special_events": {
       "interval": "1 hour"
-    },
-    "play_lobby/menu-special-events": {
-      "interval": "1 hour",
-      "function": "game.lobby.run_if_notification",
-      "args": [
-        "special-events"
-      ]
-    },
-    "play_lobby/menu-mail": {
-      "interval": "1 hour",
-      "function": "game.lobby.run_if_notification",
-      "args": [
-        "mail"
-      ]
     },
     "game.lobby.check_menus": {
       "interval": "1 hour"

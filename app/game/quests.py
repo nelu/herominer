@@ -46,9 +46,15 @@ def increase_any_hero_artifact():
 
 
 def increase_any_hero_skills():
+
+    gold = player_stats.has_gold()
+    if not gold:
+        log.warning(f"increase_any_hero_skills: No gold available - {gold}")
+        return gold
+
     skill_points = player_stats.get_skill_points()
     if skill_points is not None and not skill_points:
-        log.warning(f"increase_any_hero_skills: Heroes available - {skill_points}")
+        log.warning(f"increase_any_hero_skills: No skill points available - {skill_points}")
         return skill_points
 
     heroes = instance.all_heroes()
@@ -74,6 +80,11 @@ def increase_any_hero_skills():
 
 
 def increase_any_hero_skins():
+    coins = player_stats.has_skin_coins()
+    if not coins:
+        log.warning(f"increase_any_hero_skins: No skins points available - {coins}")
+        return False
+
     sorted_heroes = (instance.all_heroes().where(lambda h: h.skins.has_upgrades())
                      .order_by(lambda h: h.skins.min_value('lvl'))
                      )
