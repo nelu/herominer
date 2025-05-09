@@ -30,8 +30,10 @@ def one_time_handler(event_type, handler):
     Register a handler that automatically unregisters itself after being called once.
     """
     def wrapper(data):
-        handler(data)
-        unregister_event(event_type, wrapper)
+        try:
+            handler(data)
+        finally:
+            unregister_event(event_type, wrapper)
     register_event(event_type, wrapper)
 
 def poll_event(event_type, handler=None):

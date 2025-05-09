@@ -70,15 +70,25 @@ def schedule_tasks(configuration):
 
 def execute_task(task_name, job):
     now = datetime.now()  # 10 seconds offset
-    interval = parse(CONFIG[task_name]["interval"])
+    task_config = CONFIG[task_name]
+    r = None
+
+    task_before = task_config.get("before")
+    if task_before:
+        limit = datetime.strptime(task_before, "%H:%M:%S").time()
+        if now.time() >= limit:
+            log.debug(f"execute_task: {task_name} - Skipped task - before {task_before} - current time {now}")
+            return False
+
+    interval = parse(task_config["interval"])
     remaining = (job.next_run
                  and interval - abs(job.next_run - datetime.now()).total_seconds()
                  or interval)
 
     if not has_ran(task_name, interval):
-        log.info(f"Task executing {task_name}")
-        call_function = CONFIG[task_name]["function"]
-        args = CONFIG[task_name].get("args", [])
+        log.info(f"execute_task: {task_name}")
+        call_function = task_config["function"]
+        args = task_config.get("args", [])
 
         update_run_stats(task_name, now, job)
 
@@ -94,20 +104,21 @@ def execute_task(task_name, job):
             # Directly call it if it's already a function or method
             r = call_function(*args)
         else:
-            raise TypeError(f"Invalid function type for task '{task_name}': {type(call_function)}")
+            raise TypeError(f"execute_task: '{task_name}' Invalid function type: {type(call_function)}")
 
         update_run_stats(task_name, now, job, task_result=r)
 
         remaining = interval - abs((job.next_run - datetime.now()).total_seconds())
-        log.debug(f"Task {task_name} result {r}. Next run in {remaining / 60} minutes.")
+        log.debug(f"execute_task: {task_name} - result: {r}. Next run in {remaining / 60} minutes.")
 
     else:
-        log.debug(f"Task skipping {task_name}. Next run in {remaining / 60} minutes.")
+        log.debug(f"execute_task: {task_name} - skipping. Next run in {remaining / 60} minutes.")
 
-    if CONFIG[task_name].get("once"):
-        log.info(f"One-time task '{task_name}' completed. Unscheduling.")
+    if task_config.get("once"):
+        log.info(f"execute_task: {task_name}: unscheduling one-time task.")
         schedule.cancel_job(job)
 
+    return r
 
 def set_task_config(task_name, config):
     """

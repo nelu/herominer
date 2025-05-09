@@ -21,6 +21,19 @@ class TasksTestCase(unittest.TestCase):
 
         self.assertEqual(True, False)
 
+    def test_before_schedule(self):
+        schedule_task("test_execute_tasks_before",
+                      {
+                          "before": "01:00:00",
+                          "interval": "3 second",
+                          "once": False,
+                          "function": "game.game_is_open",
+                          "args": []
+                      })
+        schedule.run_all()
+
+        self.assertEqual(True, False)
+
     def test_check_idle(self):
         # schedule_game_tasks()
         schedule_from_config({__name__: {
