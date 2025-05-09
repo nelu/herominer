@@ -1,16 +1,6 @@
 # Dockerfile.windows
 FROM ghcr.io/nelu/herominer:builder-base
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
-
-ENV PATH="C:\\Program Files\\OpenSSL-Win64\\bin;\
-C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.39.33519\\bin\\Hostx64\\x64;\
-C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x64;\
-C:\\Python312;\
-C:\\Python312\\Scripts;\
-C:\\git\\usr\\bin;\
-C:\\git\\bin;\
-%PATH%"
-
 ENV PYTHONUNBUFFERED=1
 
 # Use PowerShell as the default shell
