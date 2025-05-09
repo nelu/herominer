@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /build
 COPY ./ /build
 
-SHELL ["C:\\git\\bin\\bash.exe", "-c"]
+SHELL ["C:\\git\\bin\\bash.exe", "-c", "exec \"$@\"", "--"]
 
 #RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
 #    & 'C:\\git\\bin\\bash.exe' 'c:\\build\\build.docker.sh'"
