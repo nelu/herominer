@@ -42,37 +42,36 @@ function createTaskDetailsPanel(taskData) {
 
     panel.querySelector('#task-result').textContent = JSON.stringify(taskData.task_result, null, 2) || 'No result data';
 
+    // ⬇️ NEW FIELDS
+    panel.querySelector('#task-after').textContent = taskData.after || '—';
+    panel.querySelector('#task-before').textContent = taskData.before || '—';
+    panel.querySelector('#task-type').textContent = taskData.type || '—';
+    panel.querySelector('#task-args').textContent = JSON.stringify(taskData.args || [], null, 2);
+
     return panel;
 }
 
 // Helper function to create task row from template
 function createTaskRow(taskName, task) {
-    // Use the template to create the row
     const template = document.getElementById('task-row-template');
     const row = template.content.cloneNode(true).querySelector('tr');
 
-    // Set status indicator
+    // Status class
     let statusClass = 'status-info';
-    if (!task.task_start) {
-        statusClass = 'status-danger';  // Running
-    } else if (!task.task_finish) {
-        statusClass = 'status-success';
-    } else if (task.task_result === false) {
-        statusClass = 'status-danger';
-    } else if (task.type === "once") {
-        statusClass = 'status-warning';  // Running
-    }
+    if (!task.task_start) statusClass = 'status-danger';
+    else if (!task.task_finish) statusClass = 'status-success';
+    else if (task.task_result === false) statusClass = 'status-danger';
+    else if (task.type === "once") statusClass = 'status-warning';
+
     row.querySelector('.status-indicator').classList.add(statusClass);
 
-    // Set basic information
+    // Base fields
     row.querySelector('.task-name').textContent = taskName;
     row.querySelector('.task-interval').textContent = task.interval;
 
-    // Use original date strings from server
     const lastRun = task.task_start || 'Never';
     const nextRun = task.next_run || 'Not scheduled';
 
-    // Store the original text and timestamps for sorting
     const lastRunCell = row.querySelector('.task-last-run');
     lastRunCell.textContent = lastRun;
     lastRunCell.dataset.timestamp = task.task_start ? getTimestamp(task.task_start) : -1;
@@ -81,7 +80,6 @@ function createTaskRow(taskName, task) {
     nextRunCell.textContent = nextRun;
     nextRunCell.dataset.timestamp = task.next_run ? getTimestamp(task.next_run) : -1;
 
-    // Format result
     let resultDisplay = 'N/A';
     if (task.task_result !== undefined) {
         if (typeof task.task_result === 'boolean') {
@@ -92,14 +90,27 @@ function createTaskRow(taskName, task) {
     }
     row.querySelector('.task-result').textContent = resultDisplay;
 
-    // Set button data attributes
+    // ⬇️ Append new cells
+    // const afterCell = row.querySelector('.task-before');
+    // afterCell.textContent = task.after || '—';
+    // row.appendChild(afterCell);
+
+    const beforeCell = row.querySelector('.task-before');
+    beforeCell.textContent = task.before || '—';
+
+    const typeCell = row.querySelector('.task-type');
+    typeCell.textContent = task.type || '—';
+
+    const argsCell = row.querySelector('.task-args');
+    argsCell.textContent = JSON.stringify(task.args || []);
+
+    // Button data attributes
     row.querySelectorAll('button[data-task-id]').forEach(btn => {
         btn.setAttribute('data-task-id', task.id);
     });
 
     return row;
 }
-
 // Function to filter tasks based on search input
 function filterTasks() {
     const searchText = $('#taskSearchInput').val().toLowerCase();

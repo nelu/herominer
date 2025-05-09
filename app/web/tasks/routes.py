@@ -24,6 +24,7 @@ def list_tasks():
                 "name": task_name,
                 "interval": task.get("interval"),
                 "function": str(task.get("function")),
+                "args": task.get("args", []),
                 "interval_seconds": parse(task.get("interval", "0")),
                 "next_run": task["job"].next_run.strftime('%Y-%m-%d %H:%M:%S') if task.get("job") and task[
                     "job"].next_run else "0000-00-00 00:00:00",
@@ -31,6 +32,8 @@ def list_tasks():
                 "task_finish": task_status.get("task_finish"),
                 "task_nextrun": task_status.get("task_nextrun"),
                 "task_result": task_status.get("task_result"),
+                "before": task.get("before"),
+                "after": task.get("after"),
                 "type": task_status.get("once") and "once" or "persistent"
             }
 
