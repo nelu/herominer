@@ -18,6 +18,7 @@ RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
      & 'C:\\Python312\\python.exe' -m pip install '.\\sources\\Nuitka-2.6.5.tar.gz'; \
      & 'C:\\Python312\\python.exe' -m pip install '.\\sources\\undetected-chromedriver-3.5.5-fix-looseversion.tar.gz'; \
      icacls '.\\build.nuitka.sh' /grant Everyone:F; \
-     & 'C:\\git\\bin\\bash.exe' './build.nuitka.sh'"
+     & 'C:\\git\\bin\\bash.exe' './build.nuitka.sh'" \
 
+# Use bash shell as the default entrypoint
 ENTRYPOINT ["C:\\git\\bin\\bash.exe"]
