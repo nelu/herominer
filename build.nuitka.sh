@@ -2,7 +2,9 @@
 set -e
 #set -x  # Echo every command as it's executed
 
-#printenv
+export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.39.33519/bin/Hostx64/x64:/c/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64:$PATH"
+
+printenv
 
 APP_VERSION="${APP_VERSION:-1.0.0}"
 CERT_PASS="${CERT_PASS:-MyStrongPassword}"

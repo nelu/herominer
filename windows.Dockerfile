@@ -2,7 +2,6 @@
 FROM ghcr.io/nelu/herominer:builder-base
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 ENV PYTHONUNBUFFERED=1
-ENV PATH="C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.39.33519\\bin\\Hostx64\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x64;%PATH%"
 
 WORKDIR /build
 COPY ./ /build
