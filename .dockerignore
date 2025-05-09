@@ -9,4 +9,4 @@ sources/*
 
 # Include specific files in sources
 !sources/Nuitka*
-!sources/undetected*.git*
+!sources/undetected*
