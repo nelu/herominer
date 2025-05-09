@@ -21,7 +21,7 @@ COPY ./ /build
 
 RUN Get-ChildItem -Path . -Recurse
 
-RUN Set-Location -Path 'C:\\build'; Get-ChildItem -Path .; & "C:\\Python312\\python.exe" -V
+RUN "& 'C:\\Python312\\python.exe' '-V'"
 
 RUN "& 'C:\\Python312\\python.exe' -m pip install --upgrade pip; \
      & 'C:\\Python312\\python.exe' -m pip install -r '.\\app\\requirements.txt'; \
