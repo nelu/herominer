@@ -15,9 +15,11 @@ RUN Get-ChildItem -Path C:\build
 
 RUN Get-ChildItem -Path C:\git
 
+#RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
+#    & 'C:\\git\\bin\\bash.exe' 'c:\\build\\build.docker.sh'"
+# Use PowerShell as the default shell
+SHELL ["C:\\git\\bin\\bash.exe", "-c"]
 
-RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
-    & 'C:\\git\\bin\\bash.exe' 'c:\\build\\build.docker.sh'"
-
+RUN ls /c/
 # Use bash shell as the default entrypoint
 ENTRYPOINT ["C:\\git\\bin\\bash.exe"]
