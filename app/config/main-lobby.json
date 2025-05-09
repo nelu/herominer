@@ -1,6 +1,7 @@
 {
   "interval": "1 hour",
   "active_menus": [
+    "airship",
     "mail",
     "daily-quests",
     "soul-atrium",
@@ -16,9 +17,6 @@
     "gifts"
   ],
   "tasks": {
-    "game.lobby.airship.run_tasks": {
-      "interval": "1 hour"
-    },
     "game.lobby.tower.run_tower": {
       "interval": "1 hour"
     },

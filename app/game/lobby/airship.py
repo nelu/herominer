@@ -41,16 +41,3 @@ def check_expeditions():
 
     return r
 
-
-def run_tasks():
-    if menus.has_menu_notification("airship"):
-
-        log.debug("airship_run: Check collectables and expeditions")
-        #check_chest_opens()
-
-        r = open_game() and driver.start("lobby/airship/collect")
-        r or log.error(
-            f"airship_run: failed to process airship"
-        )
-    else:
-        log.debug("airship_run: no notification")
