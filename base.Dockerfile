@@ -20,7 +20,7 @@ SHELL ["C:\\git\\bin\\bash.exe", "c:\\wsh.sh"]
 
 RUN python.exe -m pip install -r /c/build/sources/requirements.txt \
     && python.exe -m pip install /c/build/sources/Nuitka-2.6.5.tar.gz \
-    && python.exe -m pip install /c/build/sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz \
+    && python.exe -m pip install /c/build/sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz
 
 ## Set path (replace MSVC version as needed)
 #ENV PATH="C:\\Program Files\\OpenSSL-Win64\\bin;\
