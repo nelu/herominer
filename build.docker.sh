@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-ls /c/
 
-/c/Python312/python.exe -V
+python.exe -V
 
 /c/Python312/python.exe -m pip install --upgrade pip
 /c/Python312/python.exe -m pip install -r ./app/requirements.txt
@@ -12,4 +11,4 @@ ls /c/
 
 icacls ./build.nuitka.sh /grant Everyone:F
 
-/c/git/bin/bash.exe ./build.nuitka.sh
+./build.nuitka.sh
