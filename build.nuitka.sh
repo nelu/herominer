@@ -90,7 +90,7 @@ python.exe -m nuitka --standalone \
   --copyright="All rights reserved © TheNet" \
   --trademarks="AutoWeb TheNet" \
   --windows-console-mode=attach \
-  --windows-icon-from-ico=./docs/herominer-icon.ico \
+  --windows-icon-from-ico=./sources/herominer-icon.ico \
   --output-dir="$RELEASE_DIR" \
   --include-package=app \
   ./app/input.py \
@@ -112,7 +112,7 @@ python.exe -m nuitka --standalone \
   --copyright="All rights reserved © TheNet" \
   --trademarks="AutoWeb TheNet" \
   --windows-console-mode=attach \
-  --windows-icon-from-ico=./docs/herominer-icon.ico \
+  --windows-icon-from-ico=./sources/herominer-icon.ico \
   --output-dir="$RELEASE_DIR" \
   --include-package=app \
   --onefile-tempdir-spec="c:\hm\app" \
