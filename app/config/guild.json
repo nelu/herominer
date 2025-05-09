@@ -63,6 +63,18 @@
       "interval": "10 hours",
       "function": "game.play_action",
       "args": ["guild/island/dungeon"]
+    },
+    "play_guild/asgard/open-astral-seer": {
+      "interval": "2 hours",
+      "after": "04:00:00",
+      "function": "game.play_action",
+      "args": ["guild/asgard/open-astral-seer", true]
+    },
+    "play_guild/asgard/raid": {
+      "interval": "2 hours",
+      "after": "04:00:00",
+      "function": "game.play_action",
+      "args": ["guild/asgard/raid", true]
     }
   }
 }
