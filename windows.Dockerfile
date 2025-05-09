@@ -19,8 +19,6 @@ SHELL ["powershell", "-Command"]
 WORKDIR /build
 COPY ./ /build
 
-RUN Get-ChildItem -Path . -Recurse
-
 RUN "& 'C:\\Python312\\python.exe' '-V'"
 
 RUN "& 'C:\\Python312\\python.exe' -m pip install --upgrade pip; \
