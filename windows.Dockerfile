@@ -21,5 +21,7 @@ RUN "ls -la /c/build"
 RUN ls -la "c:\\"
 
 RUN echo $SHELL && pwd && ls
+
+RUN "/c/git/git-bash.exe -c 'env'"
 # Use bash shell as the default entrypoint
 ENTRYPOINT ["C:\\git\\bin\\bash.exe"]
