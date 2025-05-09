@@ -9,6 +9,13 @@ COPY ./ /build
 # Use PowerShell as the default shell
 SHELL ["powershell", "-Command"]
 
+RUN Get-ChildItem -Path C:
+
+RUN Get-ChildItem -Path C:\build
+
+RUN Get-ChildItem -Path C:\git
+
+
 RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
     & 'C:\\git\\bin\\bash.exe' 'c:\\build\\build.docker.sh'"
 
