@@ -20,6 +20,6 @@ RUN ls -la /c/build
 
 RUN ls -la "c:\\"
 
-RUN "C:\\git\\git-bash.exe" -c env
+RUN /c/git/git-bash.exe -c env
 # Use bash shell as the default entrypoint
 ENTRYPOINT ["C:\\git\\bin\\bash.exe"]
