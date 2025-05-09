@@ -9,7 +9,7 @@ COPY ./ /build
 # Use PowerShell as the default shell
 SHELL ["powershell", "-Command"]
 
-RUN dir c:\
+RUN dir c:
 
 RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
     & 'C:\\Python312\\python.exe' -V \
