@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /build
 COPY ./ /build
 
-SHELL ["C:\\git\\bin\\bash.exe", "/c/build/scripts/wsh.sh"]
+SHELL ["C:\\git\\bin\\bash.exe", "-c"]
 
 #RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
 #    & 'C:\\git\\bin\\bash.exe' 'c:\\build\\build.docker.sh'"
@@ -20,7 +20,8 @@ RUN "ls -la /c/build"
 
 RUN "echo $SHELL && pwd && ls -la && printenv"
 
-SHELL ["C:\\git\\bin\\bash.exe", "-c", "--"]
+SHELL ["C:\\git\\bin\\bash.exe", "/c/build/scripts/wsh.sh"]
+
 RUN ls -la /c/
 
 RUN echo $SHELL && pwd && ls -la && printenv
