@@ -15,11 +15,11 @@ SHELL ["C:\\git\\bin\\bash.exe", "-c"]
 
 RUN ls -la /c/
 
-RUN ls -la /c/build
+RUN "ls -la /c/build"
 
 
 RUN ls -la "c:\\"
 
-RUN /c/git/git-bash.exe -c env
+RUN echo $SHELL && pwd && ls
 # Use bash shell as the default entrypoint
 ENTRYPOINT ["C:\\git\\bin\\bash.exe"]
