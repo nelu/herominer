@@ -23,7 +23,7 @@ def announce_bonus_links():
     if links:
         links = "\n".join(links)
         log.info(f"announce_bonus_links: Found new Facebook free links. {links}")
-        message = f"New bonus links available on the Facebook page: {links} -- HeroMiner"
+        message = f"Bonus links available on FB: {links} -- HeroMiner"
 
         send_chat_msg(message)
 

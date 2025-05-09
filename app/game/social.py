@@ -100,9 +100,8 @@ def check_bonus_links():
 
     log.debug(f"check_bonus_links - has_links: {has_links}")
 
-    if int(has_links) > 0:
-        log.info("Found new facebook bonus links to open")
-        open_latest_links()
+    if not get_valid_bonus_links():
+        open_latest_links() and log.info("Found new facebook bonus links to open")
 
     close_game()
 

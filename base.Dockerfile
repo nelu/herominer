@@ -15,11 +15,11 @@ RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
      Remove-Item 'git.7z.exe'"
 
 ## Set path (replace MSVC version as needed)
-ENV PATH="C:\\Program Files\\OpenSSL-Win64\\bin;\
-C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.39.33519\\bin\\Hostx64\\x64;\
-C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x64;\
-C:\\git\\usr\\bin;\
-C:\\git\\bin;\
-${PATH}"
+#ENV PATH="C:\\Program Files\\OpenSSL-Win64\\bin;\
+#C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.39.33519\\bin\\Hostx64\\x64;\
+#C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x64;\
+#C:\\git\\usr\\bin;\
+#C:\\git\\bin;\
+#${PATH}"
 
 ENV SEVEN_ZIP="/c/Program Files/7-Zip/7z.exe"
