@@ -20,7 +20,7 @@ RUN "ls -la /c/build"
 
 RUN "echo $SHELL && pwd && ls -la && printenv"
 
-SHELL ["C:\\git\\bin\\bash.exe", "/c/build/scripts/wsh.sh"]
+SHELL ["C:\\git\\bin\\bash.exe", "C:\\build\\scripts\\wsh.sh"]
 
 RUN ls -la /c/
 
