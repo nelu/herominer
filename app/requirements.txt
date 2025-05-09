@@ -13,8 +13,8 @@ coreapi==2.3.3
 coreschema==0.0.4
 cryptography==44.0.2
 dnspython==2.7.0
-Flask==3.1.0
-Flask-SocketIO==5.5.1
+Flask
+Flask-SocketIO
 frozenlist==1.5.0
 future==0.18.3
 greenlet==3.2.1
