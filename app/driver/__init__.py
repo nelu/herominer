@@ -23,8 +23,8 @@ log = logger(__name__)
 # https://github.com/SeleniumHQ/selenium/issues/13837
 class SafeOptions(Options):
     def add_argument(self, arg):
-        if arg == "--no-sandbox" and platform.system() == "Windows":
-            return  # Skip it
+        # if arg == "--no-sandbox" and platform.system() == "Windows":
+        #     return  # Skip it
         super().add_argument(arg)
 
 
