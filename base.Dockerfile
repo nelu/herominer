@@ -5,7 +5,7 @@ COPY ./scripts/wsh.sh /wsh.sh
 COPY ./sources /build/sources
 
 SHELL ["powershell", "-Command"]
-
+--add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.22621
 # Install Chocolatey and all packages in a single session
 RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
      Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')); \

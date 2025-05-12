@@ -1,5 +1,5 @@
 from app.utils.events import publish_event
-from app.utils.session import write, DailySessionManager, status, BaseSessionManager
+from app.utils.session import write, DailySessionManager, status, BaseSessionManager, persist
 
 PLAY_RESULT = "macro_result"
 
@@ -79,6 +79,15 @@ def complete(name, set_name="status"):
     publish_event('complete', [name, set_name])
     return DailySessionManager.entry(set_name).mark_complete(name)
 
+def file(*file_pairs):
+    args_pairs = _get_arg_pairs(file_pairs)
+    publish_event('file', [args_pairs])
+    r = 0
+    for key, value in args_pairs.items():
+        if persist(key, value):
+            r += 1
+
+    return r
 
 # aliases
 def menu(name, value="1"):

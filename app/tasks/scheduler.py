@@ -64,7 +64,7 @@ def keep_running():
         log.warning("Shutdown received")
         return False
 
-    check_idle()
+    #check_idle()
 
     return True
 

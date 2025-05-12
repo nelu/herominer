@@ -14,6 +14,9 @@
     "game.chat.send_chat_image": {
       "interval": "1 day",
       "at": "20:00:00"
+    },
+    "tasks.scheduler.check_idle": {
+      "interval": "2 minute"
     }
   }
 }

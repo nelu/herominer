@@ -44,14 +44,6 @@ def grow_hero(hero):
     back_to_lobby()
 
 
-def upgrade_rune(hero_name, rune_type, level_increase=1):
-    """Upgrades a hero's rune"""
-    current_rune_level = session.read_session(f"hero:{hero_name}:rune:{rune_type}") or 1
-    new_rune_level = current_rune_level + level_increase
-    session.write(f"hero:{hero_name}:rune:{rune_type}", new_rune_level)
-    log.info(f"Upgraded {hero_name}'s {rune_type} rune to level {new_rune_level}.")
-
-
 def upgrade_artifacts(hero, artifact_upgrades):
     """Upgrades a hero's artifacts"""
     if not hero.artifacts.open():
@@ -118,3 +110,12 @@ def acquire_hero_items(hero_slugs=None, energy_threshold=400):
         else:
             log.warning(f"acquire_hero_items: Not enough energy - {energy} - {hero._slug}")
             break
+
+
+
+def gather_campaign_soulstones(hero_name, rune_type, level_increase=1):
+    """Upgrades a hero's rune"""
+    current_rune_level = session.read_session(f"hero:{hero_name}:rune:{rune_type}") or 1
+    new_rune_level = current_rune_level + level_increase
+    session.write(f"hero:{hero_name}:rune:{rune_type}", new_rune_level)
+    log.info(f"Upgraded {hero_name}'s {rune_type} rune to level {new_rune_level}.")
