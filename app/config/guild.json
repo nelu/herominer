@@ -32,11 +32,17 @@
       "function": "game.guild.sanctuary.adventures.run_adventures",
       "args": [true]
     },
+    "play_guild/sanctuary/open-pet-eggs": {
+      "after": "01:00:00",
+      "interval": "2 hours",
+      "function": "game.if_daily_count",
+      "args": ["sanctuary-open-eggs","guild/sanctuary/open-pet-eggs"]
+    },
     "play_guild/titan-valley/open-artifact-spheres": {
       "after": "01:00:00",
-      "interval": "24 hours",
-      "function": "game.play_action",
-      "args": ["guild/titan-valley/open-artifact-spheres"]
+      "interval": "2 hours",
+      "function": "game.if_daily_count",
+      "args": ["titan-valley-open-spheres","guild/titan-valley/open-artifact-spheres"]
     },
     "play_guild/titan-valley/hall-of-fame-collect": {
       "interval": "24 hours",
@@ -50,9 +56,9 @@
       "args": ["guild/titan-valley/tournament"]
     },
     "play_guild/island/summon": {
-      "interval": "24 hours",
-      "function": "game.play_action",
-      "args": ["guild/island/open-summon-spheres"]
+      "interval": "2 hours",
+      "function": "game.if_daily_count",
+      "args": ["island-summon-spheres","guild/island/open-summon-spheres"]
     },
     "play_guild/island/shop": {
       "interval": "24 hours",
@@ -73,8 +79,8 @@
     "play_guild/asgard/raid": {
       "interval": "2 hours",
       "after": "04:00:00",
-      "function": "game.play_action",
-      "args": ["guild/asgard/raid", true]
+      "function": "game.check_complete",
+      "args": ["guild-asgard-raid", "guild/asgard/raid"]
     }
   }
 }

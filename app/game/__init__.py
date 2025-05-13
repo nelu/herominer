@@ -69,8 +69,12 @@ def play_action(file, go_back=False):
     return r
 
 
+def if_daily_count(status_flag, action, count=1):
+    return session.daily().get_count(status_flag) < count and play_action(action, True)
+
+
 def if_daily_action(status_flag, action):
-    return session.daily().get(status_flag) and play_action(action, True)
+    return not session.daily().get(status_flag) and play_action(action, True)
 
 
 def check_complete(item, complete_macro, daily=True):

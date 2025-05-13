@@ -148,9 +148,9 @@ def complete_daily_quests():
         log.info("run_daily_quests: Upgrading 1 hero XP potion")
         increase_any_hero_xp()
 
-    if not summon_count():
-        # Upgrade hero artifact if not done today
-        summon_pets() and back_to_lobby()
+    # if not summon_count():
+    #     # Upgrade hero artifact if not done today
+    #     summon_pets() and back_to_lobby()
 
     # Open one airship chest daily for hero artifacts
     airship.check_chest_opens()

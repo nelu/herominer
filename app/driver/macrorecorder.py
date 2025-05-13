@@ -156,11 +156,16 @@ class MacroRecorderDriver:
 
         #session.remove_entry(result.PLAY_RESULT)
         self.write_run_inputs(self.run_inputs)
-        self.exit_result = None
 
+        # well it seems this fella might write self.exit_result with something else than None / reset state
+        # for now we run handle events so we have clean env for exit_result to get populated
+        # after the actual playback has started
+        run_handle_events() # execute any stray handles registered for handle_exit_flag
         one_time_handler(result.PLAY_RESULT, self.handle_exit_flag)
 
         try:
+            self.exit_result = None
+
             self.process = self.play_file(action)
             start_time = time.time()
 
