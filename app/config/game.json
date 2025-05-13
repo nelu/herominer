@@ -16,7 +16,7 @@
       "at": "20:00:00"
     },
     "tasks.scheduler.check_idle": {
-      "interval": "2 minute"
+      "interval": "5 minutes"
     }
   }
 }

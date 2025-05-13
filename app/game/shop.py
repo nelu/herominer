@@ -1,15 +1,13 @@
 from app.driver import player as driver, JSONConfig
-from app.game import open_game
-from app.game.lobby import back_to_lobby
+from app.game import open_game, play_action
 from app.game.heroes.manager import instance as hero_manager
 from app.utils.log import logger
 from app.tasks.helper import schedule_tasks
-from app.utils import session
 
 log = logger(__name__)
 
 
-def shop_config(element = None):
+def shop_config(element=None):
     conf = JSONConfig('shop.json')
     if element:
         return conf and conf.get(element)
@@ -17,15 +15,17 @@ def shop_config(element = None):
     return conf
 
 
-def set_shopping_items(what):
-    return session.persist('shop-buy-target.txt', "\n".join(what))
+def set_shopping_items(what=None, shop_name=None):
+    d = {}
+    shop_name and d.update({'shop-open.txt': f"{shop_name}"})
+    what and d.update({'shop-buy-target.txt': "\n".join(what)})
+    return d and driver.set_run_inputs(d)
 
 
 def buy_item(shop_name, item):
-    set_shopping_items([item])
-    r = open_shop(shop_name) and driver.start(f"shop/shop-buy")
-    back_to_lobby()
-    return r
+    # r = open_shop(shop_name) and driver.start(f"shop/shop-buy")
+    set_shopping_items([item], shop_name)
+    return play_action("shop/buy-merchant", True)
 
 
 def buy_heroes(shop_name, hero_slugs):
@@ -57,22 +57,22 @@ def buy_items(shop_name, names=None):
 
 
 def buy_town(names):
-    log.info("Going to the town shop")
-    open_shop('town') and driver.start(action="shop/town-shop-buy-cash")
-    return back_to_lobby()
+    log.info("Buy from town shop")
+    # open_shop('town') and driver.start(action="shop/town-shop-buy-cash")
+    return play_action("shop/town-shop-buy-cash", True)
 
 
 def open_shop(shop):
     if open_game():
         log.info(f"Opening merchant shop: {shop}")
         # regex format
-        session.persist('shop-open.txt', f"{shop}")
+        set_shopping_items(None, shop)
         return driver.start("shop/open-shop")
 
     return False
 
 
-def set_tasks(tasks  = None):
+def set_tasks(tasks=None):
     if not tasks:
         tasks = {}
 
