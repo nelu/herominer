@@ -60,15 +60,15 @@
       "args": ["guild/island/shop"]
     },
     "play_guild/island/dungeon": {
-      "interval": "10 hours",
-      "function": "game.play_action",
-      "args": ["guild/island/dungeon"]
+      "interval": "5 hours",
+      "function": "game.check_complete",
+      "args": ["guild-dungeon", "guild/island/dungeon"]
     },
     "play_guild/asgard/open-astral-seer": {
       "interval": "2 hours",
       "after": "04:00:00",
-      "function": "game.play_action",
-      "args": ["guild/asgard/open-astral-seer", true]
+      "function": "game.check_complete",
+      "args": ["guild-asgard-seer", "guild/asgard/open-astral-seer"]
     },
     "play_guild/asgard/raid": {
       "interval": "2 hours",
