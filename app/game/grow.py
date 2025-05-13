@@ -1,8 +1,10 @@
 from py_linq import Enumerable
 
+from app.driver import player as driver
 from app.driver import JSONConfig
+from app.game import play_action
 from app.game.heroes.manager import instance as hero_manager
-from app.game.lobby import back_to_lobby
+from app.game.lobby import back_to_lobby, campaign
 from app.game.player import player_stats
 from app.utils.log import logger
 from app.utils import session
@@ -15,6 +17,40 @@ def config(element=None):
     if element:
         return conf and conf.get(element)
     return conf
+
+
+def hero_soulstones(hero_slugs=None, no_lvl=False):
+    """Play a hero's soulstones missions"""
+
+    if not player_stats.has_energy():
+        log.warning("hero_soulstones: No energy available")
+    #    return False
+
+    campaign_heroes = campaign.config()['heroes']
+
+    heroes = (hero_slugs
+              and hero_manager.get_by_slugs(hero_slugs).where(lambda h, ch=campaign_heroes: h._slug in ch)
+              or hero_manager.get_by_slugs(campaign_heroes))
+
+    filtered_heroes = heroes.where(lambda h: h.level and h.stars < 6)
+
+    if not filtered_heroes and no_lvl:
+        log.warning(f"hero_soulstones: all heroes maxxed up?!")
+        filtered_heroes = hero_manager.get_by_slugs(campaign_heroes)
+
+    sorted_heroes = filtered_heroes.order_by(lambda h: h.stars)
+
+    if not sorted_heroes.count():
+        log.warning("hero_soulstones: No heroes available")
+        return False
+
+    log.info(f"hero_soulstones: Heroes available - {sorted_heroes.count()}")
+
+    driver.set_run_inputs({
+        "soulstone-heroes.txt": "\n".join(sorted_heroes.select(lambda h: h.short_name).to_list())
+    })
+
+    return play_action("grow/soulstones", True)
 
 
 def grow_hero(hero):
@@ -110,12 +146,3 @@ def acquire_hero_items(hero_slugs=None, energy_threshold=400):
         else:
             log.warning(f"acquire_hero_items: Not enough energy - {energy} - {hero._slug}")
             break
-
-
-
-def gather_campaign_soulstones(hero_name, rune_type, level_increase=1):
-    """Upgrades a hero's rune"""
-    current_rune_level = session.read_session(f"hero:{hero_name}:rune:{rune_type}") or 1
-    new_rune_level = current_rune_level + level_increase
-    session.write(f"hero:{hero_name}:rune:{rune_type}", new_rune_level)
-    log.info(f"Upgraded {hero_name}'s {rune_type} rune to level {new_rune_level}.")
