@@ -47,7 +47,7 @@ def hero_soulstones(hero_slugs=None, no_lvl=False):
     log.info(f"hero_soulstones: Heroes available - {sorted_heroes.count()}")
 
     driver.set_run_inputs({
-        "soulstone-heroes.txt": "\n".join(sorted_heroes.select(lambda h: h.short_name).to_list())
+        "soulstone-heroes.txt": "\n".join(sorted_heroes.select(lambda h: h.name.split()[0]).to_list())
     })
 
     return play_action("grow/soulstones", True)

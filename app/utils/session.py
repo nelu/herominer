@@ -120,10 +120,8 @@ class BaseSessionManager:
         if mapping:
             return self.redis.hset(session_key, mapping=mapping)
 
-        timestamp = datetime.now().timestamp()
-
         # Store either the provided value or just the timestamp
-        flag_data = value if value is not None else timestamp
+        flag_data = value if value is not None else datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         # Set flag with custom value in Redis Hash
         return self.redis.hset(session_key, flag_name, json.dumps(flag_data))

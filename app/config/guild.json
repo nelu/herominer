@@ -14,8 +14,8 @@
       "after": "01:00:00",
       "before": "17:00:00",
       "interval": "1 hour",
-      "function": "game.play_action",
-      "args": ["guild/guild-war", true]
+      "function": "game.check_complete",
+      "args": ["guild-war-attempts","guild/guild-war"]
     },
     "game.guild.sanctuary.adventures.run_adventures": {
       "interval": "1 hours",

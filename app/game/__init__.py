@@ -20,10 +20,12 @@ def set_view(name):
 def back_views(count=1):
     return driver.to_clipboard(count).start(action="go-back")
 
+
 def game_is_open():
     global GAME_IS_OPEN
-    #game_running = GAME_IS_OPEN and driver.browser().title and "Hero" in driver.browser().title
+    # game_running = GAME_IS_OPEN and driver.browser().title and "Hero" in driver.browser().title
     return GAME_IS_OPEN and driver.check_process_and_window()
+
 
 def open_game():
     global GAME_IS_OPEN
@@ -39,8 +41,8 @@ def open_game():
             close_game()
 
         GAME_IS_OPEN = bool(game_stats.update_stats()
-                        and driver.start(action="0_open-browser-game-lobby")
-                        and back_to_lobby())
+                            and driver.start(action="0_open-browser-game-lobby")
+                            and back_to_lobby())
 
         GAME_IS_OPEN or log.error('open_game: failed to open game lobby')
     else:
@@ -58,7 +60,6 @@ def close_game():
     game_stats.reset_stats()
 
 
-
 # nice for task scheduling
 def play_action(file, go_back=False):
     from .lobby import back_to_lobby
@@ -68,14 +69,17 @@ def play_action(file, go_back=False):
     return r
 
 
+def if_daily_action(status_flag, action):
+    return session.daily().get(status_flag) and play_action(action, True)
+
+
 def check_complete(item, complete_macro, daily=True):
     """Checks for arena battles if they haven't been completed today."""
     if not (daily and session.daily() or session.status()).is_complete(item):
         log.debug(f"check_complete: {item} completing with {complete_macro}")
-        return play_action(complete_macro)
+        return play_action(complete_macro, True)
     else:
         log.debug(f"check_complete: {item} already completed")
 
+
 game_stats = GameStats()
-
-
