@@ -36,15 +36,24 @@ def schedule_task(task_name, config):
         # hourly after a specific hour
         job = schedule.every(parse(config["interval"])).days.at(config["after"])
         job.unit = 'seconds'
-        job = job.do(execute_task, task_name, job)
     elif config.get("interval"):
         job = schedule.every(parse(config["interval"]))  # Parse interval dynamically
         job.unit = 'seconds'
-        job = job.do(execute_task, task_name, job)
     elif config.get("at"):
         # daily at a specific hour
         job = schedule.every().day.at(config["at"])
-        job = job.do(execute_task, task_name, job)
+
+
+    task_before = config.get("before")
+    if task_before:
+        job = job.until(task_before)
+
+
+    job = job.do(execute_task, task_name, job)
+
+    tags = config.get("tags")
+    if tags:
+        job.tag(*tags)
 
     if task_name not in CONFIG:
         config['job'] = job
@@ -73,12 +82,6 @@ def execute_task(task_name, job):
     task_config = CONFIG[task_name]
     r = None
 
-    task_before = task_config.get("before")
-    if task_before:
-        limit = datetime.strptime(task_before, "%H:%M:%S").time()
-        if now.time() >= limit:
-            log.debug(f"execute_task: {task_name} - Skipped task - before {task_before} - current time {now}")
-            return False
 
     interval = parse(task_config["interval"])
     remaining = (job.next_run

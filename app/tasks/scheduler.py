@@ -11,6 +11,7 @@ from ..utils.events import run_handle_events, register_event
 from ..utils.service import check_shutdown
 from app.utils.log import logger
 log = logger(__name__)
+from pytimeparse import parse
 
 
 def check_idle():
@@ -64,7 +65,8 @@ def keep_running():
         log.warning("Shutdown received")
         return False
 
-    #check_idle()
+    # settings.ACTION_DRIVER_IDLE_CLOSE
+    int(time.time()) % parse("2 minutes") == 0 and check_idle()
 
     return True
 
