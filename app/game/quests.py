@@ -85,7 +85,7 @@ def increase_any_hero_skins():
         log.warning(f"increase_any_hero_skins: No skins points available - {coins}")
         return False
 
-    sorted_heroes = (instance.all_heroes().where(lambda h: h.skins.has_upgrades())
+    sorted_heroes = (instance.all_heroes().where(lambda h: h.skins.has_coins() and h.skins.has_upgrades())
                      .order_by(lambda h: h.skins.min_value('lvl'))
                      )
 

@@ -25,12 +25,15 @@ class Skins(StatusData):
             self.check_stats())
 
     def check_stats(self):
-        o = driver.play_action("heroes/skins-check-stats")
+        o = driver.play_action("heroes/skins/check-stats")
 
         if o and self.update_from_screen():
             self._hero.save()
 
         return o
+
+    def has_coins(self):
+        return player_stats.has_skin_coins(self.skin_color)
 
     def get_random_skin(self):
         cheapest = self.get_upgradable_items('lvl')
@@ -59,9 +62,10 @@ class Skins(StatusData):
 
             log.debug("find_skin: looking for skin regex: {}".format(regex_name))
 
-            if not driver.to_clipboard(regex_name).play_action("heroes/skins-upgrade"):
+            if not driver.to_clipboard(regex_name).play_action("heroes/skins/upgrade"):
                 break
 
+            self.update_from_screen()
             self.increase_stats("skin-upgrades")
 
             if self.available[skin_id].get('lvl') is None:

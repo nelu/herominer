@@ -23,7 +23,7 @@ class Items(StatusData):
 
     def acquire_items(self):
         self._hero.set_search()
-        o = play_action("heroes/items-acquire")
+        o = play_action("heroes/items/acquire")
         o or log.warning(f"acquire_items: {self._hero._slug}")
         return o
 
@@ -32,7 +32,7 @@ class Items(StatusData):
 
     def promote_items(self):
         self._hero.set_search()
-        o = play_action("heroes/items-grow")
+        o = play_action("heroes/items/promote-items")
         o or log.warning(f"promote_items: {self._hero._slug}")
         return o
 
