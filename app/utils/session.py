@@ -24,11 +24,11 @@ def remove_entry(name):
     return storage.delete_value(name)
 
 
-def persist_path(name, directory=settings.APP_SESSION_DIR):
+def persist_path(name, directory=settings.APP_DATA_CACHE_DIR):
     return os.path.normpath(os.path.join(directory, name))
 
 
-def persist(name, data, directory=settings.APP_SESSION_DIR):
+def persist(name, data, directory=settings.APP_DATA_CACHE_DIR):
     path = persist_path(name, directory)
     to_write = isinstance(data, str) and (data or "\n") or data
     with open(path, "w") as file:
@@ -48,7 +48,7 @@ def read_session_mtime(name):
     return int(time.time() - storage.redis_client.ttl(name))
 
 
-def remove_file(file, directory=settings.APP_SESSION_DIR):
+def remove_file(file, directory=settings.APP_DATA_CACHE_DIR):
     """Removes the file if it exists."""
     path = os.path.join(directory, file)
 

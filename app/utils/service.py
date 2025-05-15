@@ -67,24 +67,25 @@ def run_package(args: dict, log):
             log.exception(f"run_package: {e}")
             raise
     else:
+        msg = ""
         try:
             func = getattr(package, args['method'])
-            msg = f"Call {package_name}.{args['method']}({args.get('args', [])})"
+            msg = f"{package_name}.{args['method']}({args.get('args', [])})"
             r = func(*args.get('args', []))
         except AttributeError as e:
             log.exception(f"run_package: {e}")
             raise
         except TypeError as e:
-            log.exception(f"run_package: Function call failed due to argument mismatch. {e}")
+            log.exception(f"run_package: Function call failed due to argument mismatch. {msg} -> {e}")
             raise
         except KeyboardInterrupt as e:
-            log.exception(f"run_package: Exit on user input: Ctrl + C. {e}")
+            log.exception(f"run_package: Exit on user input: Ctrl + C. {msg} -> {e}")
             raise
         except Exception as e:
-            log.exception(f"run_package: Unhandled Exception: {e}")
+            log.exception(f"run_package: Exception: {msg} -> {e}")
             raise
 
-    log.info(f"run_package: {msg} return: {r}")
+    log.info(f"run_package: Call {msg} return: {r}")
 
     return r
 
