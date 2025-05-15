@@ -1,5 +1,5 @@
 from app.utils.events import publish_event
-from app.utils.session import write, DailySessionManager, status, BaseSessionManager, persist
+from app.utils.session import write, status, persist, daily
 
 PLAY_RESULT = "macro_result"
 
@@ -35,7 +35,7 @@ def incr(name, value="1", set_name="status"):
     if value.isnumeric():
         value = int(value)
         publish_event('incr', [name, value, set_name])
-        return DailySessionManager.entry(set_name).increment(name, value)
+        return daily(set_name).increment(name, value)
     else:
         return False
 
@@ -51,16 +51,16 @@ def _set_session_values(session, data_pairs):
     return r
 
 
-def daily(set_name="status", *data_pairs):
+def day(set_name="status", *data_pairs):
     args_pairs = _get_arg_pairs(data_pairs)
-    r = _set_session_values(DailySessionManager.entry(set_name), args_pairs)
+    r = _set_session_values(daily(set_name), args_pairs)
     publish_event('daily', [set_name, args_pairs])
     return r
 
 
 def append(set_name="status", entry_name=None, *data):
     # args_pairs =_get_arg_pairs(pairs)
-    session = BaseSessionManager.entry(set_name)
+    session = status(set_name)
 
     if entry_name is None:
         return False
@@ -79,7 +79,7 @@ def append(set_name="status", entry_name=None, *data):
 
 def stats(set_name="status", *data_pairs):
     args_pairs = _get_arg_pairs(data_pairs)
-    r = _set_session_values(BaseSessionManager.entry(set_name), args_pairs)
+    r = _set_session_values(status(set_name), args_pairs)
     publish_event('stats', [set_name, args_pairs])
 
     return r
@@ -87,7 +87,7 @@ def stats(set_name="status", *data_pairs):
 
 def complete(name, set_name="status"):
     publish_event('complete', [name, set_name])
-    return DailySessionManager.entry(set_name).mark_complete(name)
+    return daily(set_name).mark_complete(name)
 
 
 def file(*file_pairs):
