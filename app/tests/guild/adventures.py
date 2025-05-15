@@ -1,6 +1,6 @@
 import unittest
 
-from app.game.guild.sanctuary.adventures import run_adventures, Adventure, manager, get_available_levels
+from app.game.guild.adventures import run_adventures, Adventure, manager, get_available_levels
 
 
 class MyTestCase(unittest.TestCase):

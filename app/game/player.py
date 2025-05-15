@@ -71,17 +71,19 @@ class PlayerStats(StatusData):
 
         return local
 
-    def set_player_energy(self, level):
+    @staticmethod
+    def set_energy(level):
         """Stores the player's energy in Redis"""
         result = search("{count:d}", level)
-        return DATA.set('player_energy', result and int(result['count']) or 0)
+        return DATA.set('energy', result and int(result['count']) or 0)
 
-    def get_player_energy(self):
+    @staticmethod
+    def get_energy():
         """Retrieves the player's energy from Redis"""
-        return DATA.get_count('player_energy')
+        return DATA.get_count('energy')
 
     def has_energy(self, energy_threshold=200):
-        energy = self.get_player_energy()
+        energy = self.get_energy()
         return energy > energy_threshold and energy
 
     @staticmethod

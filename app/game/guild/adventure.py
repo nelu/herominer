@@ -1,14 +1,13 @@
 from app.driver import player as driver
 from app.driver.config import write_coords
-from app.game.guild.sanctuary import config
 from app.game.heroes.stats import StatusData
 from app.utils.log import logger
-from . import set_run_config as sanctuary_run_config
+from .sanctuary import set_run_config as sanctuary_run_config
 from app.utils.session import status
 
 from app.game import open_game
-from ...chat import send_chat_msg
-from ...lobby import back_to_lobby
+from app.game.chat import send_chat_msg
+from app.game.lobby import back_to_lobby
 
 log = logger(__name__)
 d = status()
@@ -20,14 +19,16 @@ class Adventure:
 
     @staticmethod
     def get_route_config(adv_id):
-        return config()['adventures']['level_routes'][f"{adv_id}"]
+        from .adventures import config
+        return config()['level_routes'][f"{adv_id}"]
 
-    def set_missions_config(self):
+    def set_missions_config(self, start_position):
         write_coords(self.get_route_config(self.adventure_id), name="adventure-lvl-route")
+        return driver.set_run_inputs({"adventure_lvl_position.txt": start_position})
 
     def play_missions(self, start_position):
-        self.set_missions_config()
-        return driver.to_clipboard(start_position).start(f"guild/adventures/mission-player")
+        return (self.set_missions_config(start_position)
+                .start(f"guild/adventures/mission-player"))
 
     def started_adventure(self, position=1):
         #d.set("adventure_started_id", int(self.adventure_id))
@@ -84,7 +85,8 @@ class Adventure:
 
     @staticmethod
     def set_run_config(adv_id, levels=None):
-        lvl_cfg = config()['adventures']['levels']
+        from .adventures import config
+        lvl_cfg = config()['levels']
         if levels is None:
             levels = lvl_cfg.keys()
 

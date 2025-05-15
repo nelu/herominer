@@ -1,0 +1,82 @@
+{
+  "interval": "24 hours",
+  "levels": {
+    "1": "Siege of strongford",
+    "2": "Valley of the elements",
+    "3": "Ghirwil City Depths",
+    "4": "Fall of the Celestial City",
+    "5": "Siege of strongford",
+    "6": "Valley of the elements",
+    "7": "Ghirwil City Depths",
+    "8": "Fall of the Celestial City",
+    "9": "Siege of strongford",
+    "10": "Valley of the elements",
+    "11": "Ghirwil City Depths",
+    "12": "Fall of the Celestial City",
+    "13": "Maelstrom of Chaos"
+  },
+  "join-preferred": [
+    "8",
+    "4",
+    "1"
+  ],
+  "level_routes": {
+    "007": [
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "858x477",
+      "892x487"
+    ],
+    "8": [
+      "253x624",
+      "357x689",
+      "475x628",
+      "404x538",
+      "498x492",
+      "654x522",
+      "653x515",
+      "634x460",
+      "468x442",
+      "586x415",
+      "619x464",
+      "659x489",
+      "903x434",
+      "838x395",
+      "753x436",
+      "686x412"
+    ],
+    "10": [
+      "215x458",
+      "311x462",
+      "434x609",
+      "507x471",
+      "389x406",
+      "331x447",
+      "594x437",
+      "655x453",
+      "655x512",
+      "601x551",
+      "801x497",
+      "706x552"
+    ],
+    "11": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  }
+}
+

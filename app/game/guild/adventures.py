@@ -2,8 +2,7 @@ from datetime import datetime
 
 from py_linq import Enumerable
 
-from app.driver import player as driver
-from app.game.guild.sanctuary import config
+from app.driver import player as driver, JSONConfig
 from app.utils.log import logger
 from app.utils.session import status, daily
 from app.game.lobby import back_to_lobby, menus
@@ -14,6 +13,9 @@ log = logger(__name__)
 
 DATA = status()
 
+
+def config():
+    return JSONConfig('adventures.json')
 
 def game_status(adv_id=""):
     return {
@@ -27,7 +29,7 @@ def game_status(adv_id=""):
 def get_available_levels(playable=False):
     # what levels we defeated the boss
     game_data_levels = game_status()['levels']
-    all_levels = config()['adventures']['levels'].items()
+    all_levels = config()['levels'].items()
 
     available = (Enumerable(all_levels)
                  .select(lambda lvl, gdata=game_data_levels: {
@@ -38,7 +40,7 @@ def get_available_levels(playable=False):
                  .where(lambda lvl: lvl['wins']))
 
     if playable:
-        routed_levels = config()['adventures']['level_routes'].keys()
+        routed_levels = config()['level_routes'].keys()
         available = available.where(lambda lvl, level_routes=routed_levels: lvl['id'] in level_routes)
 
     return available
@@ -104,7 +106,7 @@ class AdventureManager:
         return game_status()['active']['hasRewards']
 
     def join_or_start_adventure(self, default_adv_id="1", join_only=False):
-        conf = config()['adventures']
+        conf = config()
         pref = conf.get('join-preferred', [default_adv_id])
 
         levels_with_routes = get_available_levels(True)

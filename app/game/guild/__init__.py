@@ -1,41 +1,51 @@
-from .menu import GuildMenus
-from ...driver import JSONConfig
+from app.game.lobby import Menus, back_to_lobby
+from app import game
+from app.driver import JSONConfig, player as driver
 
-guild_menus = GuildMenus()
+from app.utils.log import logger
+from app.utils.session import daily
+
+log = logger(__name__)
+
 
 def config():
     return JSONConfig('guild.json')
 
-def is_disabled():
-    return has_daily_session_flag("has-guild-disabled")
+class GuildMenus(Menus):
+    def __init__(self):
+        super().__init__("guild")
 
+    @staticmethod
+    def config():
+        return config()
 
-def guild_open(target=None):
-    """
-    Opens the guild menu or a specific section.
-    """
-    if target:
-        write_session("guild-menu-not-found", "0")
-        action = f"open-{target}"
-    else:
-        action = "waitclose"
+    @staticmethod
+    def back_to_menu():
+        return driver.start("guild/back-to-menu")
 
-    log(f"Guild: Trying to switch to guild lobby {action}")
-    play_action("guild/guild-open")
+    def open_menu(self, name="default"):
+        log.debug(f"open_menu: {name}")
+        r = (game.open_game() and self.set_menu_search(name).start("guild/menu-open"))
 
-    if has_guild_disabled():
-        log("Guild: Cannot open guild. Seems disabled.")
-        return False
+        return r
 
-    if target and has_daily_session_flag("guild-menu-not-found"):
-        log(f"Guild: Cannot open guild menu - {target}")
-        return False
+    def process_menu(self, menu_name):
+        log.debug(f"process_menu: {menu_name}")
+        o = self.open_menu(menu_name) and driver.start(f"guild/menu-{menu_name}")
+        back_to_lobby()
+        return o
 
-    return True
+    @staticmethod
+    def is_disabled():
+        return daily().exists("guild-disabled")
 
-def guild_close():
-    """
-    Closes the guild menu and returns to the lobby.
-    """
-    log("Guild: Switching lobby to city heroes")
-    play_action("guild/guild-close")
+guild_menus = GuildMenus()
+
+def play(file, go_back=True):
+    return not guild_menus.is_disabled() and game.play_action(file, go_back)
+
+def check_complete(item, complete_macro, day=True):
+     return not guild_menus.is_disabled() and game.check_complete(item, complete_macro, day)
+
+def if_daily_count(status_flag, action, count=1):
+    return not guild_menus.is_disabled() and game.if_daily_count(status_flag, action, count)

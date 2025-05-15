@@ -21,10 +21,10 @@ def config(element=None):
 
 def hero_soulstones(hero_slugs=None, no_lvl=False):
     """Play a hero's soulstones missions"""
-
-    if not player_stats.has_energy():
-        log.warning("hero_soulstones: No energy available")
-    #    return False
+    energy = player_stats.has_energy()
+    if not energy:
+        log.warning(f"hero_soulstones: No energy available {energy}")
+        return False
 
     campaign_heroes = campaign.config()['heroes']
 

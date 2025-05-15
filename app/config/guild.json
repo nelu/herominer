@@ -11,89 +11,89 @@
       "interval": "24 hours",
       "after": "11:30"
     },
+    "play_guild/sanctuary/open-pet-eggs": {
+      "tags": ["guild", "sanctuary"],
+      "after": "01:00:00",
+      "interval": "2 hours",
+      "function": "game.guild.if_daily_count",
+      "args": ["sanctuary-open-eggs","guild/sanctuary/open-pet-eggs"]
+    },
     "play_guild/guild-war": {
       "tags": ["guild"],
       "after": "01:00:00",
       "before": "17:00:00",
       "interval": "1 hour",
-      "function": "game.check_complete",
+      "function": "game.guild.check_complete",
       "args": ["guild-war-attempts","guild/guild-war"]
     },
-    "game.guild.sanctuary.adventures.run_adventures": {
-      "tags": ["guild", "sanctuary"],
+    "game.guild.adventures.run_adventures": {
+      "tags": ["guild", "adventures"],
       "interval": "1 hours",
       "args": []
     },
     "play_join_adventure": {
-      "tags": ["guild", "sanctuary"],
+      "tags": ["guild", "adventures"],
       "interval": "45 minutes",
-      "function": "game.guild.sanctuary.adventures.manager.join_or_start_adventure",
+      "function": "game.guild.adventures.manager.join_or_start_adventure",
       "args": ["8", true]
     },
     "play_join_or_create_adventure": {
-      "tags": ["guild", "sanctuary"],
+      "tags": ["guild", "adventures"],
       "interval": "1 hours",
-      "after": "19:00:00",
-      "function": "game.guild.sanctuary.adventures.run_adventures",
+      "after": "15:00:00",
+      "function": "game.guild.adventures.run_adventures",
       "args": [true]
-    },
-    "play_guild/sanctuary/open-pet-eggs": {
-      "tags": ["guild", "sanctuary"],
-      "after": "01:00:00",
-      "interval": "2 hours",
-      "function": "game.if_daily_count",
-      "args": ["sanctuary-open-eggs","guild/sanctuary/open-pet-eggs"]
     },
     "play_guild/titan-valley/open-artifact-spheres": {
       "tags": ["guild", "titan-valley"],
       "after": "01:00:00",
       "interval": "2 hours",
-      "function": "game.if_daily_count",
+      "function": "game.guild.if_daily_count",
       "args": ["titan-valley-open-spheres","guild/titan-valley/open-artifact-spheres"]
     },
     "play_guild/titan-valley/hall-of-fame-collect": {
       "tags": ["guild", "titan-valley"],
       "interval": "24 hours",
-      "function": "game.play_action",
+      "function": "game.guild.play",
       "args": ["guild/titan-valley/hall-of-fame-collect"]
     },
     "play_guild/titan-valley/tournament": {
       "tags": ["guild", "titan-valley"],
       "interval": "5 hours",
       "after": "02:00",
-      "function": "game.play_action",
+      "function": "game.guild.play",
       "args": ["guild/titan-valley/tournament"]
     },
     "play_guild/island/summon": {
       "tags": ["guild", "titan-island"],
       "interval": "2 hours",
-      "function": "game.if_daily_count",
+      "function": "game.guild.if_daily_count",
       "args": ["island-summon-spheres","guild/island/open-summon-spheres"]
     },
     "play_guild/island/shop": {
       "tags": ["guild", "titan-island"],
       "interval": "24 hours",
-      "function": "game.play_action",
+      "function": "game.guild.play",
       "args": ["guild/island/shop"]
     },
     "play_guild/island/dungeon": {
       "tags": ["guild", "titan-island"],
       "interval": "5 hours",
-      "function": "game.check_complete",
+      "function": "game.guild.check_complete",
       "args": ["guild-dungeon", "guild/island/dungeon"]
     },
     "play_guild/asgard/open-astral-seer": {
       "tags": ["guild", "asgard"],
       "interval": "2 hours",
       "after": "04:00:00",
-      "function": "game.check_complete",
+      "function": "game.guild.check_complete",
       "args": ["guild-asgard-seer", "guild/asgard/open-astral-seer"]
     },
     "play_guild/asgard/raid": {
       "tags": ["guild", "asgard"],
       "interval": "2 hours",
       "after": "04:00:00",
-      "function": "game.check_complete",
+      "function": "game.guild.check_complete",
       "args": ["guild-asgard-raid", "guild/asgard/raid"]
     }
   }
