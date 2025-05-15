@@ -26,21 +26,16 @@
       "function": "game.guild.check_complete",
       "args": ["guild-war-attempts","guild/guild-war"]
     },
-    "game.guild.adventures.run_adventures": {
-      "tags": ["guild", "adventures"],
-      "interval": "1 hours",
-      "args": []
-    },
-    "play_join_adventure": {
+    "play_guild_adventure_join_daily": {
       "tags": ["guild", "adventures"],
       "interval": "45 minutes",
-      "function": "game.guild.adventures.manager.join_or_start_adventure",
-      "args": ["8", true]
+      "before": "13:00:00",
+      "function": "game.guild.adventures.run_adventures"
     },
-    "play_join_or_create_adventure": {
+    "play_guild_adventure_join_or_create_daily": {
       "tags": ["guild", "adventures"],
       "interval": "1 hours",
-      "after": "15:00:00",
+      "after": "13:00:00",
       "function": "game.guild.adventures.run_adventures",
       "args": [true]
     },

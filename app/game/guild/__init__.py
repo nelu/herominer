@@ -11,6 +11,7 @@ log = logger(__name__)
 def config():
     return JSONConfig('guild.json')
 
+
 class GuildMenus(Menus):
     def __init__(self):
         super().__init__("guild")
@@ -39,13 +40,17 @@ class GuildMenus(Menus):
     def is_disabled():
         return daily().exists("guild-disabled")
 
+
 guild_menus = GuildMenus()
+
 
 def play(file, go_back=True):
     return not guild_menus.is_disabled() and game.play_action(file, go_back)
 
+
 def check_complete(item, complete_macro, day=True):
-     return not guild_menus.is_disabled() and game.check_complete(item, complete_macro, day)
+    return not guild_menus.is_disabled() and game.check_complete(item, complete_macro, day)
+
 
 def if_daily_count(status_flag, action, count=1):
     return not guild_menus.is_disabled() and game.if_daily_count(status_flag, action, count)

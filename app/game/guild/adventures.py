@@ -17,6 +17,7 @@ DATA = status()
 def config():
     return JSONConfig('adventures.json')
 
+
 def game_status(adv_id=""):
     return {
         "Solo_getActiveData": game_stats.get_data("adventureSolo_getActiveData"),
@@ -105,7 +106,7 @@ class AdventureManager:
     def has_chests_to_claim():
         return game_status()['active']['hasRewards']
 
-    def join_or_start_adventure(self, default_adv_id="1", join_only=False):
+    def join_or_start_adventure(self, default_adv_id="1", create_adventure=False):
         conf = config()
         pref = conf.get('join-preferred', [default_adv_id])
 
@@ -113,9 +114,9 @@ class AdventureManager:
 
         started = (self.preferred_first(pref, available_levels=levels_with_routes, call=Adventure.join_adventure)
                    or
-                   (not join_only and self.preferred_first(conf.get('start-preferred', pref),
-                                                           available_levels=levels_with_routes,
-                                                           call=Adventure.start_adventure)
+                   (create_adventure and self.preferred_first(conf.get('start-preferred', pref),
+                                                              available_levels=levels_with_routes,
+                                                              call=Adventure.create_adventure)
                     )
                    )
 
@@ -170,33 +171,32 @@ class AdventureManager:
 manager = AdventureManager()
 
 
-def run_adventures(join_start=False):
-    # game_stats.update_stats()
-    # make sure game is open
+def run_adventures(create_adventure=False):
+    # make sure game is open to have updated api data
     open_game()
 
     if not get_available_levels().count():
         log.error("run_adventures: seems no adventure level is available")
         return False
 
+    r = False
     # dont start any adventure if chest are to be claimed - active adventure not finished
     if manager.has_chests_to_claim():
         adv_started = manager.current_adventure()
         adv_id = adv_started and adv_started.adventure_id
 
         log.info(f"run_adventures: Collecting chests and finishing adventure ...  {adv_id}")
-        (manager.open_chests() or log.warning(
+        r = (manager.open_chests() or log.warning(
             f"run_adventures: Failed collecting chests or finishing adventure ...  {adv_id}"))
         back_to_lobby()
 
-    if join_start and not has_started_adventure() and not daily().get_count("adventures_played"):
+    if not has_started_adventure() and not daily().get_count("adventures_played"):
         log.info(f"run_adventures: Join/starting daily adventure")
-        manager.join_or_start_adventure()
-        back_to_lobby()
+        r = manager.join_or_start_adventure(create_adventure=create_adventure)
 
     adv_started = manager.current_adventure()
 
     if adv_started:
-        manager.play_level(adv_started)
+        r = manager.play_level(adv_started)
 
-    return back_to_lobby()
+    return r
