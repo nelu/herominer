@@ -140,6 +140,7 @@ def bootstrap(args):
 
     # set logging
     log = logger('cli')
+    r = False
 
     if args.runtests:
         pass
@@ -149,13 +150,16 @@ def bootstrap(args):
         # Dynamically import and run the specified package
         try:
             args.package = f"app.{args.package}"
-            run_package(vars(args), log)
-        except (ImportError, AttributeError) as e:
-            sys.exit(1)
+            r = run_package(vars(args), log)
+            print(r)
         except (KeyboardInterrupt, GracefulExit) as e:
-            sys.exit()
+            r = True
+        except Exception as e:
+            log.exception(f"bootstrap: exception - {e}")
+            r = False
 
-    sys.exit()
+    sys.exit(r and 0 or 1)
+
 
 if __name__ == "__main__":
     main()

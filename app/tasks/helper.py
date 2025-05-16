@@ -1,10 +1,9 @@
-import importlib
-from datetime import datetime, timedelta
+from datetime import datetime
 from pytimeparse import parse
 import schedule
 
 from app.utils.events import publish_event
-from app.utils.service import run_package, parse_call_function
+from app.utils.service import run_package, parse_call_function, GracefulExit
 from app.utils.session import status
 from app.utils.log import logger
 
@@ -20,7 +19,8 @@ def get_configured_tasks():
 def has_ran(task_name, outside_timeframe):
     interval = int(outside_timeframe) if isinstance(outside_timeframe, int) else parse(outside_timeframe)
     lr = get_last_run(task_name)
-    return lr and (datetime.now() - lr).total_seconds() <= interval - 10 # 10 seconds offset
+    offset = 10  # trigger 10 seconds earlier; 1s should be sufficient for the task last run to get updated
+    return lr and (datetime.now() - lr).total_seconds() + offset <= interval
 
 
 def schedule_task(task_name, config):
@@ -30,24 +30,14 @@ def schedule_task(task_name, config):
     :param config:
     :param task_name: Name of the task.
     """
-
     job = None
-    if config.get("after"):
-        # hourly after a specific hour
-        job = schedule.every(parse(config["interval"])).days.at(config["after"])
-        job.unit = 'seconds'
-    elif config.get("interval"):
-        job = schedule.every(parse(config["interval"]))  # Parse interval dynamically
+
+    # Only scheduling logic without 'after'
+    if config.get("interval"):
+        job = schedule.every(parse(config["interval"]))
         job.unit = 'seconds'
     elif config.get("at"):
-        # daily at a specific hour
         job = schedule.every().day.at(config["at"])
-
-
-    # task_before = config.get("before")
-    # if task_before:
-    #     job = job.hours.until(task_before)
-
 
     job = job.do(execute_task, task_name, job)
 
@@ -83,10 +73,24 @@ def execute_task(task_name, job):
     r = None
 
     task_before = task_config.get("before")
+    task_after = task_config.get("after")
+
+    current_time = now.time()
+
+    # Skip if the current time is beyond the 'before' limit
     if task_before:
-        limit = datetime.strptime(task_before, "%H:%M:%S").time()
-        if now.time() >= limit:
-            log.debug(f"execute_task: {task_name} - Skipped task - before {task_before} - current time {now}")
+        before_limit = datetime.strptime(task_before, "%H:%M:%S").time()
+        if current_time >= before_limit:
+            log.debug(
+                f"execute_task: {task_name} - Skipped (current time {current_time} is after 'before' limit {task_before})")
+            return False
+
+    # Skip if the current time hasn't reached the 'after' limit yet
+    if task_after:
+        after_limit = datetime.strptime(task_after, "%H:%M:%S").time()
+        if current_time < after_limit:
+            log.debug(
+                f"execute_task: {task_name} - Skipped (current time {current_time} is before 'after' limit {task_after})")
             return False
 
     interval = parse(task_config["interval"])
@@ -96,29 +100,21 @@ def execute_task(task_name, job):
 
     if not has_ran(task_name, interval):
         log.info(f"execute_task: {task_name}")
-        call_function = task_config["function"]
         args = task_config.get("args", [])
 
         update_run_stats(task_name, now, job)
 
-        if isinstance(call_function, str):
-            args_dict = {
-                'args': args,
-            }
-            # Import the function dynamically from a string
-            args_dict.update(parse_call_function(f"app.{call_function}"))
-            r = run_package(args_dict, log)
-
-        elif callable(call_function):
-            # Directly call it if it's already a function or method
-            r = call_function(*args)
-        else:
-            raise TypeError(f"execute_task: '{task_name}' Invalid function type: {type(call_function)}")
+        r = run_package({
+            'function': task_config["function"],
+            'args': args
+        }, log)
 
         update_run_stats(task_name, now, job, task_result=r)
 
         remaining = interval - abs((job.next_run - datetime.now()).total_seconds())
-        log.debug(f"execute_task: {task_name} - result: {r}. Next run in {remaining / 60} minutes.")
+        duration = datetime.now() - now
+        log.debug(
+            f"execute_task: {task_name} - result: {r}. Duration: {duration.total_seconds()}s. Next run in {remaining / 60} minutes.")
 
     else:
         log.debug(f"execute_task: {task_name} - skipping. Next run in {remaining / 60} minutes.")
@@ -126,8 +122,10 @@ def execute_task(task_name, job):
     if task_config.get("once"):
         log.info(f"execute_task: {task_name}: unscheduling one-time task.")
         schedule.cancel_job(job)
+        # return schedule.CancelJob
 
     return r
+
 
 def set_task_config(task_name, config):
     """

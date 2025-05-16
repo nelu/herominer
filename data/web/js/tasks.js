@@ -111,6 +111,7 @@ function createTaskRow(taskName, task) {
 
     return row;
 }
+
 // Function to filter tasks based on search input
 function filterTasks() {
     const searchText = $('#taskSearchInput').val().toLowerCase();
@@ -275,30 +276,31 @@ function loadTasks(isAutoRefresh = false) {
             $.each(tasks, function (taskName, task) {
                 // Create row from template and append to table
                 const row = createTaskRow(taskName, task);
+
+                $(row.querySelector('.view-btn'))
+                    .on('click', function () {
+                        const taskId = $(this).data('task-id');
+                        showTaskDetails(taskId);
+                    });
+
+                $(row.querySelector('.delete-btn')).on('click', function () {
+                    const taskId = $(this).data('task-id');
+                    if (confirm('Are you sure you want to delete this task?')) {
+                        deleteTask(taskId);
+                    }
+                });
+
+                $(row.querySelector('.edit-btn')).on('click', function () {
+                    const taskId = $(this).data('task-id');
+                    window.location.href = `/tasks/edit/${taskId}`;
+                });
+                // Add event listeners to buttons using jQuery event delegation
+                // $(document).off('click', '.view-btn, .edit-btn, .delete-btn');
+
                 $tableBody.append(row);
+                // Initialize tooltips for new buttons
+
             });
-
-            // Add event listeners to buttons using jQuery event delegation
-            $(document).off('click', '.view-btn, .edit-btn, .delete-btn');
-
-            $(document).on('click', '.view-btn', function () {
-                const taskId = $(this).data('task-id');
-                showTaskDetails(taskId);
-            });
-
-            $(document).on('click', '.edit-btn', function () {
-                const taskId = $(this).data('task-id');
-                window.location.href = `/tasks/edit/${taskId}`;
-            });
-
-            $(document).on('click', '.delete-btn', function () {
-                const taskId = $(this).data('task-id');
-                if (confirm('Are you sure you want to delete this task?')) {
-                    deleteTask(taskId);
-                }
-            });
-
-            // Initialize tooltips for new buttons
             initTooltips();
 
             // Re-apply sorting if there was a previous sort

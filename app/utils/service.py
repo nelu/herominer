@@ -48,42 +48,47 @@ def parse_call_function(call_function):
     raise ImportError(f"Could not resolve call_function path: {call_function}")
 
 def run_package(args: dict, log):
-    r = None
-    package_name = f"{args['package']}"
+    r = False
+    package_name = None
+    msg = ""
+    call_function = args.get('function')
 
     try:
-        package = importlib.import_module(package_name)
+        if callable(call_function):
+            # Directly call it if it's already a function or method
+            msg = f"{call_function}({args.get('args', [])})"
+            r = call_function(*args.get('args', []))
+        else:
+            if isinstance(call_function, str):
+                # Import the function dynamically from a string
+                args.update(parse_call_function(f"app.{call_function}"))
+
+            package_name = f"{args['package']}"
+            package = importlib.import_module(package_name)
+
+            if args.get('classname'):
+                obj = getattr(package, args['classname'])
+                method = getattr(obj, args['method'])
+                msg = f"{package_name}:{args['classname']}::{args['method']}"
+                r = method(*args.get('args', []))
+            elif args.get('method'):
+                func = getattr(package, args['method'])
+                msg = f"{package_name}.{args['method']}({args.get('args', [])})"
+                r = func(*args.get('args', []))
+            else:
+                raise TypeError(f"Invalid function type: {type(call_function)}")
+
     except ImportError:
         log.exception(f"run_package: Could not find or import the package '{package_name}'")
+    except AttributeError as e:
+        log.exception(f"run_package: {e}")
+    except TypeError as e:
+        log.exception(f"run_package: Function call failed due to argument mismatch. {msg} -> {e}")
+    except (KeyboardInterrupt, GracefulExit) as e:
+        log.exception(f"run_package: Exit on user request: Ctrl + C. {msg} -> {e}")
         raise
-
-    if args.get('classname'):
-        try:
-            obj = getattr(package, args['classname'])
-            method = getattr(obj, args['method'])
-            msg = f"Calling package {package_name} method {args['classname']}::{args['method']}"
-            r = method(*args.get('args', []))
-        except AttributeError as e:
-            log.exception(f"run_package: {e}")
-            raise
-    else:
-        msg = ""
-        try:
-            func = getattr(package, args['method'])
-            msg = f"{package_name}.{args['method']}({args.get('args', [])})"
-            r = func(*args.get('args', []))
-        except AttributeError as e:
-            log.exception(f"run_package: {e}")
-            raise
-        except TypeError as e:
-            log.exception(f"run_package: Function call failed due to argument mismatch. {msg} -> {e}")
-            raise
-        except KeyboardInterrupt as e:
-            log.exception(f"run_package: Exit on user input: Ctrl + C. {msg} -> {e}")
-            raise
-        except Exception as e:
-            log.exception(f"run_package: Exception: {msg} -> {e}")
-            raise
+    except Exception as e:
+        log.exception(f"run_package: Exception: {msg} -> {e}")
 
     log.info(f"run_package: Call {msg} return: {r}")
 

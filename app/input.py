@@ -101,16 +101,18 @@ def main():
     # Dynamically import and run the specified package
     # import args into ENV
     import_parseargs(args)
+    r = False
     try:
         args.package = f"app.{args.package}"
         r = run_package(vars(args), log)
         print(r)
-    except (ImportError, AttributeError) as e:
-        sys.exit(1)
     except (KeyboardInterrupt, GracefulExit) as e:
-        sys.exit()
-    finally:
-        sys.exit()
+        r = True
+    except Exception as e:
+        log.exception(f"main: exception: {e}")
+        r = False
+
+    sys.exit(r and 0 or 1)
 
 
 if __name__ == "__main__":
