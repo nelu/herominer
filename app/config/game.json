@@ -3,7 +3,7 @@
   "tasks": {
     "game.quests.complete_daily_quests": {
       "interval": "1 hour",
-      "after": "13:00"
+      "after": "13:00:00"
     },
     "game.social.check_bonus_links": {
       "interval": "3 hours"

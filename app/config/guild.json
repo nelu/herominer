@@ -9,7 +9,7 @@
     "game.guild.sanctuary.run_sanctuary": {
       "tags": ["guild", "sanctuary"],
       "interval": "24 hours",
-      "after": "11:30"
+      "after": "11:30:00"
     },
     "play_guild/sanctuary/open-pet-eggs": {
       "tags": ["guild", "sanctuary"],
@@ -55,7 +55,7 @@
     "play_guild/titan-valley/tournament": {
       "tags": ["guild", "titan-valley"],
       "interval": "5 hours",
-      "after": "02:00",
+      "after": "02:00:00",
       "function": "game.guild.play",
       "args": ["guild/titan-valley/tournament"]
     },
