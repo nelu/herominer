@@ -80,6 +80,9 @@ build_sfx_installer() {
   echo "   - Internal EXE: $(basename "$PAYLOAD_EXE")"
 }
 
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Building release: cli.exe and input.exe"
+
+
 python.exe -m nuitka --standalone \
   --include-data-files=./config/cli.env=.env \
   --noinclude-pytest-mode=nofollow \
