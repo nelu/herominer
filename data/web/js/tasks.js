@@ -292,7 +292,24 @@ function loadTasks(isAutoRefresh = false) {
 
                 $(row.querySelector('.edit-btn')).on('click', function () {
                     const taskId = $(this).data('task-id');
-                    window.location.href = `/tasks/edit/${taskId}`;
+                    const task = tasks[taskId];
+
+                    // Set modal title explicitly indicating it's a copy action
+                    $('#createTaskModalLabel').text('Copy Task');
+
+                    // Prefill fields with existing task details
+                    //$('#taskName').val(task.name + '_copy'); // Optional: append "_copy" to distinguish new task
+                    $('#taskName').val('');
+                    $('#taskFunction').val(task.function);
+                    $('#taskInterval').val(task.interval);
+                    $('#taskOnce').prop('checked', true);
+                    $('#taskArgs').val(JSON.stringify(task.args || []));
+
+                    // Important: Clear any stored task-id, as this is not an update, but a new copy
+                    $('#createTaskForm').removeData('task-id');
+
+                    // Open modal
+                    $('#createTaskModal').modal('show');
                 });
                 // Add event listeners to buttons using jQuery event delegation
                 // $(document).off('click', '.view-btn, .edit-btn, .delete-btn');

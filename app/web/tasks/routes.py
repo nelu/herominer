@@ -91,11 +91,6 @@ def create_task():
         return jsonify({"error": str(e)}), 500
 
 
-@task_api.route("/edit/<task_id>")
-def edit_task(task_id):
-    return render_template("edit_task.html", task_id=task_id)
-
-
 @task_api.route("/<task_id>", methods=["GET", "PUT", "PATCH", "DELETE"])
 def task_ops(task_id):
     # Get all scheduled jobs
