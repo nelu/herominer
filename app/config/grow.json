@@ -8,6 +8,7 @@
           "interval": "18 hours"
         },
         "game.grow.acquire_hero_items": {
+          "tags": ["require:energy"],
           "interval": "2 hours"
         },
         "play_grow/summon-heroes": {
@@ -16,6 +17,7 @@
           "args": ["grow/summon-heroes"]
         },
         "game.grow.hero_soulstones": {
+          "tags": ["require:energy"],
           "interval": "2 hours"
         },
         "play_guild/island/titans": {

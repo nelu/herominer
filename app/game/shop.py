@@ -1,5 +1,5 @@
 from app.driver import player as driver, JSONConfig
-from app.game import open_game, play_action
+from app.game import open_game, play_action, player
 from app.game.heroes.manager import instance as hero_manager
 from app.utils.log import logger
 from app.tasks.helper import schedule_tasks
@@ -7,10 +7,16 @@ from app.tasks.helper import schedule_tasks
 log = logger(__name__)
 
 
-def shop_config(element=None):
+def get_shop_coins(shop_name):
+    conf = shop_config(shop_name)
+    coins_name = conf.get("coin")
+    return player.DATA.get_count(f"{coins_name}")
+
+
+def shop_config(shop_name=None):
     conf = JSONConfig('shop.json')
-    if element:
-        return conf and conf.get(element)
+    if shop_name:
+        return conf and conf['lobby_shop'].get(shop_name)
 
     return conf
 
@@ -49,7 +55,13 @@ def buy_items(shop_name, names=None):
     r = None
     if names is None:
         # items = shop_config()[shop_name].get("heroes", [])
-        names = shop_config('lobby_shop')[shop_name].get("items", [])
+        names = shop_config(shop_name).get("items", [])
+
+    shop_coins = get_shop_coins(shop_name)
+
+    if shop_coins < 500:
+        log.warning(f"buy_items: No coins available {shop_name} - {shop_coins}")
+        return False
 
     # for name in names:
     #     r = buy_item(shop_name, name)

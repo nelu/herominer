@@ -2,6 +2,7 @@
   "game_url": "https://apps.facebook.com/mobaheroes/",
   "tasks": {
     "game.quests.complete_daily_quests": {
+      "tags": ["require:energy", "require:gold", "require:skin_coins"],
       "interval": "1 hour",
       "after": "13:00:00"
     },

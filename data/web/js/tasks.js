@@ -320,18 +320,7 @@ function loadTasks(isAutoRefresh = false) {
             });
             initTooltips();
 
-            // Re-apply sorting if there was a previous sort
-            if ($tableBody.data('sort-data') && $tableBody.data('sort-data').column) {
-                const sortData = $tableBody.data('sort-data');
-                // We need to manually invoke sort to maintain the previous sort direction
-                sortTable(sortData.column);
-
-                // If it was descending, we need to sort again to toggle back to descending
-                // since the first call will always start with ascending
-                if (sortData.direction === 'desc') {
-                    sortTable(sortData.column);
-                }
-            }
+            currentSortData && sortTable(currentSortData.column);
 
             // If this was an auto-refresh and we had a search filter, re-apply it
             if (isAutoRefresh && currentSearch) {

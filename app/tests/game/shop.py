@@ -10,11 +10,11 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(True, True)  # add assertion here
 
     def test_buy_grand_arena_heroes(self):
-        buy_heroes("grand-arena", shop_config()['grand.*arena']['items'])
+        buy_heroes("grand-arena", shop_config('grand.*arena')['items'])
         self.assertEqual(True, True)  # add assertion here
 
     def test_buy_outland_heroes(self):
-        buy_heroes("outland", shop_config()['outland']['items'])
+        buy_heroes("outland", shop_config('outland')['items'])
         self.assertEqual(True, True)  # add assertion here
 
 if __name__ == '__main__':

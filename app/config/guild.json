@@ -6,11 +6,6 @@
     "guild-island"
   ],
   "tasks": {
-    "game.guild.sanctuary.run_sanctuary": {
-      "tags": ["guild", "sanctuary"],
-      "interval": "24 hours",
-      "after": "11:30:00"
-    },
     "play_guild/sanctuary/open-pet-eggs": {
       "tags": ["guild", "sanctuary"],
       "after": "01:00:00",
@@ -65,12 +60,7 @@
       "function": "game.guild.if_daily_count",
       "args": ["island-summon-spheres","guild/island/open-summon-spheres"]
     },
-    "play_guild/island/shop": {
-      "tags": ["guild", "titan-island"],
-      "interval": "24 hours",
-      "function": "game.guild.play",
-      "args": ["guild/island/shop"]
-    },
+
     "play_guild/island/dungeon": {
       "tags": ["guild", "titan-island"],
       "interval": "5 hours",
