@@ -18,6 +18,5 @@ def check_season_events():
 
 
 def check_special_events():
-    o = play_action(f"events/check")
-    back_to_lobby()
+    o = play_action(f"events/check", True)
     return o

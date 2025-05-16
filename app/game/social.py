@@ -6,7 +6,9 @@ from app.driver import player as driver
 from app.utils import session
 from . import close_game
 from app.utils.log import logger
+
 log = logger(__name__)
+
 
 def is_valid_url(url):
     try:
@@ -32,20 +34,12 @@ def find_most_recent_file_with_prefix(directory, prefix):
     return most_recent_file
 
 
-
 def open_link(url):
-    sn = "social-invalid-link"
-
-    session.write(sn, 0)
-
     session.persist("social-bonus-url.txt", f"--start-maximized \"{url}\"", settings.APP_SOCIAL_DIR)
-
     r = driver.start("social/open-bonus-link")
+    driver.close_browser()
 
-    # remove the link from the latestfile
-    if session.has_session(sn):
-        log.info(f"openLatestLinks: Found invalid link - {url}")
-        return False
+    r or log.info(f"open_link: invalid link - {url}")
 
     return r
 
@@ -59,6 +53,7 @@ def parse_urls(lines):
 
     return valid_urls
 
+
 def open_latest_links():
     latest_file = find_most_recent_file_with_prefix(settings.APP_SOCIAL_DIR, "latest-links-")
     log.info(f"open_latest_links: {latest_file}")
@@ -71,21 +66,24 @@ def open_latest_links():
     # Read the file line by line
     with open(latest_file, 'r') as file:
         for url in parse_urls(file):
-            open_link(url)
+            open_link(url) and valid_urls.append(url)
 
     session.write('social_valid_links', valid_urls)
 
-    log.info(f"openLatestLinks: Found links {len(valid_urls)}")
+    log.info(f"open_latest_links: Found links {len(valid_urls)}")
 
     remove_file(os.path.basename(latest_file))
 
     return len(valid_urls)
 
+
 def get_valid_bonus_links():
     return session.read_session('social_valid_links')
 
+
 def delete_valid_bonus_links():
     return session.remove_entry('social_valid_links')
+
 
 def remove_file(name):
     log.info(f"remove_file: {name}")
@@ -101,10 +99,6 @@ def check_bonus_links():
     log.debug(f"check_bonus_links - has_links: {has_links}")
 
     if not get_valid_bonus_links():
-        open_latest_links() and log.info("Found new facebook bonus links to open")
+        open_latest_links() and log.info("Found new facebook bonus links to announce")
 
     close_game()
-
-
-
-
