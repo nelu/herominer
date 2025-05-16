@@ -13,7 +13,7 @@
         "play_grow/summon-heroes": {
           "interval": "4 days",
           "function": "game.play_action",
-          "args": ["grow/summon-heroes", true]
+          "args": ["grow/summon-heroes"]
         },
         "game.grow.hero_soulstones": {
           "interval": "2 hours"
@@ -21,7 +21,7 @@
         "play_guild/island/titans": {
           "interval": "10 hours",
           "function": "game.play_action",
-          "args": ["guild/island/titans", true]
+          "args": ["guild/island/titans"]
         }
   },
   "heroes": {

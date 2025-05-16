@@ -2,6 +2,8 @@ import unittest
 
 from app.driver import player
 from app.game import game_stats, open_game
+from app.game.chat import announce_bonus_links
+from app.game.social import set_valid_bonus_links
 
 from app.tests import load_fixture
 from app.utils.service import wait
@@ -13,6 +15,10 @@ class GameTestCase(unittest.TestCase):
         stats = game_stats.get_stats()
         print(f"Game stats: {stats}")
         player.browser.quit()
+
+    def test_chat(self):
+        set_valid_bonus_links(["http://ungabunga.com"])
+        announce_bonus_links()
 
     def test_open_game(self):
 

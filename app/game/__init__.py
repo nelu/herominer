@@ -70,20 +70,24 @@ def play_action(file, go_back=False):
 
 
 def if_daily_count(status_flag, action, count=1):
-    return session.daily().get_count(status_flag) < count and play_action(action, True)
+    return session.daily().get_count(status_flag) < count and play_action(action, False)
 
 
 def if_daily_action(status_flag, action):
-    return not session.daily().get(status_flag) and play_action(action, True)
+    return not session.daily().get(status_flag) and play_action(action, False)
 
 
-def check_complete(item, complete_macro, daily=True):
+def check_complete(item, complete_macro, auto = True, daily=True):
+    r = False
+    sess = (daily and session.daily() or session.status())
     """Checks for arena battles if they haven't been completed today."""
-    if not (daily and session.daily() or session.status()).is_complete(item):
-        log.debug(f"check_complete: {item} completing with {complete_macro}")
-        return play_action(complete_macro, True)
+    if not sess.is_complete(item):
+        r = play_action(complete_macro, False)
+        log.debug(f"check_complete: {item} completing with {complete_macro} - result: {r}")
+        auto and r and sess.mark_complete(item) # mark complete automatically if success
     else:
+        r = True
         log.debug(f"check_complete: {item} already completed")
-
+    return r
 
 game_stats = GameStats()

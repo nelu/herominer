@@ -68,7 +68,7 @@ def open_latest_links():
         for url in parse_urls(file):
             open_link(url) and valid_urls.append(url)
 
-    session.write('social_valid_links', valid_urls)
+    set_valid_bonus_links(valid_urls)
 
     log.info(f"open_latest_links: Found links {len(valid_urls)}")
 
@@ -81,6 +81,10 @@ def get_valid_bonus_links():
     return session.read_session('social_valid_links')
 
 
+def set_valid_bonus_links(valid_urls):
+    return session.write('social_valid_links', valid_urls)
+
+
 def delete_valid_bonus_links():
     return session.remove_entry('social_valid_links')
 
@@ -91,14 +95,16 @@ def remove_file(name):
 
 
 def check_bonus_links():
-    log.info("Checking facebook page for bonus links")
+    log.info("check_bonus_links: Social pages for bonus links")
     # we are not using selenium
     close_game()
-    has_links = driver.start("social/collect-fb-bonuses")
+    has_new = driver.start("social/collect-fb-bonuses")
 
-    log.debug(f"check_bonus_links - has_links: {has_links}")
+    log.debug(f"check_bonus_links: has new links - {has_new}")
 
+    # wait for chat announce to finish removing the previous links
+    # before processing another dontloaded links file
     if not get_valid_bonus_links():
-        open_latest_links() and log.info("Found new facebook bonus links to announce")
+        open_latest_links() and log.info("check_bonus_links: Got new social bonus links to announce")
 
     close_game()

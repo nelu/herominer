@@ -20,11 +20,11 @@
     },
     "play_guild/guild-war": {
       "tags": ["guild"],
-      "after": "01:00:00",
+      "after": "06:00:00",
       "before": "17:00:00",
       "interval": "1 hour",
       "function": "game.guild.check_complete",
-      "args": ["guild-war-attempts","guild/guild-war"]
+      "args": ["guild-war-attempts","guild/guild-war", false]
     },
     "play_guild_adventure_join_daily": {
       "tags": ["guild", "adventures"],
@@ -75,7 +75,7 @@
       "tags": ["guild", "titan-island"],
       "interval": "5 hours",
       "function": "game.guild.check_complete",
-      "args": ["guild-dungeon", "guild/island/dungeon"]
+      "args": ["guild-dungeon", "guild/island/dungeon", false]
     },
     "play_guild/asgard/open-astral-seer": {
       "tags": ["guild", "asgard"],
@@ -89,7 +89,7 @@
       "interval": "2 hours",
       "after": "04:00:00",
       "function": "game.guild.check_complete",
-      "args": ["guild-asgard-raid", "guild/asgard/raid"]
+      "args": ["guild-asgard-raid", "guild/asgard/raid", false]
     }
   }
 }

@@ -7,13 +7,6 @@
     },
     "game.social.check_bonus_links": {
       "interval": "3 hours"
-    },
-    "game.chat.announce_bonus_links": {
-      "interval": "1 hour"
-    },
-    "game.chat.send_chat_image": {
-      "interval": "1 day",
-      "at": "20:00:00"
     }
   }
 }

@@ -44,12 +44,12 @@ class GuildMenus(Menus):
 guild_menus = GuildMenus()
 
 
-def play(file, go_back=True):
+def play(file, go_back=False):
     return not guild_menus.is_disabled() and game.play_action(file, go_back)
 
 
-def check_complete(item, complete_macro, day=True):
-    return not guild_menus.is_disabled() and game.check_complete(item, complete_macro, day)
+def check_complete(item, complete_macro, auto=True, day=True):
+    return not guild_menus.is_disabled() and game.check_complete(item, complete_macro, auto, day)
 
 
 def if_daily_count(status_flag, action, count=1):
