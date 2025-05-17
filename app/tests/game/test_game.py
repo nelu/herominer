@@ -17,7 +17,7 @@ class GameTestCase(unittest.TestCase):
         player.browser.quit()
 
     def test_chat(self):
-        set_valid_bonus_links(["http://ungabunga.com"])
+        set_valid_bonus_links(["http://ungabunga.com", "http://google.com"])
         announce_bonus_links()
 
     def test_open_game(self):

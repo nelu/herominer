@@ -2,11 +2,11 @@ from datetime import datetime
 
 from py_linq import Enumerable
 
-from app.driver import player as driver, JSONConfig
+from app.driver import JSONConfig
 from app.utils.log import logger
 from app.utils.session import status, daily
-from app.game.lobby import back_to_lobby, menus
-from app.game import open_game, game_stats
+from app.game.lobby import back_to_lobby
+from app.game import open_game, game_stats, play_action
 from .adventure import Adventure
 
 log = logger(__name__)
@@ -112,6 +112,8 @@ class AdventureManager:
 
         levels_with_routes = get_available_levels(True)
 
+        log.info(f"run_adventures: Join/starting daily preferred adventures: {pref}")
+
         started = (self.preferred_first(pref, available_levels=levels_with_routes, call=Adventure.join_adventure)
                    or
                    (create_adventure and self.preferred_first(conf.get('start-preferred', pref),
@@ -129,9 +131,10 @@ class AdventureManager:
     @staticmethod
     def open_chests():
         """Check for complete adventure prizes."""
-        log.info("open_chests: Checking for adventure prizes")
         adv = manager.current_adventure()
-        run = menus.open_menu("adventures") and driver.start("guild/adventures/chests-check")
+        log.info(f"open_chests: adventure {adv.adventure_id} - checking for prizes")
+
+        run = play_action("guild/adventures/chests-check")
 
         if not adv:
             log.warning(f"open_chests: No adventure started - {adv}")
@@ -141,16 +144,18 @@ class AdventureManager:
         else:
             manager.check_complete(adv) and adv.finish_adventure(adv.adventure_id)
 
+        (run or log.warning(
+            f"open_chests: adventure {adv.adventure_id} - failed to collect chests or finish"))
+
         return run
 
     @staticmethod
     def play_level(adventure):
         """Play adventure level missions."""
         start_position = manager.get_started_adventure_position()
+
         if start_position:
-            r = adventure.play_missions(start_position)
-            back_to_lobby()
-            return r
+            return adventure.play_missions(start_position)
         else:
             log.warning(f"play_level: No start position saved - {start_position}")
             return False
@@ -179,24 +184,13 @@ def run_adventures(create_adventure=False):
         log.error("run_adventures: seems no adventure level is available")
         return False
 
-    r = False
     # dont start any adventure if chest are to be claimed - active adventure not finished
-    if manager.has_chests_to_claim():
-        adv_started = manager.current_adventure()
-        adv_id = adv_started and adv_started.adventure_id
+    r = manager.has_chests_to_claim() and manager.open_chests()
 
-        log.info(f"run_adventures: Collecting chests and finishing adventure ...  {adv_id}")
-        r = (manager.open_chests() or log.warning(
-            f"run_adventures: Failed collecting chests or finishing adventure ...  {adv_id}"))
-        back_to_lobby()
+    r = (not has_started_adventure() and not daily().get_count("adventures_played")
+         and manager.join_or_start_adventure(create_adventure=create_adventure))
 
-    if not has_started_adventure() and not daily().get_count("adventures_played"):
-        log.info(f"run_adventures: Join/starting daily adventure")
-        r = manager.join_or_start_adventure(create_adventure=create_adventure)
+    r = manager.play_level(manager.current_adventure())
 
-    adv_started = manager.current_adventure()
-
-    if adv_started:
-        r = manager.play_level(adv_started)
-
+    back_to_lobby()
     return r

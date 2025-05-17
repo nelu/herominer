@@ -1,6 +1,6 @@
 {
   "templates": {
-      "announce_chat_msg": "Bonus links posted: {{ links }} -- HeroMiner"
+      "announce_chat_msg": "Bonus links posted: {{ links | join(\" \") }} -- HeroMiner"
   },
   "tasks": {
     "game.chat.announce_bonus_links": {

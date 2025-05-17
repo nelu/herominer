@@ -29,7 +29,6 @@ def announce_bonus_links():
     links = social.get_valid_bonus_links()
 
     if links:
-        links = "\n".join(links)
         log.info(f"announce_bonus_links: new links - {links}")
         templates = config().get('templates', {})
         message = Template(templates['announce_chat_msg']).render(links=links)
