@@ -1,0 +1,22 @@
+{
+  "game_url": "https://apps.facebook.com/mobaheroes/",
+  "short_interval_special_events": ["domination-castle"],
+  "tasks": {
+    "game.quests.complete_daily_quests": {
+      "tags": ["require:energy", "require:gold", "require:skin_coins"],
+      "interval": "1 hour",
+      "after": "13:00:00"
+    },
+    "game.lobby.events.check_special_events": {
+      "interval": "1 hour"
+    },
+    "play_if:has_low_interval_special_events": {
+      "tags": ["if:game.events.has_low_interval_special_events"],
+      "function": "game.lobby.events.check_special_events",
+      "interval": "20 minutes"
+    },
+    "game.social.check_bonus_links": {
+      "interval": "3 hours"
+    }
+  }
+}

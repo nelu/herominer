@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Scheduled Tasks{% endblock %}
+
+{% block custom_styles %}
+<style>
+    .task-card {
+        margin-bottom: 20px;
+        transition: transform 0.2s;
+    }
+
+    .task-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .status-success {
+        background-color: #28a745;
+    }
+
+    .status-warning {
+        background-color: #ffc107;
+    }
+
+    .status-danger {
+        background-color: #dc3545;
+    }
+
+    .status-info {
+        background-color: #17a2b8;
+    }
+
+    .sortable {
+        cursor: pointer;
+        position: relative;
+        user-select: none;
+    }
+
+    .sortable:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .sortable::after {
+        content: '↕';
+        position: absolute;
+        right: 8px;
+        opacity: 0.3;
+    }
+
+    .sort-asc::after {
+        content: '↓';
+        opacity: 1;
+    }
+
+    .sort-desc::after {
+        content: '↑';
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block tab_content %}
+
+<!-- Tasks Tab -->
+<div aria-labelledby="tasks-tab" class="tab-pane fade show active" id="tasks-content" role="tabpanel">
+    <div class="container mt-4" id="tasks-container">
+        <div class="row mb-4">
+            <div class="col">
+                <h1>Scheduled Tasks</h1>
+                <p class="lead">Manage and monitor your scheduled automation tasks</p>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-success" id="createTaskBtn">
+                    <i class="bi bi-plus-circle"></i> New Task
+                </button>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Task Overview</h5>
+                <div class="input-group w-50">
+                    <input class="form-control" id="taskSearchInput" placeholder="Search tasks..." type="text"/>
+                    <button class="btn btn-outline-secondary" id="clearSearchBtn" type="button">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="tasksTable">
+                        <thead>
+                        <tr>
+                            <th>Once</th>
+                            <th class="sortable">Name</th>
+                            <th class="sortable">Interval</th>
+                            <th class="sortable">Next Run</th>
+                            <th class="sortable">Last Run</th>
+                            <th class="sortable">Result</th>
+                            <th>Start</th>
+                            <th>Finish</th>
+                            <th>Type</th>
+                            <th>Args</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="taskTableBody">
+                        <tr>
+                            <td class="text-center" colspan="7">Loading tasks...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Create Task Modal -->
+        <div aria-hidden="true" aria-labelledby="createTaskModalLabel" class="modal fade" id="createTaskModal"
+             tabindex="-1">
+            <div class="modal-dialog">
+                <form class="modal-content" id="createTaskForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createTaskModalLabel">Create New Task</h5>
+                        <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="taskName">Task Name</label>
+                            <input class="form-control" id="taskName" readonly="" type="text"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="taskFunction">Function Path</label>
+                            <input class="form-control" id="taskFunction" placeholder="e.g. myapp.jobs.my_func"
+                                   required="" type="text"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="taskInterval">Interval (e.g. 10s, 5m)</label>
+                            <input class="form-control" id="taskInterval" required="" type="text"/>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input checked="" class="form-check-input" id="taskOnce" readonly="" type="checkbox"/>
+                            <label class="form-check-label" for="taskOnce">Run once only</label>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="taskArgs">Arguments (JSON array)</label>
+                            <input class="form-control" id="taskArgs" placeholder='["arg1", "arg2"]' type="text"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit">Create Task</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Task Detail Modal -->
+        <div aria-hidden="true" class="modal fade" id="taskDetailModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="taskDetailTitle">Task Details</h5>
+                        <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+                    </div>
+                    <div class="modal-body" id="taskDetailBody">
+                        <!-- Task detail content will be populated by task-details-panel custom element -->
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Template for task-details-panel custom element -->
+        <template id="task-details-template">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h6>Basic Information</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>ID</th>
+                            <td id="task-id"></td>
+                        </tr>
+                        <tr>
+                            <th>Name</th>
+                            <td id="task-name"></td>
+                        </tr>
+                        <tr>
+                            <th>Interval</th>
+                            <td id="task-interval"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Execution Timeline</h6>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Last Started</th>
+                            <td id="task-start"></td>
+                        </tr>
+                        <tr>
+                            <th>Last Finished</th>
+                            <td id="task-finish"></td>
+                        </tr>
+                        <tr>
+                            <th>Next Run</th>
+                            <td id="task-next-run"></td>
+                        </tr>
+                        <tr>
+                            <th>Next Scheduled</th>
+                            <td id="task-next-scheduled"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <h6>Last Result</h6>
+                    <pre class="bg-light p-3 rounded" id="task-result"></pre>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6"><strong>After:</strong> <span id="task-after"></span></div>
+                <div class="col-6"><strong>Before:</strong> <span id="task-before"></span></div>
+            </div>
+            <div class="row">
+                <div class="col-6"><strong>Type:</strong> <span id="task-type"></span></div>
+                <div class="col-6"><strong>Args:</strong> <span id="task-args"></span></div>
+            </div>
+        </template>
+        <!-- Template for task row in table -->
+        <template id="task-row-template">
+            <tr>
+                <td><span class="status-indicator"></span></td>
+                <td class="task-name"></td>
+                <td class="task-interval"></td>
+                <td class="task-next-run"></td>
+                <td class="task-last-run"></td>
+                <td class="task-result"></td>
+                <td class="task-start"></td>
+                <td class="task-before"></td>
+                <td class="task-type"></td>
+                <td class="task-args"></td>
+                <td class="text-nowrap">
+                    <div aria-label="Task Actions" class="btn-group btn-group-sm" role="group">
+                        <button class="btn btn-info view-btn" data-bs-toggle="tooltip" data-task-id=""
+                                title="View Details">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-warning edit-btn" data-bs-toggle="tooltip" data-task-id=""
+                                title="Edit Task">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-danger delete-btn" data-bs-toggle="tooltip" data-task-id=""
+                                title="Delete Task">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </template>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block body_scripts %}
+<script src="/static/js/tasks.js"></script>
+<script>
+    refreshFunction = loadTasks;
+    $(document).ready(() => {
+        $('#mainTabsContent').prepend(renderLogWidget({containerId: 'logs-container'}));
+        loadTasks();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{
+  "interval": "1 hour",
+  "active_menus": [
+    "airship",
+    "mail",
+    "daily-quests",
+    "soul-atrium",
+    "special-events",
+    "season-events",
+    "quests",
+    "gifts"
+  ],
+  "bottom_menus": [
+    "inventory",
+    "quests",
+    "heroes",
+    "ranking",
+    "gifts"
+  ],
+  "tasks": {
+    "game.lobby.tower.run_tower": {
+      "interval": "1 hour"
+    },
+    "game.lobby.arena.check_complete": {
+      "function": "game.lobby.arena.check_complete",
+      "args": [
+        [
+          "grand-arena",
+          "arena"
+        ]
+      ],
+      "interval": "1 hour",
+      "after": "01:00:00"
+    },
+    "play_lobby/menu-outland": {
+      "interval": "2 hours",
+      "after": "01:00:00",
+      "function": "game.lobby.run_if_notification",
+      "args": [
+        "outland"
+      ]
+    },
+    "game.lobby.check_menus": {
+      "interval": "1 hour"
+    }
+  },
+  "coords": {
+    "daily-quests": "300x215",
+    "airship": "467x238",
+    "mail": "300x260",
+    "special-events": "300x305",
+    "quests": "345x713",
+    "outland": "814x271",
+    "arena": "837x465",
+    "grand-arena": "697x400",
+    "adventures": "70x650",
+    "gifts": "781x716",
+    "tower": "880x340",
+    "heroes": "530x765"
+  }
+}

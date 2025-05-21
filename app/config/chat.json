@@ -1,0 +1,18 @@
+{
+  "templates": {
+      "announce_chat_msg": "Bonus links posted: {{ links | join(\" \") }} -- HeroMiner"
+  },
+  "tasks": {
+    "game.chat.announce_bonus_links": {
+      "tags": ["chat", "social"],
+      "interval": "1 hour"
+    },
+    "game.check_complete-send_chat_image": {
+      "tags": ["chat"],
+      "interval": "1 hour",
+      "after": "20:00:00",
+      "function": "game.check_complete",
+      "args": ["chat-sent-img","chat/send-chat-img"]
+    }
+  }
+}

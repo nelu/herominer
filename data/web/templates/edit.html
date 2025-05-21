@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Hero</title>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+        textarea {
+            width: 100%;
+            height: 400px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+        #dialog {
+            display: none;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+</head>
+<body>
+    <h1>✏️ Edit Hero: {{ slug }}</h1>
+    <textarea id="editor"></textarea><br>
+    <button id="save">💾 Save</button>
+
+    <div id="dialog" title="Status">
+        <p>Saving hero data...</p>
+    </div>
+
+    <script>
+    const slug = "{{ slug }}";
+
+    $.get(`/heroes/`, function(data) {
+        let hero = Object.keys(data).find(k => k === slug);
+        if (!hero) {
+            $("#editor").val("Hero not found");
+            return;
+        }
+        $("#editor").val(JSON.stringify(data[slug], null, 2));
+    });
+
+    $("#save").click(function() {
+        try {
+            let heroData = JSON.parse($("#editor").val());
+            $("#dialog").dialog({ modal: true });
+            $.ajax({
+                url: `/heroes/${slug}`,
+                method: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(heroData),
+                success: () => {
+                    $("#dialog").html("<p>Hero saved successfully ✅</p>");
+                },
+                error: () => {
+                    $("#dialog").html("<p>Failed to save hero ❌</p>");
+                }
+            });
+        } catch (e) {
+            alert("Invalid JSON");
+        }
+    });
+    </script>
+</body>
+</html>

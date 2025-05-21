@@ -1,0 +1,74 @@
+{
+  "interval": "2 hours",
+  "tasks": {
+        "game.inventory.check_inventory": {
+          "interval": "10 hours"
+        },
+        "game.grow.grow_heroes": {
+          "interval": "18 hours"
+        },
+        "game.grow.acquire_hero_items": {
+          "tags": ["require:energy"],
+          "interval": "2 hours"
+        },
+        "play_grow/summon-heroes": {
+          "interval": "4 days",
+          "function": "game.play_action",
+          "args": ["grow/summon-heroes"]
+        },
+        "game.grow.hero_soulstones": {
+          "tags": ["require:energy"],
+          "interval": "1 hours"
+        },
+        "play_guild/island/titans": {
+          "tags": ["if:game.player.PlayerStats.has_gold"],
+          "interval": "10 hours",
+          "after": "15:00:00",
+          "function": "game.play_action",
+          "args": ["guild/island/titans"]
+        }
+  },
+  "heroes": {
+    "astrid-and-lucas": {
+        "skills": 5,
+        "skins": 1,
+        "artifacts": [1, 2, 3],
+        "levels": 1,
+        "items": 1,
+        "do_evolution": true
+    },
+    "elmir": {
+        "skills": 1,
+        "skins": 1,
+        "artifacts": [1, 2, 3],
+        "levels": 1,
+        "items": 1,
+        "do_evolution": true
+    },
+    "isaac": {
+        "skills": 1,
+        "skins": 1,
+        "artifacts": [],
+        "levels": 1,
+        "items": 1,
+        "do_evolution": true
+    },
+    "mushy-shroom": {
+        "skills": 4,
+        "skins": 1,
+        "artifacts": [1, 2, 3],
+        "levels": 4,
+        "items": 1,
+        "do_evolution": true
+    },
+    "ginger": {
+        "skills": 4,
+        "skins": 1,
+        "artifacts": [1, 2, 3],
+        "levels": 1,
+        "items": 1,
+        "do_evolution": true
+    }
+  }
+
+}

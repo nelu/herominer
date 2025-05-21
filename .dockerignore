@@ -1,0 +1,15 @@
+.venv*
+data/
+share/
+dev/
+docs/
+legacy
+release/*
+sources/*
+
+# Include specific files in sources
+!sources/Nuitka*
+!sources/undetected*
+!sources/herominer-icon.ico
+!sources/requirements.txt
+!sources/7zsd_All_x64.sfx

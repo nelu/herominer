@@ -1,0 +1,6 @@
+session/*
+logs/*
+data/upgrade-artifact-no-coords-y.txt
+data/**/*.txt
+scripts/MacroRecorder/*
+fonts/*

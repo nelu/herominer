@@ -1,0 +1,13 @@
+{
+  "merchant_buy": {
+    "interval": "24 hours",
+    "items": [
+      "1",
+      "2"
+    ]
+  },
+  "pet_summons": {
+    "interval": "24 hours",
+    "count": 1
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "tasks": {
+    "shop_daily_guild/titan-valley": {
+      "tags": ["guild", "titan-valley", "shop"],
+      "interval": "6 hours",
+      "function": "game.guild.check_complete",
+      "args": ["guild_valley_shopping", "guild/titan-valley/shop"]
+    },
+    "shop_daily_guild/island": {
+      "tags": ["guild", "titan-island", "shop"],
+      "interval": "6 hours",
+      "function": "game.guild.check_complete",
+      "args": ["guild_island_shopping","guild/island/shop"]
+    },
+    "shop_daily_guild/sanctuary": {
+      "tags": ["guild", "sanctuary", "shop"],
+      "interval": "6 hours",
+      "function": "game.guild.check_complete",
+      "args": ["guild_sanctuary_shopping", "guild/sanctuary/sanctuary-buy-items"]
+    }
+  },
+  "lobby_shop":
+  {
+    "town": {"interval": "11 hours", "coin": "gold", "items": [1, 2, 5]},
+    "arena": {"interval": "24 hours", "coin": "arena_coins", "items": ["dark-star", "judge", "chabba", "maya"]},
+    "grand.*arena": {"interval": "24 hours", "coin": "grand.*arena_coins", "items": ["markus", "rufus", "lian", "ishmael"]},
+    "outland": {"interval": "24 hours", "coin": "outland_coins", "items": ["elmir", "qing-mao", "jorgen", "luther"]},
+    "friendship": {"interval": "24 hours", "coin": "friendship_coins", "items": ["faceless", "cornelius"]},
+    "soul": {"interval": "24 hours", "coin": "soul_coins", "items": ["jet"]},
+    "tower": {"interval": "24 hours", "coin": "tower_coins", "items": ["orion", "dante", "kai", "lilith"]}
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "active_menus": [
+    "asgard",
+    "titan-valley",
+    "sanctuary",
+    "guild-island"
+  ],
+  "tasks": {
+    "play_guild/sanctuary/open-pet-eggs": {
+      "tags": ["guild", "sanctuary"],
+      "after": "01:00:00",
+      "interval": "2 hours",
+      "function": "game.guild.if_daily_count",
+      "args": ["sanctuary-open-eggs","guild/sanctuary/open-pet-eggs"]
+    },
+    "play_guild/guild-war": {
+      "tags": ["guild"],
+      "after": "06:00:00",
+      "before": "17:00:00",
+      "interval": "1 hour",
+      "function": "game.guild.check_complete",
+      "args": ["guild-war-attempts","guild/guild-war", false]
+    },
+    "play_guild_adventure_join_daily": {
+      "tags": ["guild", "adventures"],
+      "interval": "45 minutes",
+      "before": "13:00:00",
+      "function": "game.guild.adventures.run_adventures"
+    },
+    "play_guild_adventure_join_or_create_daily": {
+      "tags": ["guild", "adventures"],
+      "interval": "1 hours",
+      "after": "13:00:00",
+      "function": "game.guild.adventures.run_adventures",
+      "args": [true]
+    },
+    "play_guild/titan-valley/open-artifact-spheres": {
+      "tags": ["guild", "titan-valley"],
+      "after": "01:00:00",
+      "interval": "2 hours",
+      "function": "game.guild.if_daily_count",
+      "args": ["titan-valley-open-spheres","guild/titan-valley/open-artifact-spheres"]
+    },
+    "play_guild/titan-valley/hall-of-fame-collect": {
+      "tags": ["guild", "titan-valley"],
+      "interval": "24 hours",
+      "function": "game.guild.play",
+      "args": ["guild/titan-valley/hall-of-fame-collect"]
+    },
+    "play_guild/titan-valley/tournament": {
+      "tags": ["guild", "titan-valley"],
+      "interval": "5 hours",
+      "after": "02:00:00",
+      "function": "game.guild.play",
+      "args": ["guild/titan-valley/tournament"]
+    },
+    "play_guild/island/summon": {
+      "tags": ["guild", "titan-island"],
+      "interval": "2 hours",
+      "function": "game.guild.if_daily_count",
+      "args": ["island-summon-spheres","guild/island/open-summon-spheres"]
+    },
+
+    "play_guild/island/dungeon": {
+      "tags": ["guild", "titan-island"],
+      "interval": "5 hours",
+      "function": "game.guild.check_complete",
+      "args": ["guild-dungeon", "guild/island/dungeon", false]
+    },
+    "play_guild/asgard/open-astral-seer": {
+      "tags": ["guild", "asgard"],
+      "interval": "2 hours",
+      "after": "04:00:00",
+      "function": "game.guild.check_complete",
+      "args": ["guild-asgard-seer", "guild/asgard/open-astral-seer"]
+    },
+    "play_guild/asgard/raid": {
+      "tags": ["guild", "asgard"],
+      "interval": "2 hours",
+      "after": "04:00:00",
+      "function": "game.guild.check_complete",
+      "args": ["guild-asgard-raid", "guild/asgard/raid", false]
+    }
+  }
+}

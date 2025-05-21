@@ -1,0 +1,340 @@
+{
+  "stats_timeout": "2 hours",
+  "tasks": {
+    "game.heroes.manager.run_tasks": {
+      "interval": "1 hour"
+    }
+  },
+  "heroes": {
+    "aidan": {
+      "id": 58,
+      "name": "Aidan",
+      "short_name": "aidan"
+    },
+    "alvanor": {
+      "id": 53,
+      "name": "Alvanor",
+      "short_name": "alvanor"
+    },
+    "amira": {
+      "id": 56,
+      "name": "Amira",
+      "short_name": "amira"
+    },
+    "andvari": {
+      "id": 47,
+      "name": "Andvari",
+      "short_name": "andvari"
+    },
+    "arachne": {
+      "id": 12,
+      "name": "Arachne",
+      "short_name": "arachne"
+    },
+    "artemis": {
+      "id": 20,
+      "name": "Artemis",
+      "short_name": "artemis"
+    },
+    "astaroth": {
+      "id": 4,
+      "name": "Astaroth",
+      "short_name": "asta"
+    },
+    "astrid-and-lucas": {
+      "id": 44,
+      "name": "Astrid & Lucas",
+      "short_name": "astrid.*lucas"
+    },
+    "aurora": {
+      "id": 1,
+      "name": "Aurora",
+      "short_name": "aurora"
+    },
+    "augustus": {
+      "id": 0,
+      "name": "Augustus",
+      "short_name": "augustus"
+    },
+    "celeste": {
+      "id": 43,
+      "name": "Celeste",
+      "short_name": "celeste"
+    },
+    "chabba": {
+      "id": 11,
+      "name": "Chabba",
+      "short_name": "chabba"
+    },
+    "cleaver": {
+      "id": 0,
+      "name": "Cleaver",
+      "short_name": "cleaver"
+    },
+    "cornelius": {
+      "id": 30,
+      "name": "Cornelius",
+      "short_name": "co.*elius"
+    },
+    "corvus": {
+      "id": 50,
+      "name": "Corvus",
+      "short_name": "corvus"
+    },
+    "dante": {
+      "id": 16,
+      "name": "Dante",
+      "short_name": "dante"
+    },
+    "daredevil": {
+      "id": 8,
+      "name": "Daredevil",
+      "short_name": "daredevil"
+    },
+    "dark-star": {
+      "id": 19,
+      "name": "Dark Star",
+      "short_name": "dark.*star"
+    },
+    "dorian": {
+      "id": 29,
+      "name": "Dorian",
+      "short_name": "dorian"
+    },
+    "elmir": {
+      "id": 38,
+      "name": "Elmir",
+      "short_name": "elmir"
+    },
+    "faceless": {
+      "id": 10,
+      "name": "Faceless",
+      "short_name": "faceless"
+    },
+    "fafnir": {
+      "id": 57,
+      "name": "Fafnir",
+      "short_name": "fafnir"
+    },
+    "folio": {
+      "id": 0,
+      "name": "Folio",
+      "short_name": "folio"
+    },
+    "fox": {
+      "id": 14,
+      "name": "Fox",
+      "short_name": "fox"
+    },
+    "galahad": {
+      "id": 2,
+      "name": "Galahad",
+      "short_name": "galahad"
+    },
+    "ginger": {
+      "id": 15,
+      "name": "Ginger",
+      "short_name": "ginger"
+    },
+    "heidi": {
+      "id": 9,
+      "name": "Heidi",
+      "short_name": "heidi"
+    },
+    "helios": {
+      "id": 32,
+      "name": "Helios",
+      "short_name": "helios"
+    },
+    "iris": {
+      "id": 55,
+      "name": "Iris",
+      "short_name": "iris"
+    },
+    "isaac": {
+      "id": 52,
+      "name": "Isaac",
+      "short_name": "isaac"
+    },
+    "ishmael": {
+      "id": 25,
+      "name": "Ishmael",
+      "short_name": "ishmael"
+    },
+    "jet": {
+      "id": 31,
+      "name": "Jet",
+      "short_name": "jet"
+    },
+    "jhu": {
+      "id": 0,
+      "name": "Jhu",
+      "short_name": "jhu"
+    },
+    "jorgen": {
+      "id": 35,
+      "name": "Jorgen",
+      "short_name": "jorgen"
+    },
+    "judge": {
+      "id": 18,
+      "name": "Judge",
+      "short_name": "judge"
+    },
+    "julius": {
+      "id": 61,
+      "name": "Julius",
+      "short_name": "julius"
+    },
+    "karkh": {
+      "id": 41,
+      "name": "K'arkh",
+      "short_name": "k.?arkh"
+    },
+    "kai": {
+      "id": 5,
+      "name": "Kai",
+      "short_name": "kai"
+    },
+    "kayla": {
+      "id": 59,
+      "name": "Kayla",
+      "short_name": "kayla"
+    },
+    "keira": {
+      "id": 3,
+      "name": "Keira",
+      "short_name": "keira"
+    },
+    "krista": {
+      "id": 34,
+      "name": "Krista",
+      "short_name": "krista"
+    },
+    "lara-croft": {
+      "id": 0,
+      "name": "Lara Croft",
+      "short_name": "lara.*croft"
+    },
+    "lars": {
+      "id": 33,
+      "name": "Lars",
+      "short_name": "lars"
+    },
+    "lian": {
+      "id": 23,
+      "name": "Lian",
+      "short_name": "lian"
+    },
+    "lilith": {
+      "id": 26,
+      "name": "Lilith",
+      "short_name": "lilith"
+    },
+    "luther": {
+      "id": 27,
+      "name": "Luther",
+      "short_name": "luther"
+    },
+    "martha": {
+      "id": 46,
+      "name": "Martha",
+      "short_name": "martha"
+    },
+    "maya": {
+      "id": 36,
+      "name": "Maya",
+      "short_name": "maya"
+    },
+    "markus": {
+      "id": 21,
+      "name": "Markus",
+      "short_name": "markus"
+    },
+    "mojo": {
+      "id": 17,
+      "name": "Mojo",
+      "short_name": "mojo"
+    },
+    "morrigan": {
+      "id": 51,
+      "name": "Morrigan",
+      "short_name": "morrigan"
+    },
+    "mushy-shroom": {
+      "id": 60,
+      "name": "Mushy and Shroom",
+      "short_name": "mushy.*shroom"
+    },
+    "nebula": {
+      "id": 40,
+      "name": "Nebula",
+      "short_name": "nebula"
+    },
+    "ninja-turtles": {
+      "id": 0,
+      "name": "Ninja Turtles",
+      "short_name": "ninja"
+    },
+    "orion": {
+      "id": 13,
+      "name": "Orion",
+      "short_name": "orion"
+    },
+    "peppy": {
+      "id": 22,
+      "name": "Peppy",
+      "short_name": "peppy"
+    },
+    "phobos": {
+      "id": 6,
+      "name": "Phobos",
+      "short_name": "phobos"
+    },
+    "polaris": {
+      "id": 0,
+      "name": "Polaris",
+      "short_name": "polaris"
+    },
+    "rufus": {
+      "id": 42,
+      "name": "Rufus",
+      "short_name": "rufus"
+    },
+    "satori": {
+      "id": 45,
+      "name": "Satori",
+      "short_name": "satori"
+    },
+    "sebastian": {
+      "id": 48,
+      "name": "Sebastian",
+      "short_name": "sebastian"
+    },
+    "thea": {
+      "id": 7,
+      "name": "Thea",
+      "short_name": "thea"
+    },
+    "tristan": {
+      "id": 54,
+      "name": "Tristan",
+      "short_name": "tristan"
+    },
+    "yasmine": {
+      "id": 49,
+      "name": "Yasmine",
+      "short_name": "yasmine"
+    },
+    "qing-mao": {
+      "id": 28,
+      "name": "Qing Mao",
+      "short_name": "qing.*mao"
+    },
+    "ziri": {
+      "id": 39,
+      "name": "Ziri",
+      "short_name": "ziri"
+    }
+  }
+}

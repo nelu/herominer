@@ -1,0 +1,82 @@
+name: Build and Upload Nuitka Executable Package
+
+on:
+  release:
+    types: [published]
+
+env:
+  BASE_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:builder-base
+
+jobs:
+  build-and-package:
+    name: Build EXE & Upload Package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Extract version from release tag
+        shell: pwsh
+        run: |
+          $version = "${{ github.event.release.tag_name }}"
+          $cleanVersion = $version.TrimStart("v")
+          "clean_version=$cleanVersion" >> $env:GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Check if base image exists
+        id: check_base
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $pullResult = docker pull $env:BASE_IMAGE 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Base image not found, will build it."
+            "build_base=true" >> $env:GITHUB_ENV
+          } else {
+            Write-Host "Base image found, using cache."
+            "build_base=false" >> $env:GITHUB_ENV
+          }
+          exit 0  # <- Prevent step from failing regardless of pull result
+
+      - name: Build & Push base image if needed
+        if: env.build_base == 'true'
+        run: |
+          docker build -f base.Dockerfile -t herominer:builder-base -t $env:BASE_IMAGE .
+          docker push $env:BASE_IMAGE
+
+      - name: Build App with Nuitka and reuse Docker image
+        run: |
+          docker build -f windows.Dockerfile -t $env:BASE_IMAGE `
+            --build-arg APP_VERSION=${{ env.clean_version }} `
+            --build-arg CERT_PASS=${{ secrets.CERT_PASS }} .
+          docker push $env:BASE_IMAGE
+
+      - name: Pack release files from image
+        run: |
+          docker create --name extract-builder $env:BASE_IMAGE
+          docker cp extract-builder:/build/ ./build
+          docker rm extract-builder
+          
+          $zipName = "package_${{ env.clean_version }}.zip"
+          mkdir package
+          
+          # Real path after docker cp is ./build/
+          copy .\build\release\cli.exe .\package\
+          copy .\build\release\input.exe .\package\
+          copy .\build\release\run.cmd .\package\
+          copy .\build\config\ca.* .\package\
+          copy .\build\config\cert.pem .\package\
+          copy .\build\config\myapp.pfx .\package\
+          
+          Compress-Archive -Path .\package\* -DestinationPath $zipName
+          echo "zip_name=$zipName" >> $env:GITHUB_ENV
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.zip_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
