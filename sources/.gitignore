@@ -1,2 +1,8 @@
 *
 !.gitignore
+
+!sources/Nuitka*
+!sources/undetected*
+!sources/herominer-icon.ico
+!sources/requirements.txt
+!sources/7zsd_All_x64.sfx
