@@ -7,12 +7,13 @@
       "interval": "1 hour",
       "after": "13:00:00"
     },
-    "game.lobby.events.check_special_events": {
+    "game.events.check_special_events": {
       "interval": "1 hour"
     },
-    "play_if:has_low_interval_special_events": {
-      "tags": ["if:game.events.has_low_interval_special_events"],
-      "function": "game.lobby.events.check_special_events",
+    "play_if:has_short_interval_special_events": {
+      "tags": ["if:game.events.has_short_interval_special_events"],
+      "function": "game.events.check_special_events",
+      "args": [true],
       "interval": "20 minutes"
     },
     "game.social.check_bonus_links": {
