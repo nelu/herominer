@@ -1,11 +1,11 @@
 # Dockerfile.base
-FROM python:3.12.6-windowsservercore-ltsc2022
+FROM python:3.11.9-windowsservercore-ltsc2022
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 COPY ./scripts/wsh.sh /wsh.sh
 COPY ./sources /build/sources
+COPY ./requirements.lock /build/requirements.lock
 
 SHELL ["powershell", "-Command"]
---add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.22621
 # Install Chocolatey and all packages in a single session
 RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
      Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')); \
@@ -18,7 +18,7 @@ RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
 
 SHELL ["C:\\git\\bin\\bash.exe", "c:\\wsh.sh"]
 
-RUN python.exe -m pip install -r /c/build/sources/requirements.txt \
+RUN python.exe -m pip install -r /c/build/requirements.lock \
     && python.exe -m pip install /c/build/sources/Nuitka-2.6.5.tar.gz \
     && python.exe -m pip install /c/build/sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz
 

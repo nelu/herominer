@@ -5,7 +5,8 @@ on:
     types: [published]
 
 env:
-  BASE_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:builder-base
+  BASE_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:builder-py311
+  APP_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:build-${{ github.run_id }}
 
 jobs:
   build-and-package:
@@ -14,14 +15,19 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Extract version from release tag
         shell: pwsh
         run: |
           $version = "${{ github.event.release.tag_name }}"
           $cleanVersion = $version.TrimStart("v")
+          $windowsVersion = ($cleanVersion -split '-')[0]
+          if ($windowsVersion -notmatch '^\d+(\.\d+){0,3}$') {
+            throw "Release tag must start with a numeric version: $version"
+          }
           "clean_version=$cleanVersion" >> $env:GITHUB_ENV
+          "windows_version=$windowsVersion" >> $env:GITHUB_ENV
 
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -48,15 +54,17 @@ jobs:
           docker push $env:BASE_IMAGE
 
       - name: Build App with Nuitka and reuse Docker image
+        env:
+          CERT_PASS: ${{ secrets.CERT_PASS }}
         run: |
-          docker build -f windows.Dockerfile -t $env:BASE_IMAGE `
-            --build-arg APP_VERSION=${{ env.clean_version }} `
-            --build-arg CERT_PASS=${{ secrets.CERT_PASS }} .
-          docker push $env:BASE_IMAGE
+          docker build -f windows.Dockerfile -t $env:APP_IMAGE `
+            --build-arg BASE_IMAGE=$env:BASE_IMAGE `
+            --build-arg APP_VERSION=${{ env.windows_version }} `
+            --build-arg "CERT_PASS=$env:CERT_PASS" .
 
       - name: Pack release files from image
         run: |
-          docker create --name extract-builder $env:BASE_IMAGE
+          docker create --name extract-builder $env:APP_IMAGE
           docker cp extract-builder:/build/ ./build
           docker rm extract-builder
           
@@ -67,9 +75,6 @@ jobs:
           copy .\build\release\cli.exe .\package\
           copy .\build\release\input.exe .\package\
           copy .\build\release\run.cmd .\package\
-          copy .\build\config\ca.* .\package\
-          copy .\build\config\cert.pem .\package\
-          copy .\build\config\myapp.pfx .\package\
           
           Compress-Archive -Path .\package\* -DestinationPath $zipName
           echo "zip_name=$zipName" >> $env:GITHUB_ENV

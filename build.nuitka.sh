@@ -4,8 +4,6 @@ set -e
 
 export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.39.33519/bin/Hostx64/x64:/c/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64:$PATH"
 
-printenv
-
 APP_VERSION="${APP_VERSION:-1.0.0}"
 CERT_PASS="${CERT_PASS:-MyStrongPassword}"
 SEVEN_ZIP="${SEVEN_ZIP:-/c/Program Files/7-Zip/7z.exe}"
@@ -15,13 +13,17 @@ RELEASE_DIR="./release"
 SFX_MODULE="./sources/7zsd_All_x64.sfx"
 
 # Read input binary path from config
-INPUT_CLI_PATH=$(dirname "$(cat ./app/config/cli.path)")
+INPUT_CLI_PATH=$(dirname "$(cat ./src/hm/config/cli.path)")
+
+if [[ ! -f ./config/ca.crt || ! -f ./config/ca.key || ! -f ./config/myapp.pfx ]]; then
+  ./scripts/generate-cert.sh
+fi
 
 PUBLISH_DIR=./"dev"
 RELEASE_DIR=./"release"
 
 
-# pyinstaller --noconfirm  --onedir --version-file ./version.txt --hide-console hide-late --distpath ./scripts/ ./app/cli.py \
+# pyinstaller --noconfirm --onedir --version-file ./version.txt --hide-console hide-late --distpath ./scripts/ ./scripts/cli.py \
 
 # --mingw64 --show-progress \
 #  --mingw64 --clang \
@@ -33,9 +35,7 @@ RELEASE_DIR=./"release"
 #  --remove-output \
 
 #  --include-data-dir=./data=data/ \
-#  --include-module=app.web \
-#  --include-module=app.web.heromanager \
-#  --module-parameter=django-settings-module=app.web.heromanager.settings \
+#  --include-module=hm.web \
 #   --include-data-files=$(python -c "import seleniumwire, os; print(os.path.join(seleniumwire.__path__[0], 'ca.crt'))")=seleniumwire/ca.crt \
 #
 #   --include-data-dir="${RELEASE_DIR}/cli/inputs.dist"=cli \
@@ -87,7 +87,7 @@ python.exe -m nuitka --standalone \
   --assume-yes-for-downloads \
   --include-data-files=./config/cli.env=.env \
   --noinclude-pytest-mode=nofollow \
-  --nofollow-import-to=selenium,seleniumwire,app.game,app.driver,app.tasks,app.management,app.tests,app.web,app.daemon \
+  --nofollow-import-to=selenium,seleniumwire,hm.game,hm.driver,hm.tasks,hm.web,hm.daemon \
   --onefile-tempdir-spec="$INPUT_CLI_PATH" \
   --company-name="AutoWeb LTD" \
   --file-version="${APP_VERSION}" \
@@ -98,17 +98,17 @@ python.exe -m nuitka --standalone \
   --windows-console-mode=attach \
   --windows-icon-from-ico=./sources/herominer-icon.ico \
   --output-dir="$RELEASE_DIR" \
-  --include-package=app \
-  ./app/input.py \
+  --include-package=hm.utils \
+  --include-module=hm.result \
+  ./scripts/input.py \
   && \
- build_sfx_installer "./release/input.dist" && \
+build_sfx_installer "./release/input.dist" && \
 \
 python.exe -m nuitka --standalone \
   --onefile \
   --include-data-files=./config/app.env=.env \
-  --include-data-dir=./app/config=config \
+  --include-data-dir=./src/hm/config=config \
   --noinclude-pytest-mode=nofollow \
-  --nofollow-import-to=app.tests \
   --include-data-files=./config/ca.crt=config/ca.crt \
   --include-data-files=./config/ca.key=config/ca.key \
   --company-name="AutoWeb LTD" \
@@ -120,9 +120,9 @@ python.exe -m nuitka --standalone \
   --windows-console-mode=attach \
   --windows-icon-from-ico=./sources/herominer-icon.ico \
   --output-dir="$RELEASE_DIR" \
-  --include-package=app \
+  --include-package=hm \
   --onefile-tempdir-spec="c:\hm\app" \
-  ./app/cli.py #
+  ./scripts/cli.py #
   # \
 #&& \
 #build_sfx_installer "./release/cli.dist" && \
