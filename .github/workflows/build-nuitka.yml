@@ -5,7 +5,7 @@ on:
     types: [published]
 
 env:
-  BASE_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:builder-py312
+  BASE_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:builder-py313
   APP_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:build-${{ github.run_id }}
 
 jobs:
@@ -32,35 +32,16 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Check if base image exists
-        id: check_base
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Continue'
-          $pullResult = docker pull $env:BASE_IMAGE 2>&1
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "Base image not found, will build it."
-            "build_base=true" >> $env:GITHUB_ENV
-          } else {
-            Write-Host "Base image found, using cache."
-            "build_base=false" >> $env:GITHUB_ENV
-          }
-          exit 0  # <- Prevent step from failing regardless of pull result
-
-      - name: Build & Push base image if needed
-        if: env.build_base == 'true'
-        run: |
-          docker build -f base.Dockerfile -t herominer:builder-base -t $env:BASE_IMAGE .
-          docker push $env:BASE_IMAGE
-
-      - name: Build App with Nuitka and reuse Docker image
+      - name: Build images (host-detected base)
+        shell: powershell
         env:
           CERT_PASS: ${{ secrets.CERT_PASS }}
         run: |
-          docker build -f windows.Dockerfile -t $env:APP_IMAGE `
-            --build-arg BASE_IMAGE=$env:BASE_IMAGE `
-            --build-arg APP_VERSION=${{ env.windows_version }} `
-            --build-arg "CERT_PASS=$env:CERT_PASS" .
+          ./scripts/build-docker.ps1 `
+            -BaseImage $env:BASE_IMAGE `
+            -AppImage $env:APP_IMAGE `
+            -AppVersion "${{ env.windows_version }}" `
+            -TryPullBase -PushBase
 
       - name: Pack release files from image
         run: |

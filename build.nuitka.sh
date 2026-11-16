@@ -2,7 +2,15 @@
 set -e
 #set -x  # Echo every command as it's executed
 
-export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.39.33519/bin/Hostx64/x64:/c/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64:$PATH"
+VS_BUILD_TOOLS_DIR="/c/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools"
+MSVC_BIN="$(ls -d "$VS_BUILD_TOOLS_DIR"/VC/Tools/MSVC/*/bin/Hostx64/x64 2>/dev/null | sort -V | tail -1)"
+SDK_BIN="$(ls -d "/c/Program Files (x86)/Windows Kits/10/bin"/10.*/x64 2>/dev/null | sort -V | tail -1)"
+
+if [[ -n "$MSVC_BIN" && -n "$SDK_BIN" ]]; then
+  export PATH="$MSVC_BIN:$SDK_BIN:$PATH"
+else
+  echo "Warning: MSVC/Windows SDK toolchain not found under the default paths; relying on Nuitka autodetection" >&2
+fi
 
 APP_VERSION="${APP_VERSION:-1.0.0}"
 CERT_PASS="${CERT_PASS:-MyStrongPassword}"

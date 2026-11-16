@@ -11,6 +11,7 @@ share/
 dev/
 docs/
 legacy
+**/*.img
 release/*
 tests/
 config/*.crt

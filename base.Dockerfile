@@ -1,5 +1,10 @@
 # Dockerfile.base
-FROM python:3.12.6-windowsservercore-ltsc2022
+# Default is the Windows Server 2022 base used by CI. Local Windows 10 hosts
+# cannot run ltsc2022 images and must override this with
+# --build-arg PYTHON_IMAGE=mcr.microsoft.com/windows-cssc/python:3.13-servercore-ltsc2019
+# (scripts/build-docker.ps1 does this automatically).
+ARG PYTHON_IMAGE=mcr.microsoft.com/windows-cssc/python:3.13-servercore-ltsc2022
+FROM ${PYTHON_IMAGE}
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 COPY ./scripts/wsh.sh /wsh.sh
 COPY ./requirements.lock /build/requirements.lock

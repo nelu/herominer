@@ -1,5 +1,5 @@
 # Dockerfile.windows
-ARG BASE_IMAGE=ghcr.io/nelu/herominer:builder-py312
+ARG BASE_IMAGE=ghcr.io/nelu/herominer:builder-py313
 FROM ${BASE_IMAGE}
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 
