@@ -22,7 +22,10 @@ openssl req -new -x509 \
   -key "$KEY_PATH" \
   -out "$PEM_PATH" \
   -days 730 \
-  -subj "//CN=${CERT_NAME}"
+  -subj "//CN=${CERT_NAME}" \
+  -addext "basicConstraints=CA:FALSE" \
+  -addext "keyUsage=digitalSignature" \
+  -addext "extendedKeyUsage=codeSigning"
 
 echo "[+] Exporting certificate to PFX..."
 openssl pkcs12 -export \

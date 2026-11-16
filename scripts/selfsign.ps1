@@ -6,6 +6,8 @@ param(
     [string]$exeToSign
 )
 
+$ErrorActionPreference = "Stop"
+
 if (-not $certPfxPath)
 {
     $certPfxPath = ".\config\myapp.pfx"
@@ -45,31 +47,56 @@ if (-not (Test-Path $certPfxPath))
     {
         Write-Host "Running inside Docker - skipping Trusted Root installation."
     }
-    else
+    elseif ($env:ADD_TO_TRUSTED_ROOT -ieq "y")
     {
-        $addToTrustedRoot = Read-Host "Do you want to add the certificate to Trusted Root Authorities? (y/N)"
+        $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
+        $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath\add-to-trusted-root.ps1`" -certPfxPath `"$certPfxPath`" -pfxPassword `"$pfxPassword`""
 
-        if ($addToTrustedRoot -ieq "y")
+        if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
         {
-            $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
-            $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath\add-to-trusted-root.ps1`" -certPfxPath `"$certPfxPath`" -pfxPassword `"$pfxPassword`""
-
-            if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
-            {
-                Write-Host "Elevating to install certificate into Trusted Root..."
-                Start-Process PowerShell -ArgumentList $arguments -Verb RunAs
-                exit
-            }
-            else
-            {
-                Write-Host "Running Trusted Root installation..."
-                & PowerShell -ExecutionPolicy Bypass -File "$scriptPath\add-to-trusted-root.ps1" -certPfxPath "$certPfxPath" -pfxPassword "$pfxPassword"
-            }
+            Write-Host "Elevating to install certificate into Trusted Root..."
+            Start-Process PowerShell -ArgumentList $arguments -Verb RunAs -Wait
         }
         else
         {
-            Write-Host "Skipping Trusted Root installation."
+            Write-Host "Running Trusted Root installation..."
+            & PowerShell -ExecutionPolicy Bypass -File "$scriptPath\add-to-trusted-root.ps1" -certPfxPath "$certPfxPath" -pfxPassword "$pfxPassword"
         }
     }
+    else
+    {
+        Write-Host "Skipping Trusted Root installation (set ADD_TO_TRUSTED_ROOT=y to install)."
+    }
+}
 
+# Step 3: Sign the executable
+if (-not (Test-Path $exeToSign))
+{
+    Write-Error "Executable to sign not found: $exeToSign"
+    exit 1
+}
+
+Write-Host "Signing: $exeToSign"
+$resolvedCertPath = (Resolve-Path $certPfxPath).Path
+$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($resolvedCertPath, $pfxPassword, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+if (-not $cert)
+{
+    Write-Error "Failed to load certificate from $certPfxPath"
+    exit 1
+}
+
+$sig = Set-AuthenticodeSignature -FilePath $exeToSign -Certificate $cert -HashAlgorithm SHA256
+if ($null -eq $sig)
+{
+    Write-Error "Failed to sign ${exeToSign}: no signature result"
+    exit 1
+}
+
+$verify = Get-AuthenticodeSignature -FilePath $exeToSign
+Write-Host "Signature status for ${exeToSign}: $($verify.Status)"
+if ($verify.StatusMessage) { Write-Host $verify.StatusMessage }
+if ($verify.Status -eq "NotSigned" -or $verify.Status -eq "HashMismatch")
+{
+    Write-Error "Executable signing failed: $exeToSign ($($verify.Status))"
+    exit 1
 }
