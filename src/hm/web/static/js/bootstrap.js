@@ -5,6 +5,6 @@
     script.onload = function(){
         // remote script has loaded
     };
-    script.src = 'http://localhost/static/fbcollect.js';
+    script.src = '/static/js/fbcollect.js';
     d.getElementsByTagName('head')[0].appendChild(script);
 }(document));

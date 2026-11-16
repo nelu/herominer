@@ -106,6 +106,8 @@ python.exe -m nuitka --standalone \
   --onefile \
   --include-data-files=./config/app.env=.env \
   --include-data-dir=./src/hm/config=config \
+  --include-data-dir=./src/hm/web/static=hm/web/static \
+  --include-data-dir=./src/hm/web/templates=hm/web/templates \
   --noinclude-pytest-mode=nofollow \
   --company-name="AutoWeb LTD" \
   --file-version="${APP_VERSION}" \

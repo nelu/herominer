@@ -117,6 +117,6 @@
             
         });
     };
-    script.src = 'http://localhost/static/jquery.min.js';
+    script.src = '/static/js/jquery.min.js';
     d.getElementsByTagName('head')[0].appendChild(script);
 }(document));

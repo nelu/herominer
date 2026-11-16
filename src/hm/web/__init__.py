@@ -3,17 +3,16 @@ from flask import Flask, send_from_directory, render_template
 import threading
 import os
 
-from .. import settings
-
 
 class WebServer:
-    def __init__(self, host='0.0.0.0', port=80, static_folder='web', debug=False):
+    def __init__(self, host='0.0.0.0', port=80, static_folder='static', debug=False):
         self.host = host
         self.port = port
         self.debug = debug
-        self.static_folder = os.path.join(settings.APP_DATA_DIR, static_folder)
+        web_dir = os.path.dirname(os.path.abspath(__file__))
+        self.static_folder = os.path.join(web_dir, static_folder)
         self.app = Flask(__name__, static_folder=self.static_folder,
-                         template_folder=os.path.join(self.static_folder, "templates"))
+                         template_folder=os.path.join(web_dir, "templates"))
         from .heroes import hero_api
         from .tasks import task_api
         from .configuration import config_api

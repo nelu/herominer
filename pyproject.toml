@@ -41,3 +41,4 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 hm = ["config/*"]
+"hm.web" = ["static/*", "static/css/*", "static/js/*", "templates/*"]
