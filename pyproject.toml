@@ -6,14 +6,13 @@ build-backend = "setuptools.build_meta"
 name = "herominer"
 version = "1.0.0"
 description = "Hero Wars desktop and browser automation application"
-requires-python = ">=3.11,<3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
-    "blinker==1.7.0",
+    "certifi==2026.10.23",
     "Flask==3.0.3",
     "Flask-SocketIO==5.7.0",
     "Jinja2==3.1.6",
-    "looseversion==1.3.0",
-    "mixed-chromedriver==0.3",
+    "mitmproxy==12.2.2",
     "parse==1.20.2",
     "psutil==7.0.0",
     "py-linq==1.4.0",
@@ -25,7 +24,9 @@ dependencies = [
     "redis-logs==1.2.0",
     "schedule==1.2.2",
     "selenium==4.30.0",
-    "selenium-wire==5.1.0",
+    "selenium-wire-lw==3.0.2",
+    "selenium-wire-undetected-chromedriver-lw==1.0.1",
+    "undetected-chromedriver==3.5.5",
 ]
 
 [project.scripts]

@@ -36,8 +36,6 @@ RELEASE_DIR=./"release"
 
 #  --include-data-dir=./data=data/ \
 #  --include-module=hm.web \
-#   --include-data-files=$(python -c "import seleniumwire, os; print(os.path.join(seleniumwire.__path__[0], 'ca.crt'))")=seleniumwire/ca.crt \
-#
 #   --include-data-dir="${RELEASE_DIR}/cli/inputs.dist"=cli \
 #  --onefile-tempdir-spec="z:\app" \
 
@@ -109,8 +107,6 @@ python.exe -m nuitka --standalone \
   --include-data-files=./config/app.env=.env \
   --include-data-dir=./src/hm/config=config \
   --noinclude-pytest-mode=nofollow \
-  --include-data-files=./config/ca.crt=config/ca.crt \
-  --include-data-files=./config/ca.key=config/ca.key \
   --company-name="AutoWeb LTD" \
   --file-version="${APP_VERSION}" \
   --product-version="${APP_VERSION}" \

@@ -1,8 +1,7 @@
 # Dockerfile.base
-FROM python:3.11.9-windowsservercore-ltsc2022
+FROM python:3.12.6-windowsservercore-ltsc2022
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 COPY ./scripts/wsh.sh /wsh.sh
-COPY ./sources /build/sources
 COPY ./requirements.lock /build/requirements.lock
 
 SHELL ["powershell", "-Command"]
@@ -19,8 +18,8 @@ RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
 SHELL ["C:\\git\\bin\\bash.exe", "c:\\wsh.sh"]
 
 RUN python.exe -m pip install -r /c/build/requirements.lock \
-    && python.exe -m pip install /c/build/sources/Nuitka-2.6.5.tar.gz \
-    && python.exe -m pip install /c/build/sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz
+    && python.exe -m pip install "Nuitka==4.3.5" \
+    && python.exe -m pip check
 
 ## Set path (replace MSVC version as needed)
 #ENV PATH="C:\\Program Files\\OpenSSL-Win64\\bin;\

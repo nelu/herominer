@@ -1,5 +1,5 @@
 # Dockerfile.windows
-ARG BASE_IMAGE=ghcr.io/nelu/herominer:builder-py311
+ARG BASE_IMAGE=ghcr.io/nelu/herominer:builder-py312
 FROM ${BASE_IMAGE}
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
 
@@ -13,9 +13,9 @@ COPY ./ /build
 
 # update dependencies
 RUN python.exe -m pip install -r /c/build/requirements.lock \
-    && python.exe -m pip install /c/build/sources/Nuitka-2.6.5.tar.gz \
-    && python.exe -m pip install /c/build/sources/undetected-chromedriver-3.5.5-fix-looseversion.tar.gz \
+    && python.exe -m pip install "Nuitka==4.3.5" \
     && python.exe -m pip install --no-deps --no-build-isolation /c/build \
+    && python.exe -m pip check \
     && cmd.exe /c 'icacls c:\build\build.nuitka.sh /grant Everyone:F' \
     &&  ./build.nuitka.sh
 

@@ -18,7 +18,7 @@ class GameTestCase(unittest.TestCase):
     def test_get_game_stats(self):
         stats = game_stats.get_stats()
         print(f"Game stats: {stats}")
-        player.browser.quit()
+        player.stop()
 
     def test_chat(self):
         set_valid_bonus_links(["http://ungabunga.com", "http://google.com"])
@@ -35,7 +35,7 @@ class GameTestCase(unittest.TestCase):
 
         hero_stats = game_stats.heroes_stats(2)
         print(f"Game hero 2 stats: {hero_stats}")
-        player.browser.quit()
+        player.stop()
 
     def test_special_events(self):
         r = has_event(game_config().get('low_interval_special_events'))

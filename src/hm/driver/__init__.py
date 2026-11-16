@@ -1,4 +1,4 @@
-import platform
+import asyncio
 import re
 import json
 from multiprocessing import Process, Queue, Event
@@ -10,22 +10,56 @@ import win32process
 from .. import settings
 from .macrorecorder import MacroRecorderDriver
 from .config import JSONConfig
+from seleniumwire import SeleniumWireOptions
 from seleniumwire.utils import decode
-from selenium.webdriver.chrome.options import Options
-from mixed_chromedriver import Driver
+from seleniumwire_gpl import UndetectedChrome
+from undetected_chromedriver import ChromeOptions
 
 from ..utils.log import logger
 
 log = logger(__name__)
 
 
-# we dont need no sandbox on windows
-# https://github.com/SeleniumHQ/selenium/issues/13837
-class SafeOptions(Options):
-    def add_argument(self, arg):
-        # if arg == "--no-sandbox" and platform.system() == "Windows":
-        #     return  # Skip it
-        super().add_argument(arg)
+async def _cancel_pending_proxy_tasks():
+    current_task = asyncio.current_task()
+    pending_tasks = [
+        task for task in asyncio.all_tasks()
+        if task is not current_task
+    ]
+    for task in pending_tasks:
+        task.cancel()
+    if pending_tasks:
+        await asyncio.gather(*pending_tasks, return_exceptions=True)
+
+
+class ManagedUndetectedChrome(UndetectedChrome):
+    def quit(self):
+        backend = getattr(self, 'backend', None)
+        try:
+            super().quit()
+        finally:
+            if backend and not getattr(self, '_wire_backend_stopped', False):
+                try:
+                    try:
+                        backend._shutdown_mitmproxy()
+                    finally:
+                        backend.storage.cleanup()
+                finally:
+                    event_loop = getattr(backend, 'event_loop', None)
+                    thread = getattr(backend, 'thread', None)
+                    if event_loop and event_loop.is_running():
+                        cleanup = asyncio.run_coroutine_threadsafe(_cancel_pending_proxy_tasks(), event_loop)
+                        try:
+                            cleanup.result(timeout=5)
+                        except Exception:
+                            log.exception('Failed to drain Selenium Wire proxy tasks')
+                        finally:
+                            event_loop.call_soon_threadsafe(event_loop.stop)
+                    if thread and thread.is_alive():
+                        thread.join(timeout=5)
+                    if event_loop and not event_loop.is_running() and not event_loop.is_closed():
+                        event_loop.close()
+                    self._wire_backend_stopped = True
 
 
 class DriverInterface(MacroRecorderDriver):
@@ -43,7 +77,7 @@ class DriverInterface(MacroRecorderDriver):
     @staticmethod
     def get_selenium(conf=settings.SELENIUM_DRIVER):
 
-        options = SafeOptions()
+        options = ChromeOptions()
         if conf.get('binary_location'):
             options.binary_location = conf["binary_location"]
 
@@ -53,16 +87,13 @@ class DriverInterface(MacroRecorderDriver):
         options.add_argument("--disable-extensions")
         options.add_argument("--ignore-certificate-errors")
         options.add_argument("--allow-insecure-localhost")
-        # Separate wire configuration
-
-        driver = Driver(
+        wire_options = SeleniumWireOptions(**conf['seleniumwire_options'])
+        driver = ManagedUndetectedChrome(
             version_main=conf['driver_version'],
             headless=conf['headless'],
-            undetected=conf['undetected'],
-            wire=conf['wire'],
             user_data_dir=conf['user_data_dir'],
             options=options,
-            seleniumwire_options=conf['seleniumwire_options']  # <-- KEY LINE
+            seleniumwire_options=wire_options,
         )
 
         driver.maximize_window()  # force max

@@ -62,20 +62,21 @@ ACTION_DRIVER_PLAY_TIMEOUT = int(os.environ.get('HM_DRIVER_PLAY_TIMEOUT', 700))
 ACTION_DRIVER_IDLE_CLOSE = int(os.environ.get('HM_DRIVER_IDLE_CLOSE', 180))
 
 SELENIUM_DRIVER = {
-    "driver_version": int(os.environ.get('HM_BROWSER_VER', "135")),
-    "headless": False,
-    "undetected": True,
-    "wire": True,
+    "driver_version": int(os.environ.get('HM_BROWSER_VER', "0")),
+    "headless": os.environ.get('HM_HEADLESS', '0') == '1',
     "binary_location": "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
     "user_data_dir": os.environ.get('HM_SELENIUM_DATA',
                                     # os.path.join(APP_SHARE_DIR, 'selenium')
                                     os.path.join(os.environ['LOCALAPPDATA'], 'BraveSoftware\\Brave-Browser\\User Data')
                                     ),
     "seleniumwire_options": {
+        'auto_config': True,
+        'disable_capture': False,
+        'exclude_hosts': [],
         'request_storage': 'memory',
         'request_storage_max_size': 100,  # Store no more than 100 requests in memory
-        'ca_cert': os.path.join(BASE_DIR, 'config/ca.crt'),
-        'ca_key': os.path.join(BASE_DIR, 'config/ca.key')
+        'storage_base_dir': APP_DATA_DIR,
+        'verify_ssl': False,
     }
 }
 
@@ -86,7 +87,7 @@ REDIS_URL = os.environ.get('HM_REDIS', "redis://localhost:6379/0")
 def check_settings():
     # # Ensure the directories exists
     paths = [
-        APP_DATA_CACHE_DIR, APP_SOCIAL_DIR, SELENIUM_DRIVER['user_data_dir']
+        APP_DATA_DIR, APP_DATA_CACHE_DIR, APP_SOCIAL_DIR, SELENIUM_DRIVER['user_data_dir']
     ]
     for path in paths:
         os.path.exists(path) or os.makedirs(path, exist_ok=True)
