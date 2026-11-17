@@ -1,3 +1,4 @@
+import os
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -7,7 +8,8 @@ from seleniumwire import SeleniumWireOptions
 from seleniumwire import backend as wire_backend
 from undetected_chromedriver import ChromeOptions
 
-from hm.driver import DriverInterface, ManagedUndetectedChrome, UndetectedChrome
+with patch.dict(os.environ, {'HM_DISABLE_REDIS_LOGGING': '1'}):
+    from hm.driver import DriverInterface, ManagedUndetectedChrome, UndetectedChrome
 
 
 class DriverConfigurationTestCase(unittest.TestCase):
@@ -57,11 +59,12 @@ class DriverConfigurationTestCase(unittest.TestCase):
         driver.backend.event_loop = None
         driver.backend.thread = None
 
-        with patch.object(UndetectedChrome, 'quit') as uc_quit:
+        with patch.object(UndetectedChrome, 'quit', autospec=True) as uc_quit:
             driver.quit()
             driver.quit()
 
-        self.assertEqual(uc_quit.call_count, 2)
+        driver_quit_calls = [call for call in uc_quit.call_args_list if call.args[0] is driver]
+        self.assertEqual(len(driver_quit_calls), 2)
         driver.backend._shutdown_mitmproxy.assert_called_once_with()
         driver.backend.storage.cleanup.assert_called_once_with()
 

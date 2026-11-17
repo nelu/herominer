@@ -4,8 +4,12 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+  packages: write
+
 env:
-  BASE_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:builder-py313
+  BASE_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:builder-py313-vctools
   APP_IMAGE: ghcr.io/${{ github.repository_owner }}/herominer:build-${{ github.run_id }}
 
 jobs:
@@ -32,7 +36,7 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build images (host-detected base)
+      - name: Build release files (host-detected base)
         shell: powershell
         env:
           CERT_PASS: ${{ secrets.CERT_PASS }}
@@ -43,22 +47,25 @@ jobs:
             -AppVersion "${{ env.windows_version }}" `
             -TryPullBase -PushBase
 
-      - name: Pack release files from image
+      - name: Pack release files
+        shell: pwsh
         run: |
-          docker create --name extract-builder $env:APP_IMAGE
-          docker cp extract-builder:/build/ ./build
-          docker rm extract-builder
-          
+          $releaseFiles = @(
+            ".\release\cli.exe",
+            ".\release\input.exe",
+            ".\release\run.cmd"
+          )
+          foreach ($file in $releaseFiles) {
+            if (-not (Test-Path -LiteralPath $file)) {
+              throw "Missing release file: $file"
+            }
+          }
+
           $zipName = "package_${{ env.clean_version }}.zip"
-          mkdir package
-          
-          # Real path after docker cp is ./build/
-          copy .\build\release\cli.exe .\package\
-          copy .\build\release\input.exe .\package\
-          copy .\build\release\run.cmd .\package\
-          
+          New-Item -ItemType Directory -Path .\package | Out-Null
+          Copy-Item -Path $releaseFiles -Destination .\package\
           Compress-Archive -Path .\package\* -DestinationPath $zipName
-          echo "zip_name=$zipName" >> $env:GITHUB_ENV
+          "zip_name=$zipName" >> $env:GITHUB_ENV
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v1

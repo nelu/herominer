@@ -1,21 +1,23 @@
 <#
 .SYNOPSIS
-    Builds the HeroMiner Windows container images using a host-compatible base image.
+    Builds the HeroMiner Windows executables in a resource-sized container.
 
 .DESCRIPTION
     Detects the Windows container host build and selects a base image that can
     actually run on it:
-      * host build < 20348 (Windows 10 / Server 2019) -> mcr.microsoft.com/windows-cssc/python:3.13-servercore-ltsc2019
-      * otherwise                                      -> mcr.microsoft.com/windows-cssc/python:3.13-servercore-ltsc2022
+      * host build < 20348 (Windows 10 / Server 2019) -> amitie10g/visualstudio2022-workload-vctools:ltsc2019
+      * otherwise                                      -> amitie10g/visualstudio2022-workload-vctools:ltsc2022
 
-    The base image tag defaults to a host-specific suffix so a local Windows 10
-    build can never overwrite the CI base image in GHCR.
+    The base image caches the Windows toolchain. The application image caches
+    Python dependencies and the current source tree. Nuitka runs in a container
+    created from the application image so its Hyper-V CPU and memory resources
+    can be configured explicitly.
 
 .PARAMETER BaseImage
     Base image tag to build/use. Defaults to herominer:builder-py313-<osSuffix>.
 
 .PARAMETER AppImage
-    Application image tag to build. Defaults to herominer:app-<osSuffix>.
+    Dependency/source image tag to build. Defaults to herominer:app-<osSuffix>.
 
 .PARAMETER AppVersion
     Version passed to the Nuitka build. Defaults to 1.0.0.
@@ -24,12 +26,24 @@
     Password for the self-signed certificate. Defaults to $env:CERT_PASS, then
     to MyStrongPassword.
 
-.PARAMETER PythonImage
-    Overrides the auto-detected Python base image.
+.PARAMETER BuildToolsImage
+    Overrides the auto-detected Visual Studio Build Tools base image.
 
 .PARAMETER Isolation
     Optional Docker isolation override (hyperv or process). By default the
-    daemon default is used: Hyper-V on Windows 10, process on Windows Server.
+    daemon default is used: Hyper-V on Windows clients, process on Windows Server.
+
+.PARAMETER CpuCount
+    Number of CPUs assigned to the Nuitka container. Defaults to all logical
+    processors reported by the host.
+
+.PARAMETER Memory
+    Memory assigned to Docker build steps and the Nuitka container. Defaults to
+    half of the host's physical memory.
+
+.PARAMETER CacheVolume
+    Docker volume used for persistent Nuitka compiler caches. Defaults to a
+    host-OS-specific volume name.
 
 .PARAMETER TryPullBase
     Pull BaseImage first and skip the base build when the pull succeeds.
@@ -63,8 +77,11 @@ param(
     [string]$AppImage,
     [string]$AppVersion = '1.0.0',
     [string]$CertPass = $env:CERT_PASS,
-    [string]$PythonImage,
+    [string]$BuildToolsImage,
     [string]$Isolation,
+    [int]$CpuCount,
+    [string]$Memory,
+    [string]$CacheVolume,
     [switch]$TryPullBase,
     [switch]$PushBase,
     [switch]$UseBuildKit,
@@ -149,15 +166,15 @@ if ($hostBuild -lt 17763) {
 
 if ($hostBuild -lt 20348) {
     $osSuffix = '1809'
-    $detectedPythonImage = 'mcr.microsoft.com/windows-cssc/python:3.13-servercore-ltsc2019'
+    $detectedBuildToolsImage = 'amitie10g/visualstudio2022-workload-vctools:ltsc2019'
 }
 else {
     $osSuffix = 'ltsc2022'
-    $detectedPythonImage = 'mcr.microsoft.com/windows-cssc/python:3.13-servercore-ltsc2022'
+    $detectedBuildToolsImage = 'amitie10g/visualstudio2022-workload-vctools:ltsc2022'
 }
 
-if (-not $PythonImage) {
-    $PythonImage = $detectedPythonImage
+if (-not $BuildToolsImage) {
+    $BuildToolsImage = $detectedBuildToolsImage
 }
 if (-not $BaseImage) {
     $BaseImage = "herominer:builder-py313-$osSuffix"
@@ -167,6 +184,18 @@ if (-not $AppImage) {
 }
 if (-not $CertPass) {
     $CertPass = 'MyStrongPassword'
+}
+
+$hostComputer = Get-CimInstance Win32_ComputerSystem
+if ($CpuCount -le 0) {
+    $CpuCount = [int]$hostComputer.NumberOfLogicalProcessors
+}
+if (-not $Memory) {
+    $memoryGiB = [math]::Max(2, [math]::Floor(($hostComputer.TotalPhysicalMemory / 1GB) / 2))
+    $Memory = "${memoryGiB}g"
+}
+if (-not $CacheVolume) {
+    $CacheVolume = "herominer-nuitka-cache-$osSuffix"
 }
 
 # BuildKit cannot execute Windows RUN steps on most engines
@@ -185,7 +214,7 @@ else {
     $env:DOCKER_BUILDKIT = '0'
 }
 
-$commonArgs = @('build')
+$commonArgs = @('build', '--memory', $Memory)
 if ($useBuildKit) {
     $commonArgs += '--progress=plain'
 }
@@ -203,10 +232,13 @@ if ($NoCache) {
 
 Write-Host "Host build   : $hostBuild"
 Write-Host "Base image   : $BaseImage"
-Write-Host "Python image : $PythonImage"
+Write-Host "Tools image  : $BuildToolsImage"
 Write-Host "App image    : $AppImage"
 Write-Host "App version  : $AppVersion"
 Write-Host "Builder      : $(if ($useBuildKit) { 'BuildKit' } else { 'classic' })"
+Write-Host "Nuitka CPUs  : $CpuCount"
+Write-Host "Nuitka memory: $Memory"
+Write-Host "Nuitka cache : $CacheVolume"
 
 $skipBaseBuild = $false
 if ($TryPullBase) {
@@ -228,7 +260,7 @@ if ($TryPullBase) {
 if (-not $skipBaseBuild) {
     $baseArgs = $commonArgs + @(
         '-f', 'base.Dockerfile',
-        '--build-arg', "PYTHON_IMAGE=$PythonImage",
+        '--build-arg', "BUILD_TOOLS_IMAGE=$BuildToolsImage",
         '-t', $BaseImage,
         '.'
     )
@@ -243,12 +275,9 @@ if (-not $skipBaseBuild) {
     }
 }
 
-$env:CERT_PASS = $CertPass
 $appArgs = $commonArgs + @(
     '-f', 'windows.Dockerfile',
     '--build-arg', "BASE_IMAGE=$BaseImage",
-    '--build-arg', "APP_VERSION=$AppVersion",
-    '--build-arg', 'CERT_PASS',
     '-t', $AppImage,
     '.'
 )
@@ -256,16 +285,91 @@ $appArgs = $commonArgs + @(
 $appStart = Get-Date
 Invoke-Docker -Arguments $appArgs
 $appElapsed = (Get-Date) - $appStart
-Write-Host ("Application image built in {0:n1} min." -f $appElapsed.TotalMinutes)
+Write-Host ("Dependency/source image built in {0:n1} min." -f $appElapsed.TotalMinutes)
 
+$env:APP_VERSION = $AppVersion
+$env:CERT_PASS = $CertPass
+$containerName = "herominer-build-$([guid]::NewGuid().ToString('N').Substring(0, 12))"
+$runArgs = @(
+    'run',
+    '--name', $containerName,
+    '--cpu-count', "$CpuCount",
+    '--memory', $Memory,
+    '--env', 'APP_VERSION',
+    '--env', 'CERT_PASS',
+    '--env', 'NUITKA_CACHE_DIR=C:\nuitka-cache',
+    '--mount', "type=volume,source=$CacheVolume,target=C:\nuitka-cache"
+)
+if ($Isolation) {
+    $runArgs += @('--isolation', $Isolation)
+}
+$runArgs += @($AppImage, './build.nuitka.sh')
+
+$buildStart = Get-Date
+try {
+    Invoke-Docker -Arguments $runArgs
+
+    $releaseDir = Join-Path $repoRoot 'release'
+    New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
+    foreach ($artifact in @('cli.exe', 'input.exe', 'run.cmd')) {
+        $destination = Join-Path $releaseDir $artifact
+        Invoke-Docker -Arguments @('cp', "${containerName}:/build/release/$artifact", $destination)
+    }
+
+    $cliPath = Join-Path $releaseDir 'cli.exe'
+    $cliFileVersion = (Get-Item -LiteralPath $cliPath).VersionInfo.FileVersion
+    if ($cliFileVersion -ne $AppVersion -and -not $cliFileVersion.StartsWith("$AppVersion.")) {
+        throw "cli.exe version '$cliFileVersion' does not match requested version '$AppVersion'."
+    }
+
+    foreach ($artifact in @('cli.exe', 'input.exe')) {
+        $artifactPath = Join-Path $releaseDir $artifact
+        $signature = Get-AuthenticodeSignature -LiteralPath $artifactPath
+        if ($signature.SignatureType -ne 'Authenticode' -or -not $signature.SignerCertificate) {
+            throw "$artifact does not contain an Authenticode signature."
+        }
+        Write-Host "$artifact signature: $($signature.Status) ($($signature.SignerCertificate.Subject))"
+    }
+
+    $runCommand = Get-Content -LiteralPath (Join-Path $releaseDir 'run.cmd') -Raw
+    foreach ($reference in @('input.exe', 'cli.exe')) {
+        if ($runCommand -notmatch [regex]::Escape($reference)) {
+            throw "run.cmd does not reference $reference."
+        }
+    }
+
+    $releaseMount = "type=bind,source=$releaseDir,target=C:\artifacts,readonly"
+    Invoke-Docker -Arguments @(
+        'run', '--rm',
+        '--cpu-count', '2',
+        '--memory', '4g',
+        '--env', 'HM_DISABLE_REDIS_LOGGING=1',
+        '--mount', $releaseMount,
+        $AppImage, './scripts/test-release.sh', '/c/artifacts'
+    )
+
+    Get-FileHash -Algorithm SHA256 -LiteralPath (
+        @('cli.exe', 'input.exe', 'run.cmd') | ForEach-Object { Join-Path $releaseDir $_ }
+    ) | ForEach-Object { Write-Host "$($_.Path): $($_.Hash)" }
+}
+catch {
+    $container = Invoke-DockerCapture -Arguments @('container', 'inspect', '--format', '{{.Id}}', $containerName)
+    if ($container.ExitCode -eq 0) {
+        Write-Warning "Build container '$containerName' was retained for inspection."
+        Write-Host "  docker logs $containerName"
+        Write-Host "  docker inspect $containerName"
+        Write-Host "  docker diff $containerName"
+        Write-Host "  docker rm $containerName"
+    }
+    throw
+}
+
+$buildElapsed = (Get-Date) - $buildStart
+Invoke-Docker -Arguments @('rm', $containerName)
+
+Write-Host ("Nuitka artifacts built and extracted in {0:n1} min." -f $buildElapsed.TotalMinutes)
 Write-Host ''
-Write-Host 'Done. Images:'
-Write-Host "  base: $BaseImage"
-Write-Host "  app : $AppImage"
-Write-Host ''
-Write-Host 'Extract artifacts with:'
-Write-Host "  `$c = docker create $AppImage"
-Write-Host '  docker cp "${c}:/build/release/cli.exe" .\release\'
-Write-Host '  docker cp "${c}:/build/release/input.exe" .\release\'
-Write-Host '  docker cp "${c}:/build/release/run.cmd" .\release\'
-Write-Host '  docker rm $c'
+Write-Host 'Done:'
+Write-Host "  base image : $BaseImage"
+Write-Host "  build image: $AppImage"
+Write-Host "  artifacts  : $(Join-Path $repoRoot 'release')"

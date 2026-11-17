@@ -2,19 +2,15 @@
 set -e
 #set -x  # Echo every command as it's executed
 
-VS_BUILD_TOOLS_DIR="/c/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools"
-MSVC_BIN="$(ls -d "$VS_BUILD_TOOLS_DIR"/VC/Tools/MSVC/*/bin/Hostx64/x64 2>/dev/null | sort -V | tail -1)"
-SDK_BIN="$(ls -d "/c/Program Files (x86)/Windows Kits/10/bin"/10.*/x64 2>/dev/null | sort -V | tail -1)"
-
-if [[ -n "$MSVC_BIN" && -n "$SDK_BIN" ]]; then
-  export PATH="$MSVC_BIN:$SDK_BIN:$PATH"
-else
-  echo "Warning: MSVC/Windows SDK toolchain not found under the default paths; relying on Nuitka autodetection" >&2
-fi
-
 APP_VERSION="${APP_VERSION:-1.0.0}"
 CERT_PASS="${CERT_PASS:-MyStrongPassword}"
 SEVEN_ZIP="${SEVEN_ZIP:-/c/Program Files/7-Zip/7z.exe}"
+BUILD_TARGET="${BUILD_TARGET:-all}"
+
+if [[ "$BUILD_TARGET" != "all" && "$BUILD_TARGET" != "input" && "$BUILD_TARGET" != "cli" ]]; then
+  echo "Unknown build target: $BUILD_TARGET" >&2
+  exit 1
+fi
 
 PUBLISH_DIR="./dev"
 RELEASE_DIR="./release"
@@ -87,58 +83,63 @@ build_sfx_installer() {
 }
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Building release: cli.exe and input.exe"
+python.exe -c 'import os, psutil; print(f"Build resources: CPUs={os.cpu_count()} | RAM={psutil.virtual_memory().total / 1024**3:.2f} GiB")'
 
+if [[ "$BUILD_TARGET" != "cli" ]]; then
+  python.exe -m nuitka --standalone \
+    --msvc=latest \
+    --assume-yes-for-downloads \
+    --include-data-files=./config/cli.env=.env \
+    --noinclude-pytest-mode=nofollow \
+    --nofollow-import-to=selenium,seleniumwire,hm.game,hm.driver,hm.tasks,hm.web,hm.daemon \
+    --onefile-tempdir-spec="$INPUT_CLI_PATH" \
+    --company-name="AutoWeb LTD" \
+    --file-version="${APP_VERSION}" \
+    --product-version="${APP_VERSION}" \
+    --file-description="HeroMiner Input Cli" \
+    --copyright="All rights reserved © TheNet" \
+    --trademarks="AutoWeb TheNet" \
+    --windows-console-mode=attach \
+    --windows-icon-from-ico=./sources/herominer-icon.ico \
+    --output-dir="$RELEASE_DIR" \
+    --include-package=hm.utils \
+    --include-module=hm.result \
+    ./scripts/input.py
 
-python.exe -m nuitka --standalone \
-  --assume-yes-for-downloads \
-  --include-data-files=./config/cli.env=.env \
-  --noinclude-pytest-mode=nofollow \
-  --nofollow-import-to=selenium,seleniumwire,hm.game,hm.driver,hm.tasks,hm.web,hm.daemon \
-  --onefile-tempdir-spec="$INPUT_CLI_PATH" \
-  --company-name="AutoWeb LTD" \
-  --file-version="${APP_VERSION}" \
-  --product-version="${APP_VERSION}" \
-  --file-description="HeroMiner Input Cli" \
-  --copyright="All rights reserved © TheNet" \
-  --trademarks="AutoWeb TheNet" \
-  --windows-console-mode=attach \
-  --windows-icon-from-ico=./sources/herominer-icon.ico \
-  --output-dir="$RELEASE_DIR" \
-  --include-package=hm.utils \
-  --include-module=hm.result \
-  ./scripts/input.py \
-  && \
-build_sfx_installer "./release/input.dist" && \
-\
-python.exe -m nuitka --standalone \
-  --onefile \
-  --include-data-files=./config/app.env=.env \
-  --include-data-dir=./src/hm/config=config \
-  --include-data-dir=./src/hm/web/static=hm/web/static \
-  --include-data-dir=./src/hm/web/templates=hm/web/templates \
-  --noinclude-pytest-mode=nofollow \
-  --company-name="AutoWeb LTD" \
-  --file-version="${APP_VERSION}" \
-  --product-version="${APP_VERSION}" \
-  --file-description="HeroMiner bundle launcher" \
-  --copyright="All rights reserved © TheNet" \
-  --trademarks="AutoWeb TheNet" \
-  --windows-console-mode=attach \
-  --windows-icon-from-ico=./sources/herominer-icon.ico \
-  --output-dir="$RELEASE_DIR" \
-  --include-package=hm \
-  --onefile-tempdir-spec="c:\hm\app" \
-  ./scripts/cli.py #
-  # \
-#&& \
-#build_sfx_installer "./release/cli.dist" && \
+  build_sfx_installer "./release/input.dist"
+fi
 
-cp -rfp ./scripts/run*.cmd "${RELEASE_DIR}/" && \
- ./scripts/selfsign.ps1 -exeToSign "./release/cli.exe" \
+if [[ "$BUILD_TARGET" != "input" ]]; then
+  python.exe -m nuitka --standalone \
+    --msvc=latest \
+    --onefile \
+    --include-data-files=./config/app.env=.env \
+    --include-data-dir=./src/hm/config=config \
+    --include-data-dir=./src/hm/web/static=hm/web/static \
+    --include-data-dir=./src/hm/web/templates=hm/web/templates \
+    --noinclude-pytest-mode=nofollow \
+    --company-name="AutoWeb LTD" \
+    --file-version="${APP_VERSION}" \
+    --product-version="${APP_VERSION}" \
+    --file-description="HeroMiner bundle launcher" \
+    --copyright="All rights reserved © TheNet" \
+    --trademarks="AutoWeb TheNet" \
+    --windows-console-mode=attach \
+    --windows-icon-from-ico=./sources/herominer-icon.ico \
+    --output-dir="$RELEASE_DIR" \
+    --include-package=hm \
+    --onefile-tempdir-spec="c:\hm\app" \
+    ./scripts/cli.py
+
+  cp -rfp ./scripts/run*.cmd "${RELEASE_DIR}/"
+  ./scripts/selfsign.ps1 -exeToSign "./release/cli.exe" \
     -certPfxPath ./config/myapp.pfx \
     -pfxPassword "$CERT_PASS"
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') - Done build ./release/cli.exe"
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - Done build ./release/cli.exe"
+fi
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Done build target: $BUILD_TARGET"
 
 #rm -rf "${PUBLISH_DIR}"/{*,.*} && mkdir -p "${PUBLISH_DIR}" && \
 #cp -arfp "${RELEASE_DIR}"/cli.dist/.  "${PUBLISH_DIR}/"

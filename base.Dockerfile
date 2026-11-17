@@ -1,37 +1,33 @@
 # Dockerfile.base
-# Default is the Windows Server 2022 base used by CI. Local Windows 10 hosts
-# cannot run ltsc2022 images and must override this with
-# --build-arg PYTHON_IMAGE=mcr.microsoft.com/windows-cssc/python:3.13-servercore-ltsc2019
-# (scripts/build-docker.ps1 does this automatically).
-ARG PYTHON_IMAGE=mcr.microsoft.com/windows-cssc/python:3.13-servercore-ltsc2022
-FROM ${PYTHON_IMAGE}
+ARG BUILD_TOOLS_IMAGE=amitie10g/visualstudio2022-workload-vctools:ltsc2022
+
+FROM ${BUILD_TOOLS_IMAGE}
 LABEL org.opencontainers.image.source="https://github.com/nelu/herominer"
+
 COPY ./scripts/wsh.sh /wsh.sh
 COPY ./requirements.lock /build/requirements.lock
 
 SHELL ["powershell", "-Command"]
-# Install Chocolatey and all packages in a single session
-RUN "Set-ExecutionPolicy Bypass -Scope Process -Force; \
-     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1')); \
-     choco install visualstudio2022buildtools --params '--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.22621' -y; \
+
+RUN "choco install python --version=3.13.17 -y; \
      choco install 7zip.install -y; \
      choco install openssl.light -y; \
-     Invoke-WebRequest -Uri 'https://github.com/git-for-windows/git/releases/download/v2.42.0.windows.1/PortableGit-2.42.0-64-bit.7z.exe' -OutFile 'git.7z.exe'; \
-     & 'C:\\Program Files\\7-Zip\\7z.exe' x git.7z.exe -oC:\\git -y; \
-     Remove-Item 'git.7z.exe'"
+     choco install git.install --version=2.56.1 --params '/NoShellIntegration /NoAutoCrlf /GitAndUnixToolsOnPath' -y; \
+     if (-not (Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe' -ErrorAction SilentlyContinue)) { throw 'Windows SDK signing tools were not installed' }; \
+     if (-not (Test-Path 'C:\Program Files\Git\bin\bash.exe')) { throw 'Git Bash was not installed' }; \
+     if (-not (Test-Path 'C:\Program Files\Git\git-bash.exe')) { throw 'Git Bash launcher was not installed' }"
 
-SHELL ["C:\\git\\bin\\bash.exe", "c:\\wsh.sh"]
+RUN "$vcPath = & 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath; \
+     if (-not $vcPath) { throw 'Visual C++ build tools were not installed' }"
+
+RUN "$cs = Get-CimInstance Win32_ComputerSystem; Write-Host 'CPUs:' $cs.NumberOfLogicalProcessors '| RAM (GB):' ([math]::Round($cs.TotalPhysicalMemory / 1GB, 2))"
+
+SHELL ["bash.exe", "c:\\wsh.sh"]
 
 RUN python.exe -m pip install -r /c/build/requirements.lock \
     && python.exe -m pip install "Nuitka==4.3.5" \
     && python.exe -m pip check
 
-## Set path (replace MSVC version as needed)
-#ENV PATH="C:\\Program Files\\OpenSSL-Win64\\bin;\
-#C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.39.33519\\bin\\Hostx64\\x64;\
-#C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22621.0\\x64;\
-#C:\\git\\usr\\bin;\
-#C:\\git\\bin;\
-#${PATH}"
+
 
 ENV SEVEN_ZIP="/c/Program Files/7-Zip/7z.exe"

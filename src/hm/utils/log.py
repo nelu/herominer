@@ -57,11 +57,12 @@ def logger(name=None):
     # ** Add handlers (console + file)**
     l.addHandler(console_handler)
 
-    l.addHandler(RedisStreamLogHandler(
-        fields=['process', "levelname", 'name', "msg", "asctime"],
-        redis_client=redis_client,
-        channel_name="logs",
-        maxlen=30000))
+    if os.environ.get('HM_DISABLE_REDIS_LOGGING') != '1':
+        l.addHandler(RedisStreamLogHandler(
+            fields=['process', "levelname", 'name', "msg", "asctime"],
+            redis_client=redis_client,
+            channel_name="logs",
+            maxlen=30000))
 
     logfile_handler and l.addHandler(logfile_handler)
 
